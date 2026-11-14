@@ -1012,7 +1012,7 @@ addEventListener('blur',()=>{for(const k in keys)keys[k]=false;if(started&&!paus
 const helpEl=$('help'),pauseEl=$('pause'),startEl=$('start');
 const mapEl=$('mapScr'),garEl=$('garage');let overlay=null;
 const setEl=$('settings');let listenFor=null;
-function setOverlay(n){overlay=n||null;paused=!!overlay;pauseEl.hidden=overlay!=='pause';helpEl.hidden=overlay!=='help';mapEl.hidden=overlay!=='map';garEl.hidden=overlay!=='garage';setEl.hidden=overlay!=='settings';loginEl.hidden=overlay!=='login';boardEl.hidden=overlay!=='board';if(overlay==='board')renderBoard();if(overlay==='login'){renderAccount();if(!me)setTimeout(()=>$('lgName').focus(),50);}listenFor=null;if(overlay==='settings')renderSettings();
+function setOverlay(n){overlay=n||null;paused=!!overlay;pauseEl.hidden=overlay!=='pause';helpEl.hidden=overlay!=='help';mapEl.hidden=overlay!=='map';garEl.hidden=overlay!=='garage';setEl.hidden=overlay!=='settings';loginEl.hidden=overlay!=='login';boardEl.hidden=overlay!=='board';if(overlay==='board')renderBoard();if(overlay==='login'){renderAccount();if(!me)setTimeout(()=>$('lgName').focus(),50);}listenFor=null;if(overlay==='settings')renderSettings();if(overlay!=='garage')setPersonShown(true);
   focusPad(overlay==='pause'?$('resumeBtn'):null);
   if(overlay==='map')renderMap();if(overlay==='garage')renderGarage();}
 function setPaused(v){setOverlay(v?'pause':null);}
@@ -1386,8 +1386,8 @@ function updateVisuals(dt){
   const dist=wideCam?10:5.4,ht=wideCam?4.6:2.3;
   camPos.set(P.x-Math.sin(camAng)*dist,P.y+ht,P.z-Math.cos(camAng)*dist);
   const gh=H(camPos.x,camPos.z)+0.7;if(camPos.y<gh)camPos.y=gh;
-  if(started&&overlay==='garage'){const rt=garTab==='rider',d=rt?1.75:2.3,t=performance.now()/5000,cx=P.x+Math.sin(t)*d,cz=P.z+Math.cos(t)*d;
-    camPos.set(cx,Math.max(P.y+(rt?1.45:1.05),H(cx,cz)+0.5),cz);camera.position.lerp(camPos,1-Math.exp(-4*dt));camera.lookAt(P.x,P.y+(rt?1.05:0.55),P.z);}
+  if(started&&overlay==='garage'){const rt=garTab==='rider',sc=!rt&&garHidePerson,d=rt?1.75:sc?1.35:2.3,t=performance.now()/5000,cx=P.x+Math.sin(t)*d,cz=P.z+Math.cos(t)*d;
+    camPos.set(cx,Math.max(P.y+(rt?1.45:sc?0.75:1.05),H(cx,cz)+0.4),cz);camera.position.lerp(camPos,1-Math.exp(-4*dt));camera.lookAt(P.x,P.y+(rt?1.05:sc?0.3:0.55),P.z);}
   else if(!started){const t=performance.now()/9000;camPos.set(Math.sin(t)*46,16,Math.cos(t)*46-5);camera.position.lerp(camPos,1-Math.exp(-3*dt));camera.lookAt(0,1,0);}
   else{const sp=P.state==='air'?Math.hypot(P.vx,P.vz):P.state==='grind'?Math.abs(P.gs):Math.abs(P.speed);
     const fov=62+clamp(sp-7,0,11)*1.1;if(Math.abs(camera.fov-fov)>0.05){camera.fov=damp(camera.fov,fov,3,dt);camera.updateProjectionMatrix();}
@@ -1524,7 +1524,9 @@ mapCh.addEventListener('mouseover',e=>{const li=e.target.closest('li');const i=l
 const SWATCH=['#16171b','#f2f2ee','#9aa3ad','#ff4d5e','#ff8a3d','#ffd43b','#7bd389','#40d6c8','#3f7fbf','#8e5bd6','#ff6fb5','#d4a537','#7a4b2a'];
 const TYRES=['#18181b','#f2f2ee','#c9a36b','#ff4d5e','#3f7fbf','#ffd43b'];
 function persistLook(){persist();buildScooter();}
-let garTab='scooter';
+let garTab='scooter',garHidePerson=false;
+function setPersonShown(on){for(const o of R.inner.children){if(o!==R.pivot)o.visible=on;}if(on)applyRider();}
+function syncPerson(){setPersonShown(!(overlay==='garage'&&garTab==='scooter'&&garHidePerson));}
 const SKINS=['#f6d5b8','#e8b98f','#d9a07a','#b97c50','#8d5a3b','#5e3a26'];
 const HAIRC=['#16130f','#3a2a1c','#6b4423','#b0793f','#e2c06b','#c94a2a','#9aa3ad','#40d6c8','#ff6fb5','#8e5bd6'];
 function renderGarage(){
@@ -1532,8 +1534,9 @@ function renderGarage(){
   const obj=o=>o==='rider'?save.rider:save.cfg;
   const sw=(title,key,list,o)=>`<div class="gsec">${title}</div><div class="sws">${list.map(c=>`<button type="button" aria-label="${title} ${c}" data-k="${key}" data-o="${o}" data-v="${c}" style="background:${c}" aria-pressed="${obj(o)[key]===c}"></button>`).join('')}</div>`;
   const ch=(title,key,list,labels,o)=>`<div class="gsec">${title}</div><div class="chips">${list.map((v,i)=>`<button type="button" data-k="${key}" data-o="${o||'cfg'}" data-v="${v}" aria-pressed="${obj(o||'cfg')[key]===v}">${labels?labels[i]:v[0].toUpperCase()+v.slice(1)}</button>`).join('')}</div>`;
+  syncPerson();
   if(garTab==='scooter'){
-    $('gModels').innerHTML=MODELS.map(m=>`<button type="button" class="gm" data-m="${m.id}" aria-pressed="${m.id===save.model}"><span class="sw" style="background:${m.cfg.deck};box-shadow:inset 0 -10px 0 ${m.cfg.bars}"></span><span><b>${m.name}</b><small>${m.tag}</small>
+    $('gModels').innerHTML=`<div class="gsec" style="margin-top:0">Person</div><div class="chips" style="margin-bottom:10px"><button type="button" data-person="on" aria-pressed="${!garHidePerson}">Show</button><button type="button" data-person="off" aria-pressed="${garHidePerson}">Hide</button></div>`+MODELS.map(m=>`<button type="button" class="gm" data-m="${m.id}" aria-pressed="${m.id===save.model}"><span class="sw" style="background:${m.cfg.deck};box-shadow:inset 0 -10px 0 ${m.cfg.bars}"></span><span><b>${m.name}</b><small>${m.tag}</small>
       ${['whip','spin','pop'].map(k=>`<span class="stat">${k}<i style="width:${Math.round((m.stats[k]-0.85)*300)}px"></i></span>`).join('')}</span></button>`).join('');
     $('gOpts').innerHTML=sw('Deck colour','deck',SWATCH,'cfg')+ch('Finish','finish',['gloss','matte','chrome'])+ch('Grip tape','grip',GRIPS)+
       ch('Bar style','barStyle',['T','Y'],['T-bar','Y-bar'])+sw('Bars','bars',SWATCH,'cfg')+sw('Clamp','clamp',SWATCH,'cfg')+sw('Wheel cores','core',SWATCH,'cfg')+sw('Tyres','tyre',TYRES,'cfg');
@@ -1546,6 +1549,7 @@ function renderGarage(){
   }
 }
 garEl.addEventListener('click',e=>{const tb=e.target.closest('[data-tab]');if(tb){garTab=tb.dataset.tab;renderGarage();return;}
+  const pe=e.target.closest('[data-person]');if(pe){garHidePerson=pe.dataset.person==='off';renderGarage();return;}
   const m=e.target.closest('[data-m]');if(m){save.model=m.dataset.m;save.cfg=Object.assign({},MODELS.find(x=>x.id===save.model).cfg);persistLook();renderGarage();return;}
   const b=e.target.closest('[data-k]');if(!b)return;
   if(b.dataset.o==='rider'){save.rider[b.dataset.k]=b.dataset.v;persist();applyRider();}else{save.cfg[b.dataset.k]=b.dataset.v;persistLook();}renderGarage();});
