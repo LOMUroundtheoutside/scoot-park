@@ -114,6 +114,19 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
 .binds .clr{all:unset;cursor:pointer;color:var(--muted);font-size:.9rem;padding:2px 6px}
 .binds .tag2{font-size:.75rem;color:var(--muted);margin-left:6px}
 .padfocus{outline:3px solid var(--paper)!important;outline-offset:3px}
+.logcard{max-width:440px}.boardcard{max-width:640px;max-height:92vh;overflow:auto}
+#lgForm{display:grid;gap:6px}
+#lgForm label{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-top:6px}
+#lgForm input{font:inherit;font-size:1.15rem;padding:9px 12px;border-radius:6px;border:2px solid #343846;background:#1d2029;color:var(--paper);min-width:0}
+#lgForm input:focus-visible{outline:none;border-color:var(--grip)}
+#lgForm .go{margin-top:8px;justify-self:start}
+.lgerr{color:var(--hot);font-weight:700;margin:4px 0 0;min-height:1.2em}
+.lb{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.lb th{text-align:left;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:4px 8px}
+.lb td{padding:7px 8px;border-top:1px solid #262a35;font-size:1.05rem}
+.lb td.n{text-align:right}.lb th.n{text-align:right}
+.lb tr.me td{background:#2c3140;color:var(--grip);font-weight:700}
+.lb .rk{font-family:var(--display);width:44px}
 .go.alt{background:#2a2e3a;color:var(--paper);box-shadow:4px 4px 0 #0b0c10}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .gtabs{margin:0 0 14px}.gtabs button{font-size:1.05rem;padding:6px 16px}
@@ -129,7 +142,8 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
   <div class="lbl">Score</div>
   <div id="score">0</div>
   <div class="lbl">Best combo <span id="best">0</span></div>
-  <div class="hbtns"><button type="button" id="mapBtn">Map <kbd>N</kbd></button><button type="button" id="garBtn">Garage <kbd>B</kbd></button><button type="button" id="setBtn">Settings</button></div>
+  <div class="hbtns"><button type="button" id="mapBtn">Map <kbd>N</kbd></button><button type="button" id="garBtn">Garage <kbd>B</kbd></button><button type="button" id="setBtn">Settings</button><button type="button" id="boardBtn">Leaderboard <kbd>`</kbd></button></div>
+  <div class="hbtns"><button type="button" id="acctBtn">Log in</button></div>
 </div>
 <div class="hud" id="comboBox"><div id="comboList"></div><div id="comboPts"></div><div id="comboBar" hidden><i></i></div></div>
 <div class="hud" id="pop"></div>
@@ -144,7 +158,8 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
     <h1>SCOOT<br>PARK</h1>
     <p class="tag">An open skatepark, a city block, a car park and a dirt-jump line. Ride anywhere, chain tricks into combos and tick off the challenges.</p>
     <div class="keys" id="keysStart"></div>
-    <button class="go" id="rideBtn" type="button">Ride</button>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center"><button class="go" id="rideBtn" type="button">Ride</button><button class="go alt" id="startLogin" type="button">Log in</button></div>
+    <p class="note" id="startAcct">Log in to save your progress online and get on the leaderboard.</p>
     <p class="note">Plays best with a keyboard, or a controller (Xbox layout). Progress saves in this browser.</p>
   </div>
 </div>
@@ -158,8 +173,31 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
   <div class="gsec">Controller buttons</div><p class="note" id="padStatus" style="margin:2px 0 10px"></p>
   <div class="bindwrap"><table class="binds"><thead><tr><th scope="col">Action</th><th scope="col">Keyboard</th><th scope="col">Controller</th><th scope="col"><span class="vh">Clear</span></th></tr></thead><tbody id="bindRows"></tbody></table></div>
   <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px"><button class="go" id="setClose" type="button">Done</button><button class="go alt" id="padReset" type="button">Reset controller buttons</button></div></div></div>
+<div class="screen" id="login" hidden><div class="card logcard">
+  <h2>Your account</h2>
+  <div id="lgIn">
+    <div class="chips" id="lgTabs" style="margin-bottom:14px"><button type="button" data-lg="login" aria-pressed="true">Log in</button><button type="button" data-lg="signup" aria-pressed="false">Make an account</button></div>
+    <form id="lgForm" novalidate>
+      <label for="lgName">Username</label><input id="lgName" name="username" autocomplete="username" maxlength="16" spellcheck="false" autocapitalize="off">
+      <label for="lgPass">Password</label><input id="lgPass" name="password" type="password" autocomplete="current-password">
+      <div id="lgPass2Wrap" hidden><label for="lgPass2">Password again</label><input id="lgPass2" type="password" autocomplete="new-password"></div>
+      <p class="lgerr" id="lgErr" role="alert"></p>
+      <p class="note" id="lgNote">Your username shows on the leaderboard, so don't use your full real name. There's no email, so remember your password.</p>
+      <button class="go" type="submit" id="lgGo">Log in</button>
+    </form>
+  </div>
+  <div id="lgOut" hidden><p class="tag">Logged in as <b id="lgWho"></b>. Your score, challenges and garage save online.</p><button class="go alt" id="lgLogout" type="button">Log out</button></div>
+  <button class="go alt" id="lgClose" type="button" style="margin-top:16px">Back to the game</button>
+</div></div>
+<div class="screen" id="board" hidden><div class="card boardcard">
+  <h2>Leaderboard</h2>
+  <div class="chips" id="bdTabs" style="margin-bottom:12px"><button type="button" data-bd="total_score" aria-pressed="true">Total score</button><button type="button" data-bd="best_combo" aria-pressed="false">Best combo</button><button type="button" data-bd="challenges" aria-pressed="false">Challenges</button></div>
+  <div id="boardBody" class="bindwrap"></div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px"><button class="go" id="bdClose" type="button">Close</button><button class="go alt" id="bdLogin" type="button">Log in</button></div>
+</div></div>
 <div class="screen" id="pause" hidden><div class="card"><h2>Paused</h2><p class="tag">Press Esc, or A on a controller, to keep riding. B also goes back.</p><div style="display:flex;gap:12px;flex-wrap:wrap"><button class="go" id="resumeBtn" type="button">Resume</button><button class="go" id="pauseSet" type="button">Settings</button></div></div></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"></script>
 <script src="three.min.js"></script>
 <script>
 (()=>{
@@ -194,7 +232,7 @@ const ACTIONS=[
  ['Whips & spins'],['whip','Tailwhip','tap','J'],['bar','Bar spin','tap','K'],['heel','Heelwhip','tap','V'],['finger','Fingerwhip','tap',','],['rewind','Rewind','tap','.'],
  ['Flips'],['bri','Briflip','tap','L'],['back','Backflip','tap','I'],['front','Frontflip','tap','O'],['flair','Flair','tap','F'],['cash','Cash roll','tap','/'],['decade','Decade','tap',';'],
  ['Grabs'],['nohand','No-hander','hold','U'],['cancan','Can-can','hold','Y'],['xup','X-up','hold','X'],['superman','Superman','hold','Z'],['nacnac','Nac-nac','hold',"'"],['tuck','Tuck no-hander','hold','['],['nofoot','No-footer','hold',']'],
- ['Menus'],['respawn','Respawn','tap','R'],['map','Map','tap','N'],['garage','Garage','tap','B'],
+ ['Menus'],['respawn','Respawn','tap','R'],['map','Map','tap','N'],['garage','Garage','tap','B'],['board','Leaderboard','tap','`'],
 ];
 const PAD_NAMES={b0:'A',b1:'B',b2:'X',b3:'Y',b4:'LB',b5:'RB',b6:'LT',b7:'RT',b8:'Back / View',b10:'L3 (press left stick)',b11:'R3 (press right stick)',b12:'D-pad ↑',b13:'D-pad ↓',b14:'D-pad ←',b15:'D-pad →',b16:'Guide',
   rsU:'Right stick ↑',rsD:'Right stick ↓',rsL:'Right stick ←',rsR:'Right stick →'};
@@ -211,7 +249,7 @@ const CONTROLS=[
  ['Grabs (hold in the air)'],['U','No-hander'],['Y','Can-can'],['X','X-up'],['Z','Superman'],["'",'Nac-nac'],['[','Tuck no-hander'],[']','No-footer'],
  ['Ground & grinds'],['P','Powerslide (hold to keep sliding)'],['Q (hold)','Manual · Smith grind'],['E (hold)','Nose manual · Feeble grind'],['Land on a rail','50-50 grind'],
  ['Travel (keyboard only, off when a controller is plugged in)'],...AREAS.map(a=>[a.key,a.name]),
- ['Other'],['Esc','Pause · Settings (controller buttons, graphics, sound)'],['N','Map + challenge locations'],['B','Garage: pick + customise your scooter'],['G','Graphics: High / Fast'],['C','Camera distance'],['R','Respawn'],['T','Show/hide challenges'],['H','This list'],['M','Mute'],['Esc','Pause'],
+ ['Other'],['`','Leaderboard (the key left of 1)'],['Esc','Pause · Settings (controller buttons, graphics, sound)'],['N','Map + challenge locations'],['B','Garage: pick + customise your scooter'],['G','Graphics: High / Fast'],['C','Camera distance'],['R','Respawn'],['T','Show/hide challenges'],['H','This list'],['M','Mute'],['Esc','Pause'],
 ];
 function renderKeys(el){el.innerHTML=CONTROLS.map(c=>c.length===1?`<div class="sec">${c[0]}</div>`:`<div><kbd>${c[0]}</kbd><span>${c[1]}</span></div>`).join('');}
 renderKeys(document.getElementById('keysStart'));renderKeys(document.getElementById('keysHelp'));
@@ -751,7 +789,7 @@ save.pad=Object.assign({},DEFAULT_PAD,save.pad||{});
 save.rider=Object.assign({shirt:'#ff4d5e',pants:'#2b3a55',helmet:'#ffd43b',skin:'#d9a07a',hair:'short',hairCol:'#3a2a1c',headwear:'helmet',top:'tee',shoes:'#f4f4f4',feet:'skate',gloves:'off'},save.rider||{});
 buildScooter();
 score=save.score||0;bestCombo=save.best||0;
-function persist(){save.score=score;save.best=bestCombo;try{localStorage.setItem('scootpark.v1',JSON.stringify(save));}catch(e){}}
+function persist(){save.score=score;save.best=bestCombo;try{localStorage.setItem('scootpark.v1',JSON.stringify(save));}catch(e){}queueSync();}
 
 // ---------------- challenges
 const CH=[
@@ -862,13 +900,13 @@ function setMute(m){muted=m;if(master)master.gain.value=m?0:0.55;try{localStorag
 // ---------------- input
 const keys=Object.create(null),pressed=new Set();
 const BLOCK=new Set(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Tab','Quote','Slash','Semicolon','Comma','Period','BracketLeft','BracketRight']);
-addEventListener('keydown',e=>{if(started&&BLOCK.has(e.code))e.preventDefault();keys[e.code]=true;if(!e.repeat){pressed.add(e.code);uiKey(e.code);}});
+addEventListener('keydown',e=>{if(e.target&&e.target.closest&&e.target.closest('input,textarea')){if(e.code==='Escape')uiKey('Escape');return;}if(started&&BLOCK.has(e.code))e.preventDefault();keys[e.code]=true;if(!e.repeat){pressed.add(e.code);uiKey(e.code);}});
 addEventListener('keyup',e=>{keys[e.code]=false;});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;if(started&&!paused)setPaused(true);});
 const helpEl=$('help'),pauseEl=$('pause'),startEl=$('start');
 const mapEl=$('mapScr'),garEl=$('garage');let overlay=null;
 const setEl=$('settings');let listenFor=null;
-function setOverlay(n){overlay=n||null;paused=!!overlay;pauseEl.hidden=overlay!=='pause';helpEl.hidden=overlay!=='help';mapEl.hidden=overlay!=='map';garEl.hidden=overlay!=='garage';setEl.hidden=overlay!=='settings';listenFor=null;if(overlay==='settings')renderSettings();
+function setOverlay(n){overlay=n||null;paused=!!overlay;pauseEl.hidden=overlay!=='pause';helpEl.hidden=overlay!=='help';mapEl.hidden=overlay!=='map';garEl.hidden=overlay!=='garage';setEl.hidden=overlay!=='settings';loginEl.hidden=overlay!=='login';boardEl.hidden=overlay!=='board';if(overlay==='board')renderBoard();if(overlay==='login'){renderAccount();if(!me)setTimeout(()=>$('lgName').focus(),50);}listenFor=null;if(overlay==='settings')renderSettings();
   focusPad(overlay==='pause'?$('resumeBtn'):null);
   if(overlay==='map')renderMap();if(overlay==='garage')renderGarage();}
 function setPaused(v){setOverlay(v?'pause':null);}
@@ -878,6 +916,7 @@ function uiKey(code){
   else if(code==='Escape'){if(listenFor){listenFor=null;renderSettings();}else setOverlay(overlay?null:'pause');}
   else if(code==='KeyN')setOverlay(overlay==='map'?null:'map');
   else if(code==='KeyB')setOverlay(overlay==='garage'?null:'garage');
+  else if(code==='Backquote')setOverlay(overlay==='board'?null:'board');
   else if(code==='KeyM')setMute(!muted);
   else if(code==='KeyC')wideCam=!wideCam;
   else if(code==='KeyR'&&!paused)respawn();
@@ -906,8 +945,8 @@ setEl.addEventListener('click',e=>{const g=e.target.closest('[data-gfx]');if(g){
   const b=e.target.closest('[data-bind]');if(b){listenFor=listenFor===b.dataset.bind?null:b.dataset.bind;renderSettings();return;}
   const c=e.target.closest('[data-clear]');if(c){delete save.pad[c.dataset.clear];persist();renderSettings();}});
 // controller while menus are open: Start pauses/unpauses, and settings can listen for a new button
-const OVL={pause:'pause',help:'help',map:'mapScr',garage:'garage',settings:'settings'};
-function navRoot(){return !started?startEl:overlay?$(OVL[overlay]):null;}
+const OVL={pause:'pause',help:'help',map:'mapScr',garage:'garage',settings:'settings',login:'login',board:'board'};
+function navRoot(){return overlay?$(OVL[overlay]):!started?startEl:null;}
 function navItems(){const r=navRoot();return r?[...r.querySelectorAll('button')].filter(b=>b.offsetParent!==null):[];}
 function focusPad(el){document.querySelectorAll('.padfocus').forEach(e=>e.classList.remove('padfocus'));if(!el)return;el.classList.add('padfocus');el.focus();el.scrollIntoView({block:'nearest'});}
 function navMove(d){const it=navItems();if(!it.length)return;let i=it.indexOf(document.activeElement);i=i<0?0:(i+d+it.length)%it.length;focusPad(it[i]);}
@@ -944,7 +983,7 @@ function readInput(){
     for(const a of ['ollie','whip','bar','bri','back','front','flair','cash','decade','heel','finger','rewind','slide'])inp[a]=inp[a]||edge(a);
     for(const a of ['nohand','cancan','xup','superman','nacnac','tuck','nofoot','manual','nose'])inp[a]=inp[a]||held(a);
     inp.whipHeld=inp.whipHeld||held('whip');inp.barHeld=inp.barHeld||held('bar');inp.slideHeld=inp.slideHeld||held('slide');
-    if(st.b9&&!padPrev.b9)uiKey(started?'Escape':'Enter');if(edge('respawn'))uiKey('KeyR');if(edge('map'))uiKey('KeyN');if(edge('garage'))uiKey('KeyB');
+    if(st.b9&&!padPrev.b9)uiKey(started?'Escape':'Enter');if(edge('respawn'))uiKey('KeyR');if(edge('map'))uiKey('KeyN');if(edge('garage'))uiKey('KeyB');if(edge('board'))uiKey('Backquote');
     padPrev=st;}
   return inp;
 }
@@ -1250,6 +1289,81 @@ function drawMini(){
   mg.restore();
 }
 
+// ---------------- online: accounts + leaderboard (Supabase)
+const ONLINE={url:'https://zcajzpqgvditxyuycxll.supabase.co',key:'sb_publishable_wPHYjkY3jYjTI4JmvX7Uvw_7l5s7V5Q'}; // filled in once the Supabase project is set up
+const sb=(ONLINE.url&&ONLINE.key&&window.supabase)?window.supabase.createClient(ONLINE.url,ONLINE.key,{auth:{persistSession:true,storageKey:'scootpark.auth'}}):null;
+let me=null,syncTimer=null,lgMode='login',boardSort='total_score';
+const loginEl=$('login'),boardEl=$('board'),NAME_RE=/^[A-Za-z0-9_]{3,16}$/;
+const nameEmail=n=>n.toLowerCase()+'@players.scoot-park.example.com';
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const doneCount=()=>Object.keys(save.done).length;
+const blob=()=>({done:save.done,model:save.model,cfg:save.cfg,rider:save.rider});
+function queueSync(){if(!sb||!me)return;clearTimeout(syncTimer);syncTimer=setTimeout(pushProgress,2500);}
+async function pushProgress(){if(!sb||!me)return;
+  const {error}=await sb.from('players').update({total_score:Math.round(score),best_combo:Math.round(bestCombo),challenges:doneCount(),progress:blob(),updated_at:new Date().toISOString()}).eq('id',me.id);
+  if(error)console.warn('Scoot Park sync:',error.message);}
+function resetLocal(){score=0;bestCombo=0;save.done={};persist();renderChallenges();hudCache='';}
+function applyCloud(row,merge){const pr=row.progress||{};
+  if(merge){score=Math.max(score,row.total_score||0);bestCombo=Math.max(bestCombo,row.best_combo||0);save.done=Object.assign({},pr.done||{},save.done);}
+  else{score=row.total_score||0;bestCombo=row.best_combo||0;save.done=Object.assign({},pr.done||{});
+    if(pr.model&&MODELS.some(m=>m.id===pr.model)){save.model=pr.model;save.cfg=Object.assign({},MODELS.find(m=>m.id===pr.model).cfg,pr.cfg||{});}
+    if(pr.rider)save.rider=Object.assign({},save.rider,pr.rider);}
+  save.owner=me.id;persist();buildScooter();renderChallenges();hudCache='';}
+async function afterLogin(user,newName){
+  me={id:user.id,username:newName||(user.user_metadata&&user.user_metadata.username)||'rider'};
+  const {data:row,error}=await sb.from('players').select('*').eq('id',me.id).maybeSingle();
+  if(error){console.warn(error.message);}
+  if(!row){if(save.owner&&save.owner!==me.id)resetLocal();
+    const r=await sb.from('players').insert({id:me.id,username:me.username,total_score:Math.round(score),best_combo:Math.round(bestCombo),challenges:doneCount(),progress:blob()});
+    if(r.error)console.warn(r.error.message);save.owner=me.id;persist();}
+  else{me.username=row.username;const merge=!save.owner||save.owner===me.id;applyCloud(row,merge);if(merge)pushProgress();}
+  renderAccount();}
+async function logOut(){if(sb)await sb.auth.signOut();me=null;save.owner=null;resetLocal();renderAccount();popup('Logged out');}
+function renderAccount(){
+  $('acctBtn').textContent=me?me.username:'Log in';$('startLogin').textContent=me?'Account':'Log in';
+  $('startAcct').innerHTML=!sb?'Online leaderboard: not switched on yet.':me?`Riding as <b>${esc(me.username)}</b>. Your progress saves online.`:'Log in to save your progress online and get on the leaderboard.';
+  $('lgIn').hidden=!!me;$('lgOut').hidden=!me;if(me)$('lgWho').textContent=me.username;$('bdLogin').hidden=!!me;}
+function setLgMode(m){lgMode=m;$('lgTabs').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lg===m)));
+  $('lgPass2Wrap').hidden=m!=='signup';$('lgGo').textContent=m==='signup'?'Make my account':'Log in';$('lgPass').autocomplete=m==='signup'?'new-password':'current-password';$('lgErr').textContent='';}
+$('lgTabs').addEventListener('click',e=>{const b=e.target.closest('[data-lg]');if(b)setLgMode(b.dataset.lg);});
+$('lgForm').addEventListener('submit',async e=>{e.preventDefault();const err=$('lgErr');err.textContent='';
+  if(!sb){err.textContent='Online accounts aren\u2019t switched on yet.';return;}
+  const name=$('lgName').value.trim(),pw=$('lgPass').value;
+  if(!NAME_RE.test(name)){err.textContent='Usernames are 3 to 16 letters, numbers or _ (no spaces).';return;}
+  if(pw.length<6){err.textContent='Passwords need at least 6 characters.';return;}
+  if(lgMode==='signup'&&pw!==$('lgPass2').value){err.textContent='The two passwords don\u2019t match.';return;}
+  const go=$('lgGo');go.disabled=true;go.textContent='Checking…';
+  try{
+    if(lgMode==='signup'){const {data,error}=await sb.auth.signUp({email:nameEmail(name),password:pw,options:{data:{username:name}}});
+      if(error){err.textContent=/registered|exists/i.test(error.message)?'That username is taken. Try another one.':error.message;return;}
+      if(!data.session){err.textContent='Account made, but Supabase still has "Confirm email" on. Turn it off, then log in.';return;}
+      await afterLogin(data.user,name);}
+    else{const {data,error}=await sb.auth.signInWithPassword({email:nameEmail(name),password:pw});
+      if(error){err.textContent='Wrong username or password.';return;}
+      await afterLogin(data.user);}
+    $('lgPass').value='';$('lgPass2').value='';setOverlay(null);popup('Logged in','Riding as '+me.username,'gold');
+  }catch(x){err.textContent='Couldn\u2019t reach the server. Check the internet connection.';}
+  finally{go.disabled=false;go.textContent=lgMode==='signup'?'Make my account':'Log in';}});
+$('lgLogout').onclick=()=>{logOut();setOverlay(null);};$('lgClose').onclick=()=>setOverlay(null);
+$('acctBtn').onclick=e=>{e.currentTarget.blur();setOverlay('login');};$('startLogin').onclick=()=>setOverlay('login');
+$('boardBtn').onclick=e=>{e.currentTarget.blur();if(started)setOverlay('board');};$('bdClose').onclick=()=>setOverlay(null);$('bdLogin').onclick=()=>setOverlay('login');
+$('bdTabs').addEventListener('click',e=>{const b=e.target.closest('[data-bd]');if(!b)return;boardSort=b.dataset.bd;renderBoard();});
+async function renderBoard(){
+  $('bdTabs').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.bd===boardSort)));
+  const body=$('boardBody');
+  if(!sb){body.innerHTML='<p class="tag">The online leaderboard isn\u2019t switched on yet.</p>';return;}
+  body.innerHTML='<p class="note">Loading…</p>';
+  const {data,error}=await sb.from('players').select('id,username,total_score,best_combo,challenges').order(boardSort,{ascending:false}).order('updated_at',{ascending:true}).limit(25);
+  if(error){body.innerHTML='<p class="tag">Couldn\u2019t load the leaderboard. Check the internet connection.</p>';return;}
+  if(!data.length){body.innerHTML='<p class="tag">Nobody\u2019s on the board yet. Log in and be the first.</p>';return;}
+  let html=`<table class="lb"><thead><tr><th scope="col">#</th><th scope="col">Rider</th><th scope="col" class="n">Score</th><th scope="col" class="n">Best combo</th><th scope="col" class="n">Challenges</th></tr></thead><tbody>`+
+    data.map((r,i)=>`<tr class="${me&&r.id===me.id?'me':''}"><td class="rk">${i+1}</td><td>${esc(r.username)}</td><td class="n">${fmt(r.total_score)}</td><td class="n">${fmt(r.best_combo)}</td><td class="n">${r.challenges}/${CH.length}</td></tr>`).join('')+'</tbody></table>';
+  if(me&&!data.some(r=>r.id===me.id)){const mine=boardSort==='total_score'?Math.round(score):boardSort==='best_combo'?Math.round(bestCombo):doneCount();
+    const {count}=await sb.from('players').select('id',{count:'exact',head:true}).gt(boardSort,mine);html+=`<p class="note">You\u2019re number ${(count||0)+1}.</p>`;}
+  if(!me)html+='<p class="note">Log in to get your name on the board.</p>';
+  body.innerHTML=html;}
+if(sb)sb.auth.getSession().then(({data})=>{if(data&&data.session)afterLogin(data.session.user);}).catch(()=>{});
+renderAccount();
 // ---------------- big map
 const CH_AT={hand:[37.5,-41.3],bigrail:[4.3,-100],hubba:[31.6,-126]};
 const chPos=c=>c.zone?[c.zone[0],c.zone[1]]:CH_AT[c.id]||null;
