@@ -169,6 +169,8 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
 .wprev.park{background:linear-gradient(180deg,#2c74c9 0%,#cfe3ec 58%,#6e9748 60%,#58803a 100%)}
 .wprev.city{background:radial-gradient(circle at 78% 22%,#f3f0e6 0 9px,transparent 10px),linear-gradient(180deg,#05060f 0%,#3a2350 62%,#15171f 64%,#1b1d24 100%);color:#ff8bec;text-shadow:0 0 12px #ff4fd8,0 0 2px #fff}
 .wprev.city:before{content:"";position:absolute;left:0;right:0;bottom:36%;height:46%;background:repeating-linear-gradient(90deg,#141621 0 22px,transparent 22px 30px,#1b1e2b 30px 58px,transparent 58px 64px);clip-path:polygon(0 40%,8% 40%,8% 10%,18% 10%,18% 55%,30% 55%,30% 0,40% 0,40% 35%,55% 35%,55% 20%,66% 20%,66% 50%,80% 50%,80% 15%,92% 15%,92% 45%,100% 45%,100% 100%,0 100%)}
+.wprev.tricks{background:radial-gradient(circle at 80% 58%,#fff1c4 0 10px,transparent 11px),linear-gradient(180deg,#2f4f9a 0%,#ffb57a 60%,#c4bdae 62%,#a9a294 100%);color:#fff}
+.wprev.tricks:before{content:"";position:absolute;left:0;right:0;bottom:32%;height:34%;background:#8d877b;clip-path:polygon(0 100%,6% 100%,14% 30%,20% 100%,28% 100%,34% 55%,44% 55%,50% 100%,56% 100%,62% 10%,68% 100%,76% 100%,82% 45%,90% 45%,96% 100%,100% 100%)}
 .wprev span{position:relative}
 .wbody{padding:10px 14px 14px}.wbody small{display:block;color:var(--muted);font-size:.9rem;margin-bottom:6px}.wbody b{font-weight:700}
 .go.alt{background:#2a2e3a;color:var(--paper);box-shadow:4px 4px 0 #0b0c10}
@@ -203,7 +205,7 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
     <h1 class="logoh"><img class="logo" src="assets/ui/scoot-park-logo.png" alt="Scoot Park" onerror="this.parentNode.innerHTML='SCOOT<br>PARK'"></h1>
     <p class="tag">Nine areas to ride: bowls, street plaza, vert, a mega ramp, dirt jumps and more. Chain tricks into combos and tick off the challenges.</p>
     <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center"><button class="go" id="rideBtn" type="button">Ride</button><button class="go alt" id="startLogin" type="button">Log in</button></div>
-    <p class="note" style="color:#ff8bec;font-weight:700">New: Night City, a neon world after dark. Press Tab in the game (or the Worlds button).</p>
+    <p class="note" style="color:#ff8bec;font-weight:700">New world: Super Tricks, packed with ramps and rails. Press Tab in the game (or the Worlds button).</p>
     <p class="note" id="startAcct">Log in to save your progress online and get on the leaderboard.</p>
     <details class="ctl"><summary>Controls</summary><div class="keys" id="keysStart"></div></details>
     <p class="note">Keyboard or a controller (Xbox layout). Press H in the game for the controls any time.</p>
@@ -323,15 +325,25 @@ const CITY_AREAS=[
  {key:'5',name:'Downtown Stairs',r:[-46,-150,46,-8],spawn:[-12,-12,Math.PI]},
  {key:'6',name:'Night Market Lot',r:[58,-150,150,-8],spawn:[66,-14,Math.PI]},
 ];
+const TRICK_AREAS=[
+ {key:'1',name:'Ramp Jungle',r:[-98,2,-2,98],spawn:[-54,6,0]},
+ {key:'2',name:'Grind Garden',r:[2,2,98,98],spawn:[46,6,0]},
+ {key:'3',name:'Mega Zone',r:[-98,-98,-2,-2],spawn:[-75,-9,Math.PI]},
+ {key:'4',name:'Flow Bowls',r:[2,-98,98,-2],spawn:[20,-8,Math.PI]},
+];
+for(const a of TRICK_AREAS){a.world='tricks';a.r=[a.r[0],a.r[1]-3000,a.r[2],a.r[3]-3000];a.spawn=[a.spawn[0],a.spawn[1]-3000,a.spawn[2]];}
 for(const a of CITY_AREAS){a.world='city';a.r=[a.r[0],a.r[1]+CZ,a.r[2],a.r[3]+CZ];a.spawn=[a.spawn[0],a.spawn[1]+CZ,a.spawn[2]];AREAS.push(a);}
+for(const a of TRICK_AREAS)AREAS.push(a);
 const WORLDS=[
  {id:'park',name:'Scoot Park',sub:'Sunny skatepark district + real NZ parks',bounds:W,bg:'#6e9748',
   light:{hemi:.62,hemiU:.36,sun:.72,sunU:1.0,hemiC:0xdcecff,hemiG:0x6a5c46,sunC:0xfff0d4,fog:0xcfe3ec,fogN:150,fogF:620,bloom:.22,exp:1.0}},
  {id:'city',name:'Night City',sub:'Neon downtown after dark: rooftops, stairs, bowl',bounds:{x0:-160,x1:160,z0:CZ-160,z1:CZ+160},bg:'#15171f',
   light:{hemi:.3,hemiU:.22,sun:.22,sunU:.3,hemiC:0x8090d8,hemiG:0x2a2038,sunC:0xb8c8ff,fog:0x141a33,fogN:70,fogF:430,bloom:.55,exp:1.08}},
+ {id:'tricks',name:'Super Tricks',sub:'Packed with ramps, big air and grinds everywhere',bounds:{x0:-100,x1:100,z0:-3100,z1:-2900},bg:'#bdb6a8',
+  light:{hemi:.6,hemiU:.36,sun:.85,sunU:1.1,hemiC:0xffe6c8,hemiG:0x6b5040,sunC:0xffc27a,fog:0xf0c49a,fogN:140,fogF:560,bloom:.3,exp:1.0}},
 ];
 let world=WORLDS[0];
-const worldOf=(x,z)=>z>1500?'city':'park';
+const worldOf=(x,z)=>z>1500?'city':z<-1500?'tricks':'park';
 const areasIn=w=>AREAS.filter(a=>a.world===w.id);
 // ---------------- actions you can put on controller buttons
 const ACTIONS=[
@@ -356,7 +368,7 @@ const controlsList=()=>[
  ['Grabs (hold in the air)'],['U','No-hander'],['Y','Can-can'],['X','X-up'],['Z','Superman'],["'",'Nac-nac'],['[','Tuck no-hander'],[']','No-footer'],
  ['Ground & grinds'],['P','Powerslide (hold to keep sliding)'],['Q (hold)','Manual · Smith grind'],['E (hold)','Nose manual · Feeble grind'],['Land on a rail','50-50 grind'],
  ['Travel: '+world.name],...areasIn(world).map(a=>[a.key,a.name]),
- ['Other'],['Tab','Worlds: switch between Scoot Park and Night City'],['Enter','Chat (when riding with friends)'],['`','Leaderboard (the key left of 1)'],['Esc','Pause · Settings (controller buttons, graphics, sound)'],['N','Map + challenge locations'],['B','Garage: pick + customise your scooter'],['G','Graphics: Ultra / High / Fast'],['C','Camera distance'],['R','Respawn'],['T','Show/hide challenges'],['H','This list'],['M','Mute'],['Esc','Pause'],
+ ['Other'],['Tab','Worlds: Scoot Park, Night City, Super Tricks'],['Enter','Chat (when riding with friends)'],['`','Leaderboard (the key left of 1)'],['Esc','Pause · Settings (controller buttons, graphics, sound)'],['N','Map + challenge locations'],['B','Garage: pick + customise your scooter'],['G','Graphics: Ultra / High / Fast'],['C','Camera distance'],['R','Respawn'],['T','Show/hide challenges'],['H','This list'],['M','Mute'],['Esc','Pause'],
 ];
 function renderKeys(el){el.innerHTML=controlsList().map(c=>c.length===1?`<div class="sec">${c[0]}</div>`:`<div><kbd>${c[0]}</kbd><span>${c[1]}</span></div>`).join('');}
 renderKeys(document.getElementById('keysStart'));renderKeys(document.getElementById('keysHelp'));
@@ -624,6 +636,13 @@ const NEON_BOWLS=[addBowl({x:110,z:CZ+95,r:14,D:3.4,R:4.2,tile:true,id:'neonbowl
   addBowl({x:74,z:CZ+40,x2:96,z2:CZ+70,r:5,D:1.8,R:2.8,id:'neonsnake'}),addBowl({x:96,z:CZ+70,x2:104,z2:CZ+82,r:5.5,D:2.4,R:3.2,id:'neonsnake'})];
 bowlZones.push([67,CZ+33,126,CZ+111]);
 NEON_BOWLS.push(addBowl({x:-24,z:CZ+118,r:7,D:2,R:3,tile:true,id:'pocket'}));bowlZones.push([-33,CZ+109,-15,CZ+127]);
+// Super Tricks: Flow Bowls zone (big bowl, kidney pool, snake run into a deep cradle, mini bowl)
+const TZ=-3000;
+addBowl({x:50,z:TZ-50,r:16,D:3.6,R:4.4,tile:true,id:'tbig'});bowlZones.push([33,TZ-67,66.5,TZ-33]);
+addBowl({x:80,z:TZ-22,r:8,D:2.8,R:3.8,tile:true,id:'tkidney'});addBowl({x:73,z:TZ-15,r:5.5,D:2.2,R:3.2,tile:true,id:'tkidney'});bowlZones.push([66.6,TZ-31,90,TZ-8]);
+addBowl({x:12,z:TZ-90,x2:40,z2:TZ-80,r:4.5,D:1.6,R:2.8,id:'tsnake'});addBowl({x:40,z:TZ-80,x2:74,z2:TZ-86,r:5,D:2.2,R:3.2,id:'tsnake'});
+addBowl({x:82,z:TZ-82,r:9,D:4.2,R:4.8,tile:true,id:'tcradle'});bowlZones.push([6,TZ-97,93,TZ-72]);
+addBowl({x:20,z:TZ-30,r:6,D:1.6,R:2.8,id:'tmini'});bowlZones.push([13,TZ-37,27,TZ-23]);
 
 // ---------------- ground zones + texture
 const ZONES={plaza:[-70,-60,70,70],road:[-84,-74,84,84],lot:[-182,-62,-92,62],dirt:[92,-34,186,34],pathW:[-92,-5,-84,5],pathE:[84,-5,92,5]};
@@ -669,7 +688,7 @@ groundTex.repeat.set(1/400,1/400);groundTex.offset.set(0.5,0.5);
 // ---------------- build the world
 {
   const gs=new THREE.Shape();gs.moveTo(W.x0,W.z0);gs.lineTo(W.x1,W.z0);gs.lineTo(W.x1,W.z1);gs.lineTo(W.x0,W.z1);gs.lineTo(W.x0,W.z0);
-  for(const z of bowlZones){if(z[1]>1500)continue;const hp=new THREE.Path();hp.moveTo(z[0],-z[1]);hp.lineTo(z[2],-z[1]);hp.lineTo(z[2],-z[3]);hp.lineTo(z[0],-z[3]);hp.lineTo(z[0],-z[1]);gs.holes.push(hp);}
+  for(const z of bowlZones){if(Math.abs(z[1])>1500)continue;const hp=new THREE.Path();hp.moveTo(z[0],-z[1]);hp.lineTo(z[2],-z[1]);hp.lineTo(z[2],-z[3]);hp.lineTo(z[0],-z[3]);hp.lineTo(z[0],-z[1]);gs.holes.push(hp);}
   const gg=new THREE.ShapeGeometry(gs,8);gg.rotateX(-Math.PI/2);
   {const uv=gg.attributes.uv,a=new Float32Array(uv.count*2);for(let i=0;i<uv.count;i++){a[2*i]=uv.getX(i)/2.5;a[2*i+1]=uv.getY(i)/2.5;}gg.setAttribute('uv2',new THREE.BufferAttribute(a,2));}
   const gm=new THREE.Mesh(gg,new THREE.MeshLambertMaterial({map:groundTex,color:0xa9a9a9,aoMap:TEX.detail,aoMapIntensity:1}));gm.receiveShadow=true;scene.add(gm);
@@ -1034,6 +1053,108 @@ const citySkyMat=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,
    for(let r=0;r<3;r++)for(let k=0;k<60;k++){const t=k/59,j=(k+r)%3;d.position.set(lerp(66,146,t),3.6-0.5*Math.abs(Math.sin(t*Math.PI*6)),Zc(-136-r*2.2));d.updateMatrix();ims[j].setMatrixAt(cnt[j]++,d.matrix);}
    ims.forEach((im,j)=>{im.count=cnt[j];scene.add(im);});}
 }
+// =============== Super Tricks (third world, 3 km north): a compact park packed with ramps, big air and grinds
+const TR_LIFT={x:-60,z:TZ-80},TSPOT={};
+const tricksSkyMat=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,
+  uniforms:{top:{value:new THREE.Color(0x2f4f9a)},hor:{value:new THREE.Color(0xffb57a)},bot:{value:new THREE.Color(0x7a5a48)},sun:{value:new V3(0.55,0.16,0.82).normalize()}},
+  vertexShader:'varying vec3 vD;void main(){vD=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:`uniform vec3 top,hor,bot,sun;varying vec3 vD;void main(){vec3 d=normalize(vD);float h=d.y;
+    vec3 c=h>0.?mix(hor,top,pow(clamp(h,0.,1.),.5)):mix(hor,bot,clamp(-h*5.,0.,1.));float s=max(dot(d,sun),0.);
+    c=mix(c,vec3(1.,.62,.36),pow(s,6.)*.55);c+=vec3(1.,.85,.6)*(smoothstep(.9985,.9992,s)*1.6+pow(s,300.)*.6);
+    c+=vec3(1.,.55,.4)*exp(-abs(h)*10.)*.12;gl_FragColor=vec4(c,1.);}`});
+{
+  const Zt=z=>TZ+z,B={x0:-100,x1:100,z0:TZ-100,z1:TZ+100},CN=2048,CS=CN/200;
+  const tc=document.createElement('canvas');tc.width=tc.height=CN;const g=tc.getContext('2d');
+  const X=x=>(x-B.x0)*CS,Y=z=>(z-B.z0)*CS;
+  const rect=(r,col)=>{g.fillStyle=col;g.fillRect(X(r[0]),Y(r[1]),(r[2]-r[0])*CS,(r[3]-r[1])*CS);};
+  const speck=(r,cols,n)=>{for(let i=0;i<n;i++){g.fillStyle=cols[i%cols.length];g.fillRect(X(lerp(r[0],r[2],Math.random())),Y(lerp(r[1],r[3],Math.random())),1+Math.random()*2,1+Math.random()*2);}};
+  const joints=(r,step,col)=>{g.strokeStyle=col;g.lineWidth=1.3;for(let x=r[0];x<=r[2];x+=step){g.beginPath();g.moveTo(X(x),Y(r[1]));g.lineTo(X(x),Y(r[3]));g.stroke();}for(let z=r[1];z<=r[3];z+=step){g.beginPath();g.moveTo(X(r[0]),Y(z));g.lineTo(X(r[2]),Y(z));g.stroke();}};
+  rect([B.x0,B.z0,B.x1,B.z1],'#bdb6a8');
+  const zones=[[[-100,Zt(0),0,Zt(100)],'#c9b89c'],[[0,Zt(0),100,Zt(100)],'#aab4b4'],[[-100,Zt(-100),0,Zt(0)],'#b0aaa1'],[[0,Zt(-100),100,Zt(0)],'#c8c1b2']];
+  for(const [r,c] of zones){rect(r,c);joints(r,5,'rgba(70,60,50,.32)');speck(r,['rgba(0,0,0,.05)','rgba(255,255,255,.06)'],26000);}
+  g.strokeStyle='rgba(255,255,255,.55)';g.lineWidth=4;g.setLineDash([22,16]);g.beginPath();g.moveTo(X(0),Y(B.z0));g.lineTo(X(0),Y(B.z1));g.moveTo(X(B.x0),Y(Zt(0)));g.lineTo(X(B.x1),Y(Zt(0)));g.stroke();g.setLineDash([]);
+  for(let i=0;i<40;i++){const c=['rgba(255,77,94,.16)','rgba(64,214,200,.16)','rgba(255,212,59,.18)','rgba(142,91,214,.14)'][i%4];g.fillStyle=c;g.beginPath();g.arc(X(lerp(-95,95,Math.random())),Y(Zt(lerp(-95,95,Math.random()))),(1+Math.random()*3)*CS,0,TAU);g.fill();}
+  const paint=(t,x,z,rot,col,px)=>{g.save();g.translate(X(x),Y(Zt(z)));g.rotate(rot);g.fillStyle=col;g.font=`bold ${px}px Impact, Arial Black, sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText(t,0,0);g.restore();};
+  paint('SUPER TRICKS',-54,8,Math.PI,'rgba(255,77,94,.85)',96);paint('GRIND GARDEN',46,8,Math.PI,'rgba(64,140,214,.8)',70);paint('MEGA ZONE',-60,-4,0,'rgba(255,140,40,.8)',70);paint('FLOW BOWLS',30,-4,0,'rgba(142,91,214,.75)',70);
+  const tex=new THREE.CanvasTexture(tc);tex.anisotropy=maxAniso;WORLDS[2].groundImg=tc;
+  const gs=new THREE.Shape();gs.moveTo(B.x0,-B.z0);gs.lineTo(B.x1,-B.z0);gs.lineTo(B.x1,-B.z1);gs.lineTo(B.x0,-B.z1);gs.lineTo(B.x0,-B.z0);
+  for(const z of bowlZones){if(z[1]>-1500)continue;const hp=new THREE.Path();hp.moveTo(z[0],-z[1]);hp.lineTo(z[2],-z[1]);hp.lineTo(z[2],-z[3]);hp.lineTo(z[0],-z[3]);hp.lineTo(z[0],-z[1]);gs.holes.push(hp);}
+  const geo=new THREE.ShapeGeometry(gs,8);geo.rotateX(-Math.PI/2);
+  {const pos=geo.attributes.position,uv=geo.attributes.uv;for(let i=0;i<pos.count;i++)uv.setXY(i,(pos.getX(i)-B.x0)/200,1-(pos.getZ(i)-B.z0)/200);}
+  const gm=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({map:tex,color:0xffffff}));gm.receiveShadow=true;scene.add(gm);
+  const fs=new THREE.Shape();fs.moveTo(-800,-(TZ-800));fs.lineTo(800,-(TZ-800));fs.lineTo(800,-(TZ+800));fs.lineTo(-800,-(TZ+800));fs.lineTo(-800,-(TZ-800));
+  const fh=new THREE.Path();fh.moveTo(B.x0,-B.z0);fh.lineTo(B.x1,-B.z0);fh.lineTo(B.x1,-B.z1);fh.lineTo(B.x0,-B.z1);fh.lineTo(B.x0,-B.z0);fs.holes.push(fh);
+  const fg=new THREE.ShapeGeometry(fs);fg.rotateX(-Math.PI/2);const far=new THREE.Mesh(fg,mat(0x8a9a5c,'grass'));far.position.y=-0.01;scene.add(far);
+  // rolling hills + trees outside the park
+  for(let i=0;i<30;i++){const a=i/30*TAU+rnd()*0.2,d=220+rnd()*260,r=40+rnd()*70,h=10+rnd()*30;const m=new THREE.Mesh(new THREE.SphereGeometry(1,20,10,0,TAU,0,Math.PI/2),mat(rnd()<.5?0x7f8f52:0x93915a));
+    m.scale.set(r,h,r*0.8);m.position.set(Math.cos(a)*d,-1,TZ+Math.sin(a)*d);scene.add(m);}
+  for(let i=0;i<46;i++){const a=rnd()*TAU,d=108+rnd()*40;tree(Math.cos(a)*d,TZ+Math.sin(a)*d);}
+  // walls, banners, light towers
+  const WC=0x9a9488;box(0,B.z1-0.6,200,1.2,1.3,0,WC,null,{noGraf:true});box(0,B.z0+0.6,200,1.2,1.3,0,WC,null,{noGraf:true});
+  box(B.x1-0.6,TZ,1.2,198,1.3,0,WC,null,{noGraf:true});box(B.x0+0.6,TZ,1.2,198,1.3,0,WC,null,{noGraf:true});
+  const banner=(t,col,x,z,yaw,w)=>{const c=document.createElement('canvas');c.width=1024;c.height=256;const s=c.getContext('2d');s.fillStyle=col;s.fillRect(0,0,1024,256);
+    s.fillStyle='#fff';s.font='bold 150px Bungee, Impact, Arial Black, sans-serif';s.textAlign='center';s.textBaseline='middle';s.fillText(t,512,140);
+    const tx=new THREE.CanvasTexture(c);tx.anisotropy=maxAniso;const m=new THREE.Mesh(new THREE.PlaneGeometry(w,w/4),new THREE.MeshLambertMaterial({map:tx,side:THREE.DoubleSide}));m.position.set(x,w/8+1.4,z);m.rotation.y=yaw;scene.add(m);
+    for(const s2 of [-1,1]){const po=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,w/4+1.4,8),mat(0x3b3f47));po.position.set(x+Math.cos(yaw)*s2*w/2,(w/4+1.4)/2,z-Math.sin(yaw)*s2*w/2);scene.add(po);}};
+  banner('SUPER TRICKS','#ff4d5e',0,Zt(104),Math.PI,30);banner('SEND IT','#3f7fbf',-104,Zt(0),Math.PI/2,20);banner('NO BAILS','#8e5bd6',104,Zt(30),-Math.PI/2,20);banner('GO BIG','#ff8a3d',0,Zt(-104),0,24);
+  for(const p of [[-100,-100],[100,-100],[-100,100],[100,100]]){const t=new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.45,22,10),mat(0x6d747d));t.position.set(p[0]*1.04,11,Zt(p[1]*1.04));scene.add(t);
+    const hd=new THREE.Mesh(new THREE.BoxGeometry(3,1.6,0.6),mat(0xf6f0d0));hd.position.set(p[0]*1.04,22,Zt(p[1]*1.04));hd.lookAt(0,10,TZ);scene.add(hd);}
+
+  const PKt=0xc4bdae,WD=COL.wood,LDt=COL.ledge;
+  // place a module in a grid slot: T(u,v) -> world point, Y(a) -> world yaw
+  const slot=(cx,cz,a)=>{const c=Math.cos(a),s=Math.sin(a);return {T:(u,v)=>({x:cx+u*c+v*s,z:cz-u*s+v*c}),Y:y=>y+a};};
+  const rail=(S,u1,v1,y1,u2,v2,y2,id,posts)=>{const a=S.T(u1,v1),b=S.T(u2,v2);addRail(a.x,y1,a.z,b.x,y2,b.z,id,posts||3);};
+  const F=(S,u,v,yaw,o)=>{const c=S.T(u,v);return addFeature(Object.assign({cx:c.x,cz:c.z,yaw:S.Y(yaw)},o));};
+  const funProf=(h,top,len)=>[[-top/2-len,0],[-top/2,h],[top/2,h],[top/2+len,0]];
+  const M={
+    funrail(S){F(S,0,0,0,{w:6,prof:funProf(1.1,5,4),color:PKt,edges:'long',id:'tfun'});rail(S,0,-2.4,1.55,0,2.4,1.55,'tfunrail',2);},
+    kickline(S){const k=S.T(0,-8);kicker(k.x,k.z,S.Y(0),3,3,1.3,1.6,WD,'tkick');const l=S.T(0,1);landing(l.x,l.z,S.Y(0),4,1.3,1,5,WD);
+      const b=S.T(-5.5,0);box(b.x,b.z,0.6,12,0.45,S.Y(0),LDt,'long',{id:'tledge'});},
+    spine(S){const R0=3,H0=1.9,dm=Math.sqrt(R0*R0-(R0-H0)**2)+0.05,a=S.T(0,-dm),b=S.T(0,dm);qp(a.x,a.z,S.Y(0),10,R0,H0,0.05,WD,'tspine');qp(b.x,b.z,S.Y(Math.PI),10,R0,H0,0.05,WD,'tspine');},
+    pyramid(S){F(S,0,0,0,{w:7,prof:funProf(1.2,4,4.5),color:PKt,id:'tpyr'});F(S,0,0,Math.PI/2,{w:7,prof:funProf(1.2,4,4.5),color:PKt,id:'tpyr'});
+      const c=S.T(0,0);box(c.x,c.z,1.2,1.2,1.75,S.Y(Math.PI/4),LDt,'all',{id:'tpyrbox'});},
+    hips(S){F(S,-3,0,Math.PI/4,{w:6,prof:funProf(1,3,4),color:PKt,edges:'long',id:'thip'});F(S,3.5,0,-Math.PI/4,{w:6,prof:funProf(1,3,4),color:PKt,edges:'long',id:'thip'});},
+    minirp(S){const a=S.T(0,3.5),b=S.T(0,-3.5);qp(a.x,a.z,S.Y(0),9,3,1.8,1.5,WD,'tmini');qp(b.x,b.z,S.Y(Math.PI),9,3,1.8,1.5,WD,'tmini');},
+    bank2bank(S){F(S,0,3,0,{w:11,prof:[[0,0],[4,1.6],[5,1.6]],color:PKt,id:'tbank'});F(S,0,-3,Math.PI,{w:11,prof:[[0,0],[4,1.6],[5,1.6]],color:PKt,id:'tbank'});rail(S,0,-2.4,0.45,0,2.4,0.45,'tbar',2);},
+    bigkick(S){const k=S.T(0,-8);kicker(k.x,k.z,S.Y(0),4,4,2.2,1.7,WD,'tbigkick');const l=S.T(0,2);landing(l.x,l.z,S.Y(0),5,2,1.5,6,WD);},
+    kink(S){const st=stairSet(S.T(0,-2).x,S.T(0,-2).z,S.Y(0),6,6,4,0.3,0.45,3,PKt,'tkinkset');stairRail(st,2.5,'kink');stairRail(st,-2.5,'kink');},
+    aframe(S){for(const u of [-2.5,2.5]){rail(S,u,-7,0.4,u,-2.5,1.2,'aframe',2);rail(S,u,-2.5,1.2,u,2.5,1.2,'aframe',2);rail(S,u,2.5,1.2,u,7,0.4,'aframe',2);}},
+    bars(S){[[-4.5,0.35],[0,0.55],[4.5,0.75]].forEach(([u,h])=>rail(S,u,-7,h,u,7,h,'tflat',4));},
+    hubbaset(S){const c=S.T(0,-3),st=stairSet(c.x,c.z,S.Y(0),7,5,5,0.3,0.45,3,PKt,'thubset');hubba(st,3.1,'thubba');hubba(st,-3.1,'thubba');},
+    ledges(S){[[-4.5,0.4],[0,0.55],[4.5,0.75]].forEach(([u,h])=>{const c=S.T(u,0);box(c.x,c.z,0.7,13,h,S.Y(0),LDt,'long',{id:'tgledge'});});},
+    rampRail(S){F(S,0,0,0,{w:7,prof:funProf(1.2,4,4.5),color:PKt,id:'trfun'});for(const u of [-2.6,2.6]){rail(S,u,-6.8,0.45,u,-2,1.65,'tfunrail2',2);rail(S,u,-2,1.65,u,2,1.65,'tfunrail2',2);rail(S,u,2,1.65,u,6.8,0.45,'tfunrail2',2);}},
+    longrail(S){rail(S,-3,-8,1.0,-3,-2,1.0,'tkinkrail',2);rail(S,-3,-2,1.0,-3,4,0.4,'tkinkrail',2);rail(S,-3,4,0.4,-3,8,0.4,'tkinkrail',2);rail(S,3,-8,0.6,3,8,0.6,'tlong',5);},
+  };
+  const grid=(x0,z0,list,keepSpine)=>{let i=0;for(let r=0;r<4;r++)for(let c=0;c<4;c++){const name=list[i++],cx=x0+14+c*20,cz=z0+14+r*20,a=Math.floor(rnd()*4)*Math.PI/2;
+    M[name](slot(cx,cz,a));if(name===keepSpine&&!TSPOT[name])TSPOT[name]={x:cx,z:cz};}};
+  // 1 Ramp Jungle (x -98..-2, z 2..98) + quarter pipes on the outer walls
+  grid(-98,Zt(2),['kickline','funrail','spine','pyramid','minirp','hips','bank2bank','bigkick','funrail','kickline','pyramid','spine','bigkick','minirp','hips','funrail'],'spine');
+  const qpWall=(x,z,dir,w,R0,H0,deck,col,id)=>{const L=Math.sqrt(R0*R0-(R0-H0)**2)+deck;
+    if(dir==='N')qp(x,z-L,0,w,R0,H0,deck,col,id);else if(dir==='S')qp(x,z+L,Math.PI,w,R0,H0,deck,col,id);else if(dir==='E')qp(x-L,z,Math.PI/2,w,R0,H0,deck,col,id);else qp(x+L,z,-Math.PI/2,w,R0,H0,deck,col,id);};
+  [[-88,2.4],[-68,3.2],[-48,2.4],[-28,3.6],[-10,2.4]].forEach(([x,h])=>qpWall(x,Zt(98.8),'N',17,4,h,1.2,PKt,'tqp'));
+  [[22,2.6],[44,3.4],[66,2.6],[86,3.4]].forEach(([z,h])=>qpWall(-98.8,Zt(z),'W',17,4,h,1.2,PKt,'tqp'));
+  // 2 Grind Garden (x 2..98, z 2..98) + long wall ledges and corner quarters
+  grid(2,Zt(2),['kink','aframe','bars','hubbaset','ledges','rampRail','longrail','kink','bars','aframe','ledges','hubbaset','rampRail','longrail','bars','kink'],'hubbaset');
+  box(50,Zt(95.5),90,0.8,0.55,0,LDt,'long',{id:'twall',noGraf:true});addRail(6,0.5,Zt(92.5),94,0.5,Zt(92.5),'twallrail',9);
+  [[22,2.8],[50,2.2],[78,2.8]].forEach(([z,h])=>qpWall(98.8,Zt(z),'E',15,4,h,1.2,PKt,'tqp'));
+  // 3 Mega Zone (x -98..-2, z -98..-2): mega ramp, big halfpipe, big spine, gap jump, big quarters, lift
+  addFeature({cx:-75,cz:Zt(-6),yaw:Math.PI,w:12,prof:[[0,10],[6,10],[24,0]],color:WD,edges:'long',id:'tmegaroll'});
+  kickerB(-75,Zt(-40),Math.PI,8,6,3.5,1.8,0,WD,'tmegakick');landing(-75,Zt(-58),Math.PI,12,3.2,2,14,WD);qp(-75,Zt(-84),Math.PI,16,6,4.5,2,PKt,'tmegaqp');
+  TSPOT.mega={x:-75,z:Zt(-46)};
+  {const R0=4.5,H0=4,L=Math.sqrt(R0*R0-(R0-H0)**2)+2;qp(-30,Zt(-20),0,18,R0,H0,2,WD,'thp');qp(-30,Zt(-32),Math.PI,18,R0,H0,2,WD,'thp');TSPOT.hp={x:-30,z:Zt(-26)};}
+  {const R0=4,H0=3,dm=Math.sqrt(R0*R0-(R0-H0)**2)+0.05;qp(-30,Zt(-60)-dm,0,14,R0,H0,0.05,WD,'tbigspine');qp(-30,Zt(-60)+dm,Math.PI,14,R0,H0,0.05,WD,'tbigspine');TSPOT.bigspine={x:-30,z:Zt(-60)};}
+  kicker(-12,Zt(-74),Math.PI,5,4,2.4,1.7,WD,'tgapkick');landing(-12,Zt(-86),Math.PI,6,2.2,1,6,WD);TSPOT.gap={x:-12,z:Zt(-80)};
+  [[-25,5],[-48,4.2]].forEach(([z,h])=>qpWall(-98.8,Zt(z),'W',20,5,h,1.5,PKt,'tbigqp'));
+  qpWall(-50,Zt(-98.8),'S',22,5.5,4.6,1.5,PKt,'tbigqp');
+  {const g2=new THREE.Group();const col=new THREE.Mesh(new THREE.CylinderGeometry(1.8,1.8,30,20,1,true),new THREE.MeshBasicMaterial({color:0x40d6c8,transparent:true,opacity:.22,depthWrite:false,side:THREE.DoubleSide}));col.position.y=15;g2.add(col);
+   const pad=new THREE.Mesh(new THREE.CylinderGeometry(2,2,0.06,24),mat(0x40d6c8));pad.position.y=0.03;g2.add(pad);g2.position.set(TR_LIFT.x,0,TR_LIFT.z);scene.add(g2);}
+  // 4 Flow Bowls extras (bowls themselves are with the other bowls): hips, quarters, bars, ledges
+  qpWall(98.8,Zt(-50),'E',20,4,2.6,1.2,PKt,'tqp');qpWall(60,Zt(-98.8),'S',14,4,2.4,1.2,PKt,'tqp');
+  addFeature({cx:24,cz:Zt(-55),yaw:Math.PI/4,w:6,prof:funProf(1,3,4),color:PKt,edges:'long',id:'thip'});
+  addFeature({cx:84,cz:Zt(-52),yaw:0,w:6,prof:funProf(1,4,4),color:PKt,edges:'long',id:'tfun'});
+  addRail(10,0.5,Zt(-48),10,0.5,Zt(-66),'tflat',5);box(58,Zt(-10),0.7,12,0.5,Math.PI/2,LDt,'long',{id:'tgledge'});M.kickline(slot(72,Zt(-62),0));M.spine(slot(88,Zt(-66),Math.PI/2));M.funrail(slot(32,Zt(-14),Math.PI/2));box(50,Zt(-24),5,8,0.35,Math.PI/2,PKt,'all',{id:'tpad'});
+  TSPOT.bowl={x:50,z:Zt(-50)};TSPOT.cradle={x:82,z:Zt(-82)};
+}
 rails.forEach(r=>{if(r.kind==='rail')railMesh(r,r.posts);});
 // extra props: bins by the benches and an entrance sign (collision boxes stay invisible)
 for(const p of [[-34.5,-56.4],[34.5,-56.4],[-8,-125],[22,-176]]){box(p[0],p[1],0.64,0.64,0.98,0,0,null,{noMesh:true,noMap:true});DECOR.push({glb:'rubbish_bin',x:p[0],z:p[1],yaw:0,objs:[]});}
@@ -1155,14 +1276,14 @@ function applyQuality(){const ul=quality==='ultra',hi=quality!=='fast';
 // ---------------- worlds: swap sky, fog, lights and bloom
 function applyWorldLook(){const L=world.light,ul=quality==='ultra',city=world.id==='city';
   hemi.color.setHex(L.hemiC);hemi.groundColor.setHex(L.hemiG);sun.color.setHex(L.sunC);hemi.intensity=ul?L.hemiU:L.hemi;sun.intensity=ul?L.sunU:L.sun;
-  scene.fog.color.setHex(L.fog);scene.fog.near=L.fogN;scene.fog.far=L.fogF;sky.material=city?citySkyMat:parkSkyMat;
+  scene.fog.color.setHex(L.fog);scene.fog.near=L.fogN;scene.fog.far=L.fogF;sky.material=city?citySkyMat:world.id==='tricks'?tricksSkyMat:parkSkyMat;
   for(const m of NEON_MATS){const base=m.userData.sign?1.15:Math.min(1.35,m.userData.neonK*0.55),hot=m.userData.sign?1.7:m.userData.neonK;const c=m.userData.c0||(m.userData.c0=m.color.clone().multiplyScalar(1/base));m.color.copy(c).multiplyScalar(ul?hot:base);}
   for(const l of CITY_PL)l.visible=city;if(bloomPass)bloomPass.strength=L.bloom;if(gradePass)gradePass.uniforms.exposure.value=L.exp;
   if(ul)scene.environment=city?cityEnv:envTex;renderer.toneMappingExposure=city?1.12:1.25;}
 function setWorld(id,quiet){const w=WORLDS.find(x=>x.id===id);if(!w)return;const changed=w!==world;world=w;save.world=id;
   applyWorldLook();if(changed)scene.traverse(o=>{if(o.material)for(const m of [].concat(o.material))m.needsUpdate=true;});
   curArea=areasIn(world)[0];respawn(true);renderChallenges();mpRetrack();renderKeys($('keysHelp'));
-  $('hint').textContent=id==='city'?'H controls · 1–6 travel · Tab worlds · Esc pause · R respawn':'H controls · 1–9, 0 - = \\ travel · Tab worlds · Esc pause · R respawn';
+  $('hint').textContent=id!=='park'?`H controls · 1–${areasIn(world).length} travel · Tab worlds · Esc pause · R respawn`:'H controls · 1–9, 0 - = \\ travel · Tab worlds · Esc pause · R respawn';
   if(!quiet){showArea(curArea,'Welcome to '+world.name);persist();}}
 applyQuality();
 function renderFrame(){if(quality==='ultra'&&composer)composer.render();else renderer.render(scene,camera);}
@@ -1394,6 +1515,16 @@ const CH=[
  {id:'carbar',name:'Bar spin over the parked car',zone:[104,2929,7],test:e=>e.kind==='air'&&e.bars>=1},
  {id:'neonmanual',name:'Manual for 5 seconds in Neon Plaza',zone:[0,3075,70],test:e=>e.kind==='manual'&&e.time>=5},
  {id:'usmith',name:'Smith grind the underpass ledge',test:e=>e.kind==='grind'&&e.rail==='uledge'&&e.grind==='Smith'},
+ {id:'tjspine',name:'540 over a Ramp Jungle spine',zone:[TSPOT.spine.x,TSPOT.spine.z,7],test:e=>e.kind==='air'&&e.spin>=540},
+ {id:'tkink',name:'Grind a kink rail in the Grind Garden',test:e=>e.kind==='grind'&&e.rail==='kink'},
+ {id:'taframe',name:'Grind an A-frame rail',test:e=>e.kind==='grind'&&e.rail==='aframe'},
+ {id:'thubba',name:'Feeble grind a Grind Garden hubba',test:e=>e.kind==='grind'&&e.rail==='thubba'&&e.grind==='Feeble'},
+ {id:'tmega2',name:'Double backflip off the Super Tricks mega ramp',zone:[TSPOT.mega.x,TSPOT.mega.z-14,14],test:e=>e.kind==='air'&&e.flips.filter(f=>f==='Backflip').length>=2},
+ {id:'thpflair',name:'Flair in the big halfpipe',zone:[TSPOT.hp.x,TSPOT.hp.z,11],test:e=>e.kind==='air'&&e.flips.includes('Flair')},
+ {id:'tgap',name:'Tailwhip the Mega Zone gap',zone:[TSPOT.gap.x,TSPOT.gap.z,7],test:e=>e.kind==='air'&&e.whips>=1},
+ {id:'tbowl720',name:'720 in the Flow Bowls big bowl',zone:[TSPOT.bowl.x,TSPOT.bowl.z,17],test:e=>e.kind==='air'&&e.spin>=720},
+ {id:'tcradle',name:'Air out of the deep cradle',zone:[TSPOT.cradle.x,TSPOT.cradle.z,10],test:e=>e.kind==='air'&&e.t>=0.9},
+ {id:'combo10',name:'Land a 10-trick combo',test:e=>e.kind==='combo'&&e.count>=10},
  {id:'combo5',name:'Land a 5-trick combo',test:e=>e.kind==='combo'&&e.count>=5},
  {id:'big',name:'Bank 20,000 in one combo',test:e=>e.kind==='combo'&&e.total>=20000},
 ];
@@ -1776,6 +1907,7 @@ function update(dt){
   }else if(P.state!=='bail')combo.idle=0;
   {const b=world.bounds;if(P.x<b.x0||P.x>b.x1||P.z<b.z0||P.z>b.z1||P.y<-20)respawn();}
   if(P.state==='ground'&&Math.hypot(P.x-ELEVATOR.x,P.z-ELEVATOR.z)<2.2){const c=combo.mult;curArea=AREAS[4];respawn(true);popup('Elevator','Back to the top of the Mega Ramp','gold');}
+  if(P.state==='ground'&&world.id==='tricks'&&Math.hypot(P.x-TR_LIFT.x,P.z-TR_LIFT.z)<2.2){curArea=AREAS.find(a=>a.name==='Mega Zone');respawn(true);popup('Lift','Back to the top of the mega ramp','gold');}
   if(P.state==='ground'&&world.id==='city'&&Math.hypot(P.x-CITY_LIFT.x,P.z-CITY_LIFT.z)<2.2){curArea=AREAS.find(a=>a.name==='Rooftops');respawn(true);popup('Lift','Up to the rooftops','gold');}
   areaTick+=dt;if(areaTick>0.4){areaTick=0;const a=areaAt(P.x,P.z);if(a&&a!==curArea){curArea=a;showArea(a,'Now entering');}}
 }
@@ -1908,6 +2040,9 @@ WORLDS[0].mini=miniBase;
 {const B=WORLDS[1].bounds,c=document.createElement('canvas');c.width=(B.x1-B.x0)*MB_S;c.height=(B.z1-B.z0)*MB_S;const g=c.getContext('2d'),s=MB_S,X=x=>(x-B.x0)*s,Z=z=>(z-B.z0)*s;
   g.drawImage(cityCanvas,0,0,c.width,c.height);mapBits(g,s,X,Z,B);
   g.fillStyle='#40d6c8';g.beginPath();g.arc(X(CITY_LIFT.x),Z(CITY_LIFT.z),2.2*s,0,TAU);g.fill();WORLDS[1].mini=c;}
+{const B=WORLDS[2].bounds,c=document.createElement('canvas');c.width=(B.x1-B.x0)*MB_S;c.height=(B.z1-B.z0)*MB_S;const g=c.getContext('2d'),s=MB_S,X=x=>(x-B.x0)*s,Z=z=>(z-B.z0)*s;
+  g.drawImage(WORLDS[2].groundImg,0,0,c.width,c.height);mapBits(g,s,X,Z,B);
+  g.fillStyle='#40d6c8';g.beginPath();g.arc(X(TR_LIFT.x),Z(TR_LIFT.z),2.2*s,0,TAU);g.fill();WORLDS[2].mini=c;}
 function drawMini(){
   const k=MS/180,s=MB_S;mg.setTransform(1,0,0,1,0,0);mg.clearRect(0,0,MS,MS);
   mg.save();mg.beginPath();mg.arc(MS/2,MS/2,MS/2,0,TAU);mg.clip();mg.fillStyle=world.bg;mg.fillRect(0,0,MS,MS);const WB=world.bounds;
@@ -2119,7 +2254,7 @@ function mpUI(){const on=!!MP.ch;chatEl.hidden=!on||!MP.chatOn;$('mpBtn').textCo
   $('mpChatTog').textContent=MP.chatOn?'Chat: on':'Chat: off';
   const pl=$('mpPlayers');const peers=[...MP.peers.values()];
   pl.innerHTML=on?(peers.length?'':'<li class="sys">No one else here yet.</li>'):'';
-  for(const p of peers){const li=document.createElement('li');const n=document.createElement('span');n.textContent=p.name+' · '+(p.w==='city'?'Night City':'Scoot Park');li.appendChild(n);
+  for(const p of peers){const li=document.createElement('li');const n=document.createElement('span');n.textContent=p.name+' · '+((WORLDS.find(w=>w.id===p.w)||WORLDS[0]).name);li.appendChild(n);
     const b=document.createElement('button');b.type='button';b.dataset.mute=p.id;b.textContent=MP.muted.has(p.id)?'Unmute':'Mute';li.appendChild(b);pl.appendChild(li);}}
 $('mpBtn').onclick=e=>{e.currentTarget.blur();if(started)setOverlay('mp');};
 $('mpPublic').onclick=()=>mpJoin(null);
@@ -2142,7 +2277,7 @@ function drawBigMap(){
     bmg.strokeRect(X(a.r[2]),Z(a.r[3]),(a.r[2]-a.r[0])*k,(a.r[3]-a.r[1])*k);bmg.setLineDash([]);
     bmg.font='22px Bungee, Impact, sans-serif';bmg.lineWidth=5;bmg.strokeStyle='rgba(16,18,26,.85)';bmg.strokeText(a.key+'  '+a.name.toUpperCase(),cx,cz-((a.r[3]-a.r[1])*k/2)+22);bmg.fillStyle='#f3f1ea';bmg.fillText(a.key+'  '+a.name.toUpperCase(),cx,cz-((a.r[3]-a.r[1])*k/2)+22);}
   // elevator
-  {const L=world.id==='city'?CITY_LIFT:ELEVATOR;bmg.fillStyle='#40d6c8';bmg.beginPath();bmg.arc(X(L.x),Z(L.z),9,0,TAU);bmg.fill();bmg.font='bold 15px Barlow Condensed, sans-serif';bmg.fillStyle='#fff';bmg.fillText('LIFT',X(L.x),Z(L.z)+20);}
+  {const L=world.id==='city'?CITY_LIFT:world.id==='tricks'?TR_LIFT:ELEVATOR;bmg.fillStyle='#40d6c8';bmg.beginPath();bmg.arc(X(L.x),Z(L.z),9,0,TAU);bmg.fill();bmg.font='bold 15px Barlow Condensed, sans-serif';bmg.fillStyle='#fff';bmg.fillText('LIFT',X(L.x),Z(L.z)+20);}
   CH.forEach((c,i)=>{const p=chPos(c);if(!p||worldOf(p[0],p[1])!==world.id)return;const d=save.done[c.id],x=X(p[0]),y=Z(p[1]),hl=i===mapHL;
     bmg.fillStyle=d?'#7bd389':'#ffd43b';bmg.strokeStyle='#12141b';bmg.lineWidth=3;bmg.beginPath();bmg.arc(x,y,hl?17:13,0,TAU);bmg.fill();bmg.stroke();
     bmg.fillStyle='#12141b';bmg.font=(hl?'bold 18px ':'bold 15px ')+'Barlow Condensed, sans-serif';bmg.fillText(d?'✓':String(i+1),x,y+1);});
