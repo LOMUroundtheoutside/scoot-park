@@ -78,8 +78,8 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
 .hbtns button:hover{background:#383d4c}.hbtns button:focus-visible{outline:2px solid var(--grip)}
 .hbtns kbd{font-size:.75rem;padding:0 4px;margin-left:4px}
 #tl{pointer-events:auto}
-.mapwrap{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;max-width:1360px;width:100%;align-items:start}
-#bigmap{width:100%;max-width:min(86vh,100%);aspect-ratio:1;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.5);justify-self:center}
+.mapwrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;max-width:1700px;width:100%;align-items:start}
+#bigmap{width:100%;max-width:min(137vh,100%);aspect-ratio:16/10;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.5);justify-self:center}
 .maplist{padding:18px 18px;max-height:86vh;overflow:auto}
 #mapCh{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:6px}
 #mapCh li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 8px;border-radius:6px;background:#1d2029}
@@ -156,7 +156,7 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
 <div class="hud" id="bl"><div id="spd">0</div><div class="lbl">km/h</div><div id="stateTag"></div></div>
 <div class="hud" id="tr"><button id="chBtn" type="button">Challenges <b id="chCount">0/0</b></button><ol id="chList"></ol></div>
 <canvas class="hud" id="mini" width="340" height="340"></canvas>
-<div class="hud" id="hint">H controls · 1–9 travel · Esc pause · M mute · R respawn</div>
+<div class="hud" id="hint">H controls · 1–9, 0 - = \ travel · Esc pause · M mute · R respawn</div>
 
 <div class="screen" id="start">
   <div class="card">
@@ -169,7 +169,7 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
   </div>
 </div>
 <div class="screen" id="help" hidden><div class="card"><h2>Controls</h2><div class="keys" id="keysHelp"></div><button class="go" id="helpClose" type="button">Back to riding</button></div></div>
-<div class="screen" id="mapScr" hidden><div class="mapwrap"><canvas id="bigmap" width="1000" height="1000" aria-label="Map of Scoot Park"></canvas>
+<div class="screen" id="mapScr" hidden><div class="mapwrap"><canvas id="bigmap" width="1600" height="1000" aria-label="Map of Scoot Park"></canvas>
   <div class="card maplist"><h2>Map</h2><p class="note" style="margin:0 0 10px">Yellow pins are challenges still to do. Press Go to travel to that area.</p><ol id="mapCh"></ol><button class="go" id="mapClose" type="button">Close map</button></div></div></div>
 <div id="garage" hidden><div class="gpanel"><h2>Garage</h2><div class="chips gtabs" id="gTabs"><button type="button" data-tab="scooter" aria-pressed="true">Scooter</button><button type="button" data-tab="rider" aria-pressed="false">Rider</button></div><div id="gModels" class="gmodels"></div><div id="gOpts"></div><button class="go" id="garClose" type="button">Ride it</button></div></div>
 <div class="screen" id="settings" hidden><div class="card setcard"><h2>Settings</h2>
@@ -231,6 +231,7 @@ function loadImg(url,cb){if(!ASSET_OK)return;const img=new Image();img.onload=()
 let seed=7; const rnd=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};
 
 // ---------------- areas (fast travel with number keys)
+const W={x0:-200,x1:440,z0:-200,z1:200}; // world bounds (east district holds the real-park areas)
 const AREAS=[
  {key:'1',name:'The Plaza',r:[-84,-74,84,84],spawn:[0,-50,0]},
  {key:'2',name:'Bowl Garden',r:[-76,88,76,186],spawn:[-5,96,0]},
@@ -241,6 +242,10 @@ const AREAS=[
  {key:'7',name:'Car Park',r:[-188,-70,-88,70],spawn:[-100,0,-Math.PI/2]},
  {key:'8',name:'Hilltop',r:[-188,70,-88,188],spawn:[-125,135,Math.PI]},
  {key:'9',name:'Schoolyard',r:[-188,-188,-88,-70],spawn:[-105,-82,Math.PI]},
+ {key:'0',name:'Marlborough Park',r:[205,15,315,185],spawn:[212,95,Math.PI/2],real:'Glenfield, Auckland'},
+ {key:'-',name:'Victoria Park',r:[325,15,435,185],spawn:[330,24,0],real:'Auckland CBD'},
+ {key:'=',name:'Mount Maunganui',r:[205,-185,315,-15],spawn:[214,-24,Math.PI],real:'Tauranga'},
+ {key:'\\',name:'Washington Way',r:[325,-185,435,-15],spawn:[330,-24,Math.PI],real:'Christchurch'},
 ];
 // ---------------- actions you can put on controller buttons
 const ACTIONS=[
@@ -264,7 +269,7 @@ const CONTROLS=[
  ['L','Briflip'],['I','Backflip'],['O','Frontflip'],['F','Flair (backflip + 180)'],['/','Cash roll'],[';','Decade'],
  ['Grabs (hold in the air)'],['U','No-hander'],['Y','Can-can'],['X','X-up'],['Z','Superman'],["'",'Nac-nac'],['[','Tuck no-hander'],[']','No-footer'],
  ['Ground & grinds'],['P','Powerslide (hold to keep sliding)'],['Q (hold)','Manual · Smith grind'],['E (hold)','Nose manual · Feeble grind'],['Land on a rail','50-50 grind'],
- ['Travel (keyboard only, off when a controller is plugged in)'],...AREAS.map(a=>[a.key,a.name]),
+ ['Travel'],...AREAS.map(a=>[a.key,a.name]),
  ['Other'],['`','Leaderboard (the key left of 1)'],['Esc','Pause · Settings (controller buttons, graphics, sound)'],['N','Map + challenge locations'],['B','Garage: pick + customise your scooter'],['G','Graphics: Ultra / High / Fast'],['C','Camera distance'],['R','Respawn'],['T','Show/hide challenges'],['H','This list'],['M','Mute'],['Esc','Pause'],
 ];
 function renderKeys(el){el.innerHTML=CONTROLS.map(c=>c.length===1?`<div class="sec">${c[0]}</div>`:`<div><kbd>${c[0]}</kbd><span>${c[1]}</span></div>`).join('');}
@@ -327,6 +332,8 @@ const COL={ramp:0xc9c1ad,park:0xbdb5a2,ledge:0x8e9199,metal:0xaab3bd,coping:0xe9
 
 // ---------------- world data
 const features=[],rails=[],bowls=[],DECOR=[];
+const trunkG=new THREE.CylinderGeometry(0.16,0.22,2.4,7);trunkG.translate(0,1.2,0);
+const leafG=new THREE.IcosahedronGeometry(1.7,0);
 function toWorld(f,u,v){return {x:f.cx+u*f.c+v*f.s,z:f.cz-u*f.s+v*f.c};}
 function featH(f,x,z){
   const dx=x-f.cx,dz=z-f.cz;if(dx*dx+dz*dz>f.br2)return -Infinity;
@@ -351,6 +358,42 @@ function profileGeo(prof,w){
   const g=new THREE.ExtrudeGeometry(sh,{depth:w,bevelEnabled:false,steps:1});
   g.rotateY(-Math.PI/2);g.translate(w/2,0,0);return g;
 }
+// ---- skatepark detail: painted ramp sides, original graffiti pieces, soft contact shadows
+const GRAF_WORDS=['SEND IT','SCOOT','KIA ORA','SHRED','WHIP IT','RIP','FLOW','GO BIG','STOKED','CHUR'];
+const GRAF_COLS=[['#ff4d5e','#ffd43b'],['#40d6c8','#3f7fbf'],['#8e5bd6','#ff6fb5'],['#ffd43b','#ff8a3d'],['#7bd389','#40d6c8'],['#ff6fb5','#ffd43b']];
+function grafCanvas(i,base){const c=document.createElement('canvas');c.width=512;c.height=256;const g=c.getContext('2d');g.fillStyle=base;g.fillRect(0,0,512,256);
+  const r=k=>{const x=Math.sin(i*99+k*13.7)*43758.5;return x-Math.floor(x);},[c1,c2]=GRAF_COLS[i%GRAF_COLS.length],word=GRAF_WORDS[i%GRAF_WORDS.length];
+  // backdrop splash, word with outline + highlight, drips, sparkles, a little tag
+  g.save();g.translate(256,150);g.rotate((r(1)-.5)*.12);
+  g.fillStyle='rgba(255,255,255,.18)';g.beginPath();g.ellipse(0,0,220,78,0,0,TAU);g.fill();
+  g.font='bold 92px Bungee, Impact, Arial Black, sans-serif';g.textAlign='center';g.textBaseline='middle';
+  const w=Math.min(1,420/Math.max(1,g.measureText(word).width));g.scale(w,1);
+  g.lineJoin='round';g.lineWidth=22;g.strokeStyle='#141418';g.strokeText(word,0,4);
+  const gr=g.createLinearGradient(0,-40,0,40);gr.addColorStop(0,c1);gr.addColorStop(1,c2);g.fillStyle=gr;g.fillText(word,0,0);
+  g.lineWidth=4;g.strokeStyle='rgba(255,255,255,.75)';g.strokeText(word,-3,-4);g.restore();
+  for(let k=0;k<7;k++){const x=70+r(k+5)*370,y=180+r(k+9)*20,l=10+r(k+2)*40;g.fillStyle=c2;g.fillRect(x,y,4,l);g.beginPath();g.arc(x+2,y+l,3.5,0,TAU);g.fill();}
+  g.fillStyle='#fff';for(let k=0;k<4;k++){const x=40+r(k+20)*440,y=60+r(k+30)*40,s2=6+r(k)*8;g.beginPath();g.moveTo(x,y-s2);g.lineTo(x+s2*.3,y-s2*.3);g.lineTo(x+s2,y);g.lineTo(x+s2*.3,y+s2*.3);g.lineTo(x,y+s2);g.lineTo(x-s2*.3,y+s2*.3);g.lineTo(x-s2,y);g.lineTo(x-s2*.3,y-s2*.3);g.fill();}
+  g.strokeStyle='#141418';g.lineWidth=3;g.beginPath();g.moveTo(380,228);for(let k=0;k<6;k++)g.lineTo(380+k*12,222+(k%2?10:-4));g.stroke();
+  // keep a clean border so clamped edges show plain wall
+  g.strokeStyle=base;g.lineWidth=6;g.strokeRect(0,0,512,256);return c;}
+const GRAF=[];for(let i=0;i<8;i++)GRAF.push(grafCanvas(i,'#8f8b84'));
+const shadowTex=(()=>{const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
+  for(let i=0;i<14;i++){g.fillStyle=`rgba(0,0,0,${0.06})`;const m=8+i*3.2;g.beginPath();if(g.roundRect)g.roundRect(m,m,128-2*m,128-2*m,28);else g.rect(m,m,128-2*m,128-2*m);g.fill();}
+  return new THREE.CanvasTexture(c);})();
+const shadowMat=new THREE.MeshBasicMaterial({map:shadowTex,transparent:true,depthWrite:false,opacity:0.75,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-6});
+let grafN=0;
+function sideMatFor(f,geo){
+  const big=f.maxH>=1&&f.w>=3&&f.tex!=='grass'&&f.color!==COL.dirt&&f.color!==COL.dirtTop&&!f.noGraf&&(f.v1-f.v0)<=30&&f.w<=30;
+  if(big&&rnd()<0.42){const t=new THREE.CanvasTexture(GRAF[grafN++%GRAF.length]);t.anisotropy=maxAniso;const span=f.v1-f.v0;
+    t.repeat.set(1/span,1/f.maxH);t.offset.set(-f.v0/span,0);
+    // flip the +x face so words read the right way round from both sides
+    const n=geo.attributes.normal,uv=geo.attributes.uv,g0=geo.groups[0];for(let i=g0.start;i<g0.start+g0.count;i++){}
+    const idx=geo.index;const flip=new Set();
+    if(g0){for(let k=g0.start;k<g0.start+g0.count;k++){const vi=idx?idx.getX(k):k;if(n.getX(vi)>0.5)flip.add(vi);}}
+    for(const vi of flip)uv.setX(vi,f.v0+f.v1-uv.getX(vi));uv.needsUpdate=true;
+    return new THREE.MeshLambertMaterial({map:t,color:0xffffff});}
+  const k=texFor(f);if(k==='wood')return mat(0x56606e,'wood');
+  const c=new THREE.Color(f.color).multiplyScalar(0.82);return mat(c.getHex(),k);}
 function addFeature(o){
   const f=Object.assign({yaw:0,color:COL.ramp},o);
   f.c=Math.cos(f.yaw);f.s=Math.sin(f.yaw);f.hw=f.w/2;
@@ -360,7 +403,9 @@ function addFeature(o){
   features.push(f);
   const grp=new THREE.Group();grp.position.set(f.cx,0,f.cz);grp.rotation.y=f.yaw;f.group=grp;
   if(!f.noMesh){
-    const geo=profileGeo(f.prof,f.w);const m=new THREE.Mesh(geo,mat(f.color,texFor(f)));m.castShadow=!f.noShadow;m.receiveShadow=true;grp.add(m);
+    const geo=profileGeo(f.prof,f.w);const m=new THREE.Mesh(geo,[sideMatFor(f,geo),mat(f.color,texFor(f))]);m.castShadow=!f.noShadow;m.receiveShadow=true;grp.add(m);
+    if(f.maxH>=0.2&&f.tex!=='grass'&&f.tex!=='none'&&!f.noShadow){const sg=new THREE.PlaneGeometry(f.w+1.3,(f.v1-f.v0)+1.3);sg.rotateX(-Math.PI/2);
+      const sm=new THREE.Mesh(sg,shadowMat);sm.position.set(0,0.035,(f.v0+f.v1)/2);sm.renderOrder=1;grp.add(sm);}
     if(!f.noEdges)grp.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo,28),edgeMat));
   }
   scene.add(grp);
@@ -384,15 +429,19 @@ function addEdgeRails(f){
   if(f.edges==='all'){const u2=f.hw;seg(-u2,va+0.03,u2,va+0.03);seg(-u2,vb-0.03,u2,vb-0.03);}
 }
 const box=(cx,cz,w,d,h,yaw,color,edges,extra)=>addFeature(Object.assign({cx,cz,yaw,w,prof:[[-d/2,h],[d/2,h]],color,edges},extra||{}));
-function kicker(cx,cz,yaw,w,len,h,curve,color,id){const prof=[];const n=curve===1?1:10;for(let i=0;i<=n;i++){const t=i/n;prof.push([t*len,h*Math.pow(t,curve)]);}return addFeature({cx,cz,yaw,w,prof,color:color||COL.wood,id});}
-function landing(cx,cz,yaw,w,h,deck,len,color){return addFeature({cx,cz,yaw,w,prof:[[0,h],[deck,h],[deck+len,0]],color:color||COL.wood});}
+function kickPlate(f,v){if(f.color===COL.dirt||f.color===COL.dirtTop)return;const pl=new THREE.Mesh(new THREE.BoxGeometry(f.w-0.06,0.012,0.36),mat(COL.metal));pl.position.set(0,0.006,v);pl.receiveShadow=true;f.group.add(pl);}
+function kicker(cx,cz,yaw,w,len,h,curve,color,id){const prof=[];const n=curve===1?1:10;for(let i=0;i<=n;i++){const t=i/n;prof.push([t*len,h*Math.pow(t,curve)]);}const f=addFeature({cx,cz,yaw,w,prof,color:color||COL.wood,id});kickPlate(f,0.18);return f;}
+function landing(cx,cz,yaw,w,h,deck,len,color){const f=addFeature({cx,cz,yaw,w,prof:[[0,h],[deck,h],[deck+len,0]],color:color||COL.wood});kickPlate(f,deck+len-0.18);return f;}
 function qp(cx,cz,yaw,w,R,Hh,deck,color,id){
   const dmax=Math.sqrt(R*R-(R-Hh)**2);const prof=[];const n=16;
   for(let i=0;i<=n;i++){const v=dmax*i/n;prof.push([v,R-Math.sqrt(R*R-v*v)]);}
   prof.push([dmax+deck,Hh]);
   const f=addFeature({cx,cz,yaw,w,prof,color:color||COL.ramp,id});
   const cg=new THREE.CylinderGeometry(0.05,0.05,w,10);cg.rotateZ(Math.PI/2);
-  const cm=new THREE.Mesh(cg,mat(COL.coping));cm.position.set(0,Hh,dmax);f.group.add(cm);
+  const cm=new THREE.Mesh(cg,mat(COL.coping));cm.position.set(0,Hh,dmax);f.group.add(cm);kickPlate(f,0.18);
+  if(deck>=1.5&&Hh>=2.4){const rm=mat(0x6d747d),vb=dmax+deck-0.08;const n2=Math.max(2,Math.round(w/2));
+    for(let i=0;i<=n2;i++){const u=-w/2+0.1+(w-0.2)*i/n2;const po=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,1.0,8),rm);po.position.set(u,Hh+0.5,vb);po.castShadow=true;f.group.add(po);}
+    for(const y of [0.5,1.0]){const tg=new THREE.CylinderGeometry(0.025,0.025,w-0.2,8);tg.rotateZ(Math.PI/2);const t=new THREE.Mesh(tg,rm);t.position.set(0,Hh+y,vb);t.castShadow=true;f.group.add(t);}}
   const a=toWorld(f,-w/2+0.3,dmax),b=toWorld(f,w/2-0.3,dmax);
   addRailRaw({x:a.x,y:Hh+0.03,z:a.z},{x:b.x,y:Hh+0.03,z:b.z},'coping',id||'qp');
   return f;
@@ -469,6 +518,22 @@ addBowl({x:50,z:120,r:5.5,D:1.8,R:2.8,id:'clover'});addBowl({x:59,z:127,r:5.5,D:
 addBowl({x:-62,z:172,x2:-40,z2:178,r:4,D:1.2,R:2.4,id:'snake'});addBowl({x:-40,z:178,x2:-15,z2:170,r:4.5,D:1.8,R:2.8,id:'snake'});
 addBowl({x:-15,z:170,x2:10,z2:176,r:5,D:2.4,R:3.3,id:'snake'});addBowl({x:16,z:176,r:7,D:3,R:4,tile:true,id:'snake'});bowlZones.push([-67,162,24,184]);
 
+// Real-park bowls (east district)
+// Marlborough Park: flow bowl (capsule + round deep end) and a mini bowl
+addBowl({x:232,z:150,x2:258,z2:160,r:6,D:2.2,R:3.2,id:'marl'});addBowl({x:272,z:152,r:7.5,D:2.8,R:3.8,id:'marl'});bowlZones.push([224,142,282,168]);
+addBowl({x:295,z:165,r:5,D:1.5,R:2.6,id:'marlmini'});bowlZones.push([288,158,302,172]);
+// Victoria Park: vert bowl, snake run, flow bowl, BMX bowl
+addBowl({x:405,z:160,r:8,D:3.4,R:3.8,tile:true,id:'vicvert'});bowlZones.push([396,151,414,169]);
+addBowl({x:372,z:140,x2:385,z2:125,r:3.8,D:1.3,R:2.4,id:'vicsnake'});addBowl({x:385,z:125,x2:400,z2:132,r:4,D:1.7,R:2.7,id:'vicsnake'});addBowl({x:400,z:132,x2:415,z2:122,r:4.2,D:2.0,R:3,id:'vicsnake'});bowlZones.push([366,116,421,145]);
+addBowl({x:392,z:80,r:9,D:2.3,R:3.4,id:'vicflow'});addBowl({x:405,z:70,x2:422,z2:62,r:5.5,D:2,R:3.2,id:'vicflow'});bowlZones.push([381,55,429,90]);
+addBowl({x:368,z:40,r:10,D:1.6,R:3.2,id:'vicbmx'});bowlZones.push([357,29,379,51]);
+// Mount Maunganui: cloverleaf flow bowl and the long surf ditch
+addBowl({x:240,z:-50,r:8,D:2.6,R:3.6,id:'mtflow'});addBowl({x:255,z:-42,r:7,D:2.2,R:3.3,id:'mtflow'});addBowl({x:252,z:-60,r:6,D:1.8,R:3,id:'mtflow'});bowlZones.push([230,-68,264,-33]);
+addBowl({x:215,z:-100,x2:296,z2:-114,r:5,D:1.6,R:4.2,id:'ditch'});addBowl({x:300,z:-115,r:6,D:2,R:3.4,id:'ditch'});bowlZones.push([208,-122,307,-93]);
+// Washington Way: beginner bowl, and the big peanut bowl: a shallow end that drops into the 5.4 m deep cradle
+addBowl({x:345,z:-160,r:6,D:1.2,R:2.4,id:'wwbeg'});bowlZones.push([338,-167,352,-153]);
+addBowl({x:410,z:-115,r:10,D:5.4,R:5.8,tile:true,id:'wwdeep'});addBowl({x:392,z:-140,r:8,D:2.2,R:3.2,tile:true,id:'wwdeep'});bowlZones.push([382,-150,421,-104]);
+
 // ---------------- ground zones + texture
 const ZONES={plaza:[-70,-60,70,70],road:[-84,-74,84,84],lot:[-182,-62,-92,62],dirt:[92,-34,186,34],pathW:[-92,-5,-84,5],pathE:[84,-5,92,5]};
 const inR=(r,x,z)=>x>=r[0]&&x<=r[2]&&z>=r[1]&&z<=r[3];
@@ -512,13 +577,13 @@ groundTex.repeat.set(1/400,1/400);groundTex.offset.set(0.5,0.5);
 
 // ---------------- build the world
 {
-  const gs=new THREE.Shape();gs.moveTo(-200,-200);gs.lineTo(200,-200);gs.lineTo(200,200);gs.lineTo(-200,200);gs.lineTo(-200,-200);
+  const gs=new THREE.Shape();gs.moveTo(W.x0,W.z0);gs.lineTo(W.x1,W.z0);gs.lineTo(W.x1,W.z1);gs.lineTo(W.x0,W.z1);gs.lineTo(W.x0,W.z0);
   for(const z of bowlZones){const hp=new THREE.Path();hp.moveTo(z[0],-z[1]);hp.lineTo(z[2],-z[1]);hp.lineTo(z[2],-z[3]);hp.lineTo(z[0],-z[3]);hp.lineTo(z[0],-z[1]);gs.holes.push(hp);}
   const gg=new THREE.ShapeGeometry(gs,8);gg.rotateX(-Math.PI/2);
   {const uv=gg.attributes.uv,a=new Float32Array(uv.count*2);for(let i=0;i<uv.count;i++){a[2*i]=uv.getX(i)/2.5;a[2*i+1]=uv.getY(i)/2.5;}gg.setAttribute('uv2',new THREE.BufferAttribute(a,2));}
   const gm=new THREE.Mesh(gg,new THREE.MeshLambertMaterial({map:groundTex,color:0xa9a9a9,aoMap:TEX.detail,aoMapIntensity:1}));gm.receiveShadow=true;scene.add(gm);
   const fs=new THREE.Shape();fs.moveTo(-800,-800);fs.lineTo(800,-800);fs.lineTo(800,800);fs.lineTo(-800,800);fs.lineTo(-800,-800);
-  const fh=new THREE.Path();fh.moveTo(-200,-200);fh.lineTo(200,-200);fh.lineTo(200,200);fh.lineTo(-200,200);fh.lineTo(-200,-200);fs.holes.push(fh);
+  const fh=new THREE.Path();fh.moveTo(W.x0,W.z0);fh.lineTo(W.x1,W.z0);fh.lineTo(W.x1,W.z1);fh.lineTo(W.x0,W.z1);fh.lineTo(W.x0,W.z0);fs.holes.push(fh);
   const fg=new THREE.ShapeGeometry(fs);fg.rotateX(-Math.PI/2);const far=new THREE.Mesh(fg,mat(0x6a9045));far.position.y=-0.01;scene.add(far);
 }
 // -- skatepark
@@ -605,25 +670,93 @@ addRail(-150,0.5,-95,-125,0.5,-95,'schoolrail',5);
 box(-110,-172,0.6,24,0.5,Math.PI/2,COL.ledge,'long');box(-170,-175,3,3,0.6,0,COL.ledge,'all');box(-160,-175,3,3,0.6,0,COL.ledge,'all');
 for(const x of [-140,-112]){const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,3.4,8),mat(0x3b3f47));pole.position.set(x,1.7,-177.5);scene.add(pole);
   const bd=new THREE.Mesh(new THREE.BoxGeometry(0.1,1,1.6),mat(0xf2f2ee));bd.position.set(x+(x<-126?0.3:-0.3),3.2,-177.5);scene.add(bd);}
+// =============== Real-park areas (east district). Based on public descriptions of each park; layouts are our own.
+function parkSign(x,z,yaw,title,sub){const c=document.createElement('canvas');c.width=1024;c.height=320;const g=c.getContext('2d');
+  g.fillStyle='#1f5a3d';g.fillRect(0,0,1024,320);g.strokeStyle='#f3f1ea';g.lineWidth=10;g.strokeRect(14,14,996,292);
+  g.fillStyle='#f3f1ea';g.textAlign='center';g.font='bold 92px Barlow Condensed, Arial Narrow, sans-serif';g.fillText(title.toUpperCase(),512,150);
+  g.font='600 54px Barlow Condensed, Arial Narrow, sans-serif';g.fillStyle='#ffd43b';g.fillText(sub,512,240);
+  const t=new THREE.CanvasTexture(c);t.anisotropy=maxAniso;const grp=new THREE.Group();grp.position.set(x,0,z);grp.rotation.y=yaw;
+  const fm=new THREE.MeshLambertMaterial({map:t}),side=mat(0x1f5a3d);const b=new THREE.Mesh(new THREE.BoxGeometry(4,1.25,0.12),[side,side,side,side,fm,fm]);b.position.y=1.75;b.castShadow=true;grp.add(b);
+  for(const sx of [-1.7,1.7]){const po=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.06,2.4,8),mat(0x3b3f47));po.position.set(sx,1.2,0);grp.add(po);}
+  scene.add(grp);box(x,z,4,0.3,2.4,yaw,0,null,{noMesh:true,noMap:true});}
+const PK=COL.park,LD=COL.ledge;
+// --- Marlborough Park, Glenfield: flow park with spine, hips, pump bumps, banks, slappy curbs, ledges, stairs + rail
+{const dm=Math.sqrt(9-1.96);qp(235,110,0,8,3,1.6,0.05,PK,'mspine');qp(235,110+2*(dm+0.05),Math.PI,8,3,1.6,0.05,PK,'mspine');
+ addFeature({cx:262,cz:118,yaw:Math.PI/4,w:6,prof:[[-4,0],[-1.2,1.2],[1.2,1.2],[4,0]],color:PK,edges:'long',id:'mhip'});
+ addFeature({cx:288,cz:128,yaw:-Math.PI/5,w:5,prof:[[-3.5,0],[-1,1],[1,1],[3.5,0]],color:PK,edges:'long',id:'mhip'});
+ addFeature({cx:300,cz:142,yaw:Math.PI/2.5,w:5,prof:[[-3.5,0],[-1,1],[1,1],[3.5,0]],color:PK,edges:'long',id:'mhip'});
+ rollers(215,38,0,3,6,5,0.6,PK);rollers(222,38,0,3,6,5,0.5,PK);
+ addFeature({cx:304,cz:95,yaw:Math.PI/2,w:22,prof:[[0,0],[3.5,1.4],[5,1.4]],color:PK,edges:'long',id:'mbank'});
+ qp(262,26,Math.PI,12,3.5,2.2,1.5,PK,'mqp');
+ box(240,60,0.5,10,0.3,0,COL.kerb,'long');box(252,74,0.5,8,0.3,Math.PI/3,COL.kerb,'long');
+ box(280,68,0.7,10,0.5,0,LD,'long');box(296,84,0.7,8,0.5,Math.PI/2,LD,'long');
+ {const st=stairSet(285,45,Math.PI/2,6,8,3,0.3,0.45,3,PK,'mstairs');stairRail(st,2.4,'mrail');}
+ // playground and flying fox next to the skatepark
+ {const fm=mat(0x3b3f47);for(const z of [170,184]){for(const dx of [-0.9,0.9]){const po=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,3.4,8),fm);po.position.set(310+dx*0.5,1.6,z);po.rotation.z=dx*0.25;scene.add(po);}}
+  const cab=new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.02,14,6),fm);cab.rotation.x=Math.PI/2;cab.position.set(310,3.2,177);scene.add(cab);
+  box(306,176,3,3,1.2,0,0xff8a3d,null,{noGraf:true});box(300,180,2,2,2,0,0x40d6c8,null,{noGraf:true});}
+ parkSign(210,22,Math.PI/2+0.4,'Marlborough Park','Glenfield · skatepark');
+ for(const t of [[208,20],[208,182],[312,20],[210,130],[312,110]])tree(t[0],t[1]);}
+// --- Victoria Park, Auckland CBD: street plaza on the Beaumont St side, trail area under the motorway, vert bowl, snake run, flow bowl, BMX bowl
+{box(333,40,0.7,12,0.5,0,LD,'long');box(338,70,0.7,10,0.45,0,LD,'long');box(335,100,2.5,8,0.3,0,PK,'long');
+ addFeature({cx:329,cz:130,yaw:Math.PI/2,w:10,prof:[[0,0],[4,1.6],[6,1.6]],color:PK,edges:'long',id:'vbank'});
+ {const st=stairSet(335,170,Math.PI,6,6,4,0.3,0.45,3,PK,'vstairs');hubba(st,3.4,'hubba');hubba(st,-3.4,'hubba');}
+ for(let z=30;z<=180;z+=25){box(347,z,1.6,1.6,9.6,0,0xa29f97,null,{noGraf:true});box(357,z,1.6,1.6,9.6,0,0xa29f97,null,{noGraf:true});}
+ {const dk=new THREE.Mesh(new THREE.BoxGeometry(14,1.2,215),mat(0xa29f97,'concrete'));dk.position.set(352,10.2,95);dk.castShadow=true;dk.receiveShadow=true;scene.add(dk);
+  for(const sx of [-6.8,6.8]){const br=new THREE.Mesh(new THREE.BoxGeometry(0.4,1,215),mat(0xb9b5ac,'concrete'));br.position.set(352+sx,11.3,95);br.castShadow=true;scene.add(br);}}
+ rollers(352,35,0,3,4,6,0.5,PK);kicker(352,78,0,3,2.5,1,1.4,PK,'vtrail');landing(352,84,0,3.5,1,0.8,4,PK);rollers(352,115,0,3,4,6,0.5,PK);
+ parkSign(332,18,0.3,'Victoria Park','Auckland CBD · skatepark');
+ for(const t of [[432,20],[432,100],[370,182],[430,182]])tree(t[0],t[1]);}
+// --- Mount Maunganui Destination Skatepark, Tauranga: flow bowl, surf ditch, competition stairs, street area, Mauao behind
+{const cs=stairSet(250,-160,Math.PI/2,9,10,8,0.3,0.45,5,PK,'mtstairs');stairRail(cs,2.2,'mountrail');stairRail(cs,-2.2,'mountrail');
+ box(290,-150,0.7,12,0.5,Math.PI/2,LD,'long');box(295,-172,2.5,10,0.3,Math.PI/2,PK,'long');box(275,-178,0.7,10,0.45,Math.PI/2,LD,'long');
+ addFeature({cx:220,cz:-150,yaw:-Math.PI/2,w:12,prof:[[0,0],[4,1.5],[6,1.5]],color:PK,edges:'long',id:'mtbank'});
+ addRail(275,0.55,-135,295,0.55,-135,'mountflat',5);kicker(300,-80,-Math.PI/2,3,2.6,1.1,1.5,PK,'mtkick');
+ parkSign(212,-20,-Math.PI/2-0.3,'Mount Maunganui','Destination skatepark · Tauranga');
+ for(const t of [[208,-182],[312,-182],[312,-20],[290,-30]])tree(t[0],t[1]);
+ // Mauao on the horizon (scenery only)
+ {const g=new THREE.ConeGeometry(300,232,40,8,true);const pos=g.attributes.position;for(let i=0;i<pos.count;i++){const y=pos.getY(i);if(y<115){const k=1+Math.sin(i*1.7)*0.04+Math.cos(i*0.9)*0.03;pos.setX(i,pos.getX(i)*k);pos.setZ(i,pos.getZ(i)*k);}}g.computeVertexNormals();
+  const mt=new THREE.Mesh(g,new THREE.MeshLambertMaterial({color:0x5d7a45,flatShading:true}));mt.position.set(262,116-2,-520);scene.add(mt);}}
+// --- Washington Way, Christchurch: entry plaza, street terrain with hubbas + stairs, beginner bowl, half-pipe, big bowl into a 5.4 m cradle
+{box(345,-30,3,3,0.6,0,LD,'all');box(362,-32,0.7,12,0.5,Math.PI/2,LD,'long');box(382,-30,3,3,0.6,0,LD,'all');box(405,-35,0.7,14,0.5,Math.PI/2,LD,'long');
+ {const st=stairSet(345,-70,Math.PI,7,8,5,0.3,0.45,4,PK,'wwstairs');hubba(st,4,'hubba');hubba(st,-4,'hubba');stairRail(st,1.8,'wwrail');}
+ box(335,-110,2.5,10,0.3,0,PK,'long');box(372,-95,0.7,10,0.45,0,LD,'long');
+ addFeature({cx:360,cz:-128,yaw:0,w:8,prof:[[0,0],[3,1.3],[4,1.3]],color:PK,edges:'long',id:'wwbank'});
+ addFeature({cx:360,cz:-112,yaw:Math.PI,w:8,prof:[[0,0],[3,1.3],[4,1.3]],color:PK,edges:'long',id:'wwbank'});
+ qp(372,-170,-Math.PI/2,10,3.5,2.2,2,COL.wood,'wwhp');qp(380,-170,Math.PI/2,10,3.5,2.2,2,COL.wood,'wwhp');
+ parkSign(330,-20,-0.3,'Washington Way','Christchurch · skatepark');
+ for(const t of [[432,-20],[432,-182],[328,-182],[355,-182]])tree(t[0],t[1]);}
+// road markings for the east roads (dashed centre lines)
+{const dash=new THREE.PlaneGeometry(0.18,2.2);dash.rotateX(-Math.PI/2);const dm=new THREE.MeshBasicMaterial({color:0xe8c547,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4});
+ const spots=[];for(let z=-186;z<=186;z+=5)spots.push([197,z,0]);for(let x=208;x<=434;x+=5)spots.push([x,0,Math.PI/2]);
+ const im=new THREE.InstancedMesh(dash,dm,spots.length),d=new THREE.Object3D();spots.forEach((p,i)=>{d.position.set(p[0],0.03,p[1]);d.rotation.set(0,p[2],0);d.updateMatrix();im.setMatrixAt(i,d.matrix);});scene.add(im);}
 buildBowls();
+// -- road loop: raised footpaths on the outside, street lamps along them
+const FP=0xb9b4a8;
+box(0,85.5,174,3,0.12,0,FP,'all',{noEdges:true,noGraf:true});box(0,-75.5,174,3,0.12,0,FP,'all',{noEdges:true,noGraf:true});
+box(-85.5,5,3,158,0.12,0,FP,'all',{noEdges:true,noGraf:true});box(85.5,5,3,158,0.12,0,FP,'all',{noEdges:true,noGraf:true});
+{const lamp=(x,z,dx,dz)=>{box(x,z,0.3,0.3,6,0,0,null,{noMesh:true,noMap:true});
+   const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,6,8),mat(0x3b3f47));pole.position.set(x,3,z);scene.add(pole);
+   const hd=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.18,0.9),mat(0xf6f0d0));hd.position.set(x+dx*0.8,6,z+dz*0.8);scene.add(hd);
+   DECOR.push({glb:'street_lamp',x,z,yaw:Math.atan2(-dz,dx),objs:[pole,hd]});};
+ for(let x=-72;x<=72;x+=24){lamp(x,86.5,0,-1);lamp(x,-76.5,0,1);}for(let z=-50;z<=70;z+=24){lamp(-86.5,z,1,0);lamp(86.5,z,-1,0);}}
 // -- boundary + city
-box(0,189,378,2,2.4,0,COL.wall,null);box(0,-189,378,2,2.4,0,COL.wall,null);
-box(189,0,2,378,2.4,0,COL.wall,null);box(-189,0,2,378,2.4,0,COL.wall,null);
+box(124,189,626,2,2.4,0,COL.wall,null);box(124,-189,626,2,2.4,0,COL.wall,null);
+box(437,0,2,378,2.4,0,COL.wall,null);box(-189,0,2,378,2.4,0,COL.wall,null);
 const winTex=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,64,64);g.fillStyle='rgba(30,40,60,.55)';for(let y=8;y<64;y+=21)for(let x=6;x<64;x+=16)g.fillRect(x,y,9,12);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;})();
 const bCols=[0xc9b79c,0xa8b4c0,0xd8c7b0,0x9aa58f,0xc49a87,0xb6b0c8];
-for(let side=0;side<4;side++)for(let p=-230;p<230;){const w=14+rnd()*16,d=14+rnd()*12,h=10+rnd()*26;const c=p+w/2;const off=196+d/2+rnd()*6;
+for(let side=0;side<4;side++)for(let p=-230,pe=side%2?230:470;p<pe;){const w=14+rnd()*16,d=14+rnd()*12,h=10+rnd()*26;const c=p+w/2;const off=(side===1?W.x1-4:196)+d/2+rnd()*6;
+  if(side===2&&c>195&&c<325){p+=w+2;continue;}
   const geo=new THREE.BoxGeometry(side%2?d:w,h,side%2?w:d);const tex=winTex.clone();tex.needsUpdate=true;tex.repeat.set(w/4,h/3.5);
   const m=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({color:bCols[Math.floor(rnd()*bCols.length)],map:tex}));
   if(side===0)m.position.set(c,h/2,off);else if(side===1)m.position.set(off,h/2,c);else if(side===2)m.position.set(c,h/2,-off);else m.position.set(-off,h/2,c);
   scene.add(m);p+=w+2+rnd()*4;}
 // trees
-const trunkG=new THREE.CylinderGeometry(0.16,0.22,2.4,7);trunkG.translate(0,1.2,0);
-const leafG=new THREE.IcosahedronGeometry(1.7,0);
 function tree(x,z){box(x,z,0.5,0.5,4,0,0,null,{noMesh:true,noMap:true});
   const t=new THREE.Mesh(trunkG,mat(0x6b4a2f));t.position.set(x,0,z);t.castShadow=true;scene.add(t);
   const l=new THREE.Mesh(leafG,mat(rnd()<.5?0x3f7a35:0x4f8a3a));l.position.set(x,3.3,z);l.scale.set(1,1.15,1);l.castShadow=true;scene.add(l);
   DECOR.push({glb:rnd()<.55?'pohutukawa_tree':'cabbage_tree',x,z,yaw:rnd()*TAU,scale:0,objs:[t,l]});}
-for(let i=0,n=0;i<900&&n<60;i++){const x=lerp(-184,184,rnd()),z=lerp(-184,184,rnd());
+for(let i=0,n=0;i<1400&&n<85;i++){const x=lerp(-184,432,rnd()),z=lerp(-184,184,rnd());if(x>184&&x<208)continue;
   if(AREAS.some(a=>inR([a.r[0]-3,a.r[1]-3,a.r[2]+3,a.r[3]+3],x,z))||Math.abs(z)<8)continue;tree(x,z);n++;}
 for(const p of [[-68,96],[68,96],[-70,150],[70,180],[-2,138],[36,176],[-10,108],[-180,-80],[-180,-110],[-95,-185],[180,180],[100,180],[180,50]])tree(p[0],p[1]);
 // lamps (decor)
@@ -636,14 +769,28 @@ rails.forEach(r=>{if(r.kind==='rail')railMesh(r,r.posts);});
 for(const p of [[-34.5,-56.4],[34.5,-56.4],[-8,-125],[22,-176]]){box(p[0],p[1],0.64,0.64,0.98,0,0,null,{noMesh:true,noMap:true});DECOR.push({glb:'rubbish_bin',x:p[0],z:p[1],yaw:0,objs:[]});}
 if(ASSET_OK){box(14,-54,3,0.3,2.3,-0.5,0,null,{noMesh:true,noMap:true});DECOR.push({glb:'scoot_park_sign',x:14,z:-54,yaw:-0.5,objs:[]});}
 // real textures: swap the canvas images, retint the materials that use them
-function retint(k){const seen=new Set();scene.traverse(o=>{const m=o.material;if(!m||Array.isArray(m)||seen.has(m))return;seen.add(m);
-  if(m.map!==TEX[k]&&!(k==='concrete'&&m.map===TEX.concrete1))return;
+function retint(k){const seen=new Set();scene.traverse(o=>{if(!o.material)return;for(const m of [].concat(o.material)){if(seen.has(m))continue;seen.add(m);
+  if(m.map!==TEX[k]&&!(k==='concrete'&&m.map===TEX.concrete1))continue;
   for(const mm of [m,pbrMap.get(m)]){if(!mm||mm.userData.tinted)continue;mm.userData.tinted=true;
-    if(k==='concrete')mm.color.multiplyScalar(1.45);else if(k==='grass')mm.color.lerp(new THREE.Color(0xffffff),0.35);else if(k!=='asphalt')mm.color.lerp(new THREE.Color(0xffffff),0.72);}});}
+    if(k==='concrete')mm.color.multiplyScalar(1.45);else if(k==='grass')mm.color.lerp(new THREE.Color(0xffffff),0.35);else if(k!=='asphalt')mm.color.lerp(new THREE.Color(0xffffff),0.72);}}});}
 for(const [k,f] of [['concrete','concrete'],['wood','plywood'],['dirt','dirt'],['grass','grass'],['asphalt','asphalt']])
   loadImg(`assets/textures/${f}.jpg`,img=>{const ts=k==='concrete'?[TEX.concrete,TEX.concrete1]:[TEX[k]];for(const t of ts){t.image=img;t.needsUpdate=true;}
     TEX[k].repeat.set(1/2.5,1/2.5);if(k==='concrete')TEX.concrete1.repeat.set(1.2,1.2);retint(k);});
 if(ASSET_OK){
+  // blue pool-tile band just under the coping of tiled bowls (studio texture), following the wall
+  loadImg('assets/textures/pool-tile-band.jpg',img=>{const t=new THREE.Texture(img);t.needsUpdate=true;t.wrapS=THREE.RepeatWrapping;t.anisotropy=maxAniso;
+    const bm=new THREE.MeshLambertMaterial({map:t,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4});
+    for(const b of bowls){if(!b.tile)continue;const pts=rimPoints(b),pos=[],uv=[],ind=[];let run=0;
+      const inward=(x,z)=>{let cx=b.x,cz=b.z;if(b.len){let tt=((x-b.x)*b.ux+(z-b.z)*b.uz)/b.len;tt=clamp(tt,0,1);cx=b.x+b.ux*b.len*tt;cz=b.z+b.uz*b.len*tt;}const dx=cx-x,dz=cz-z,l=Math.hypot(dx,dz)||1;return [dx/l,dz/l];};
+      for(let i=0;i<pts.length-1;i++){const p0=pts[i],p1=pts[i+1],mx=(p0[0]+p1[0])/2,mz=(p0[1]+p1[1])/2,seg=Math.hypot(p1[0]-p0[0],p1[1]-p0[1]);
+        if(bowls.some(o=>o!==b&&bowlE(o,mx,mz)>0.02)){run+=seg;continue;}
+        const base=pos.length/3;
+        for(const [pp,u] of [[p0,run/2.4],[p1,(run+seg)/2.4]]){const [nx,nz]=inward(pp[0],pp[1]);let dmax=0.05;for(let d=0.05;d<1.6;d+=0.03){dmax=d;if(baseH(pp[0]+nx*d,pp[1]+nz*d)<=-0.45)break;}
+          for(let r=0;r<=3;r++){const d=0.02+(dmax-0.02)*r/3,x=pp[0]+nx*d,z=pp[1]+nz*d;pos.push(x,baseH(x,z)+0.012,z);uv.push(u,1-r/3);}}
+        for(let r=0;r<3;r++){const a=base+r,b2=base+4+r;ind.push(a,b2,a+1,a+1,b2,b2+1);}
+        run+=seg;}
+      if(!pos.length)continue;const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(ind);g.computeVertexNormals();
+      const m=new THREE.Mesh(g,bm);m.receiveShadow=true;m.material.side=THREE.DoubleSide;scene.add(m);}});
   // paved zones as their own textured planes (with holes where the bowls are), grass on the open ground, painted markings on top
   const zmat={};const zm=(k,tint)=>zmat[k+tint]||(zmat[k+tint]=new THREE.MeshLambertMaterial({map:TEX[k],color:tint,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2}));
   const zone=(r,k,tint)=>{const sh=new THREE.Shape();sh.moveTo(r[0],-r[1]);sh.lineTo(r[2],-r[1]);sh.lineTo(r[2],-r[3]);sh.lineTo(r[0],-r[3]);sh.lineTo(r[0],-r[1]);
@@ -652,11 +799,18 @@ if(ASSET_OK){
   const C=new THREE.Color(0.84,0.82,0.78),CD=new THREE.Color(0.72,0.7,0.67),A=new THREE.Color(0.58,0.58,0.6),AR=AREAS.reduce((o,a)=>(o[a.name]=a.r,o),{});
   zone(ZONES.plaza,'concrete',C);for(const r of [[-84,-74,84,-60],[-84,70,84,84],[-84,-60,-70,70],[70,-60,84,70]])zone(r,'asphalt',A);
   zone(ZONES.pathW,'asphalt',A);zone(ZONES.pathE,'asphalt',A);zone(ZONES.lot,'asphalt',A);zone(ZONES.dirt,'dirt',new THREE.Color(0.62,0.55,0.48));
-  zone(AR['Bowl Garden'],'concrete',C);zone(AR['Street Plaza'],'concrete',CD);zone(AR['Vert Zone'],'concrete',C);zone(AR['Mega Ramp'],'asphalt',A);zone(AR['Schoolyard'],'asphalt',A);
+  zone(AR['Bowl Garden'],'concrete',C);for(const n of ['Marlborough Park','Victoria Park','Mount Maunganui','Washington Way'])zone(AR[n],'concrete',C);zone([189,-189,205,189],'asphalt',A);zone([205,-6,437,6],'asphalt',A);zone(AR['Street Plaza'],'concrete',CD);zone(AR['Vert Zone'],'concrete',C);zone(AR['Mega Ramp'],'asphalt',A);zone(AR['Schoolyard'],'asphalt',A);
   scene.traverse(o=>{if(o.isMesh&&o.material&&o.material.map===groundTex){o.material=new THREE.MeshLambertMaterial({map:TEX.grass,color:0x9aa394,aoMap:TEX.detail,aoMapIntensity:1});}});
   const mk=document.createElement('canvas');mk.width=mk.height=2048;{const g=mk.getContext('2d'),S2=2048/400,X=x=>(x+200)*S2,Z=z=>(z+200)*S2;
     const joints=(r,step,a)=>{g.strokeStyle=`rgba(60,56,50,${a})`;g.lineWidth=1.3;for(let x=r[0];x<=r[2];x+=step){g.beginPath();g.moveTo(X(x),Z(r[1]));g.lineTo(X(x),Z(r[3]));g.stroke();}for(let z=r[1];z<=r[3];z+=step){g.beginPath();g.moveTo(X(r[0]),Z(z));g.lineTo(X(r[2]),Z(z));g.stroke();}};
     joints(ZONES.plaza,5,.35);const AR2=AREAS.reduce((o,a)=>(o[a.name]=a.r,o),{});joints(AR2['Bowl Garden'],6,.3);joints(AR2['Street Plaza'],2,.28);joints(AR2['Vert Zone'],8,.3);
+    g.fillStyle='rgba(20,20,24,.18)';for(const p of [[-60,-70,6,3],[30,77,8,4],[-80,20,3,7],[78,-30,4,6],[-150,10,9,5],[-120,-30,6,6],[150,-120,5,8]]){g.fillRect(X(p[0]),Z(p[1]),p[2]*S2,p[3]*S2);}
+    g.strokeStyle='rgba(240,240,236,.85)';g.lineWidth=2;g.strokeRect(X(-83.3),Z(-73.3),166.6*S2,156.6*S2);g.strokeRect(X(-71.2),Z(-61.2),142.4*S2,132.4*S2);
+    g.fillStyle='rgba(240,240,236,.9)';
+    for(let k=-3;k<=3;k+=1){g.fillRect(X(k-0.25),Z(71.5),0.5*S2,11*S2);g.fillRect(X(k-0.25),Z(-72.5),0.5*S2,11*S2);g.fillRect(X(-82.5),Z(k-0.25),11*S2,0.5*S2);g.fillRect(X(71.5),Z(k-0.25),11*S2,0.5*S2);}
+    g.fillStyle='rgba(25,25,28,.85)';for(let x=-60;x<=60;x+=20){g.fillRect(X(x),Z(-73.8),1.0*S2,0.4*S2);g.fillRect(X(x),Z(83.4),1.0*S2,0.4*S2);}
+    for(let z=-50;z<=60;z+=20){g.fillRect(X(-83.8),Z(z),0.4*S2,1.0*S2);g.fillRect(X(83.4),Z(z),0.4*S2,1.0*S2);}
+    g.strokeStyle='rgba(40,40,44,.9)';g.lineWidth=2;for(const p of [[-40,-67],[40,77],[-77,30],[77,-20],[-140,0]]){g.beginPath();g.arc(X(p[0]),Z(p[1]),0.45*S2,0,TAU);g.stroke();g.beginPath();g.arc(X(p[0]),Z(p[1]),0.3*S2,0,TAU);g.stroke();}
     g.strokeStyle='rgba(232,197,71,.9)';g.lineWidth=2.5;g.setLineDash([14,12]);g.strokeRect(X(-77),Z(-67),154*S2,144*S2);g.setLineDash([]);
     g.strokeStyle='rgba(240,240,236,.9)';g.lineWidth=2.5;for(const row of [[-48,-42],[42,48]])for(let x=-178;x<=-96;x+=3.2){g.beginPath();g.moveTo(X(x),Z(row[0]));g.lineTo(X(x),Z(row[1]));g.stroke();}
     g.strokeRect(X(-140),Z(-185),28*S2,15*S2);g.beginPath();g.moveTo(X(-126),Z(-185));g.lineTo(X(-126),Z(-170));g.stroke();g.beginPath();g.arc(X(-126),Z(-177.5),2.5*S2,0,TAU);g.stroke();
@@ -705,8 +859,8 @@ function pbrFor(m){if(pbrMap.has(m))return pbrMap.get(m);const hex=m.color.getHe
   else if(!m.map&&!m.vertexColors&&[0xd9534f,0x3f7fbf,0xf0ad4e,0xeeeeee,0x2b2b2b,0x5cb85c,0x8e44ad].includes(hex)){rough=.28;metal=.45;env=1;}
   const st=new THREE.MeshStandardMaterial({color:m.color.clone(),map:m.map,aoMap:m.aoMap,aoMapIntensity:m.aoMapIntensity,vertexColors:m.vertexColors,side:m.side,transparent:m.transparent,opacity:m.opacity,roughness:rough,metalness:metal,envMapIntensity:env});
   pbrMap.set(m,st);pbrMap.set(st,m);return st;}
-function setPBR(on){scene.traverse(o=>{if(!(o.isMesh||o.isInstancedMesh)||!o.material||Array.isArray(o.material)||o===sky)return;const m=o.material;
-    if(on&&m.isMeshLambertMaterial)o.material=pbrFor(m);else if(!on&&m.isMeshStandardMaterial&&pbrMap.has(m))o.material=pbrMap.get(m);});
+function setPBR(on){const sw=m=>on&&m.isMeshLambertMaterial?pbrFor(m):(!on&&m.isMeshStandardMaterial&&pbrMap.has(m))?pbrMap.get(m):m;
+  scene.traverse(o=>{if(!(o.isMesh||o.isInstancedMesh)||!o.material||o===sky)return;o.material=Array.isArray(o.material)?o.material.map(sw):sw(o.material);});
   scene.environment=on?envTex:null;}
 // ---------------- graphics quality: Ultra / High / Fast (G cycles, auto-drops if slow)
 let quality='ultra',qualityChosen=false;
@@ -925,6 +1079,10 @@ const CH=[
  {id:'heel',name:'Land a heelwhip',test:e=>e.kind==='air'&&e.heels>=1},
  {id:'nothing',name:'Pull a Nothing (no hands + no feet)',test:e=>e.kind==='air'&&e.nothing},
  {id:'slide',name:'Powerslide at 40 km/h',test:e=>e.kind==='slide'&&e.speed>=11},
+ {id:'mspine',name:'Tailwhip over the Marlborough Park spine',zone:[235,112.7,6],test:e=>e.kind==='air'&&e.whips>=1},
+ {id:'vvert',name:'Backflip in the Victoria Park vert bowl',zone:[405,160,9],test:e=>e.kind==='air'&&e.flips.includes('Backflip')},
+ {id:'mtrail',name:'Grind the Mount Maunganui comp-stair rail',test:e=>e.kind==='grind'&&e.rail==='mountrail'},
+ {id:'cradle',name:'Air out of the 5.4 m Washington Way cradle',zone:[410,-115,11.5],test:e=>e.kind==='air'&&e.t>=0.8},
  {id:'combo5',name:'Land a 5-trick combo',test:e=>e.kind==='combo'&&e.count>=5},
  {id:'big',name:'Bank 20,000 in one combo',test:e=>e.kind==='combo'&&e.total>=20000},
 ];
@@ -962,7 +1120,7 @@ function hud(){
 
 // ---------------- area banner
 let areaTick=0;const elArea=document.getElementById('area');
-function showArea(a,lead){elArea.innerHTML='';const d=document.createElement('div');d.className='ab';const sm=document.createElement('small');sm.textContent=lead;d.appendChild(sm);d.appendChild(document.createTextNode(a.name));elArea.appendChild(d);}
+function showArea(a,lead){elArea.innerHTML='';const d=document.createElement('div');d.className='ab';const sm=document.createElement('small');sm.textContent=a.real?lead+' · based on the real park in '+a.real:lead;d.appendChild(sm);d.appendChild(document.createTextNode(a.name));elArea.appendChild(d);}
 // ---------------- combo
 function addCombo(name,pts,silent){combo.parts.push(name);combo.base+=pts;combo.mult++;combo.idle=0;if(!silent)popup(name,'+'+fmt(pts));}
 function bankCombo(){if(combo.mult>0){const total=Math.round(combo.base*combo.mult);score+=total;
@@ -1027,8 +1185,7 @@ function uiKey(code){
   else if(code==='KeyC')wideCam=!wideCam;
   else if(code==='KeyR'&&!paused)respawn();
   else if(code==='KeyT')trBox.classList.toggle('closed');
-  else if(/^Digit[1-9]$/.test(code)&&!paused){if(firstPad()){popup('Travel keys are off','Unplug the controller to use 1–9');}
-    else{const a=AREAS[+code.slice(5)-1];if(a){curArea=a;respawn(true);showArea(a,'Travelled to');}}}
+  else if(TRAVEL_KEYS[code]!=null&&!paused){const a=AREAS[TRAVEL_KEYS[code]];if(a){curArea=a;respawn(true);showArea(a,'Travelled to');}}
   else if(code==='KeyG'){quality=quality==='ultra'?'high':quality==='high'?'fast':'ultra';qualityChosen=true;try{localStorage.setItem('scootpark.quality',quality);}catch(e){}applyQuality();popup(QNAME[quality]+' graphics','Press G to switch');}
 }
 $('helpClose').onclick=()=>setOverlay(null);
@@ -1051,6 +1208,7 @@ setEl.addEventListener('click',e=>{const g=e.target.closest('[data-gfx]');if(g){
   const b=e.target.closest('[data-bind]');if(b){listenFor=listenFor===b.dataset.bind?null:b.dataset.bind;renderSettings();return;}
   const c=e.target.closest('[data-clear]');if(c){delete save.pad[c.dataset.clear];persist();renderSettings();}});
 // controller while menus are open: Start pauses/unpauses, and settings can listen for a new button
+const TRAVEL_KEYS={Digit1:0,Digit2:1,Digit3:2,Digit4:3,Digit5:4,Digit6:5,Digit7:6,Digit8:7,Digit9:8,Digit0:9,Minus:10,Equal:11,Backslash:12};
 const OVL={pause:'pause',help:'help',map:'mapScr',garage:'garage',settings:'settings',login:'login',board:'board'};
 function navRoot(){return overlay?$(OVL[overlay]):!started?startEl:null;}
 function navItems(){const r=navRoot();return r?[...r.querySelectorAll('button')].filter(b=>b.offsetParent!==null):[];}
@@ -1291,7 +1449,7 @@ function update(dt){
       P.manualT+=dt;combo.base+=90*dt;combo.idle=0;if(P.manualT>=3)emit({kind:'manual',time:P.manualT});}
     else{P.manual=0;if(combo.mult>0){combo.idle+=dt;if(combo.idle>1.1)bankCombo();}}
   }else if(P.state!=='bail')combo.idle=0;
-  if(Math.abs(P.x)>200||Math.abs(P.z)>200||P.y<-20)respawn();
+  if(P.x<W.x0||P.x>W.x1||P.z<W.z0||P.z>W.z1||P.y<-20)respawn();
   if(P.state==='ground'&&Math.hypot(P.x-ELEVATOR.x,P.z-ELEVATOR.z)<2.2){const c=combo.mult;curArea=AREAS[4];respawn(true);popup('Elevator','Back to the top of the Mega Ramp','gold');}
   areaTick+=dt;if(areaTick>0.4){areaTick=0;const a=areaAt(P.x,P.z);if(a&&a!==curArea){curArea=a;showArea(a,'Now entering');}}
 }
@@ -1400,17 +1558,19 @@ function updateVisuals(dt){
 
 // ---------------- minimap
 const mini=$('mini'),mg=mini.getContext('2d'),MS=mini.width;
-const miniBase=document.createElement('canvas');miniBase.width=miniBase.height=1024;
-{const g=miniBase.getContext('2d'),s=1024/400,X=x=>(x+200)*s,Z=z=>(z+200)*s;g.drawImage(groundCanvas,0,0,1024,1024);
+const MB_S=2.5,miniBase=document.createElement('canvas');miniBase.width=(W.x1-W.x0)*MB_S;miniBase.height=(W.z1-W.z0)*MB_S;
+{const g=miniBase.getContext('2d'),s=MB_S,X=x=>(x-W.x0)*s,Z=z=>(z-W.z0)*s;g.fillStyle='#6e9748';g.fillRect(0,0,miniBase.width,miniBase.height);g.drawImage(groundCanvas,0,0,400*s,400*s);
+  const rc=(r,col)=>{g.fillStyle=col;g.fillRect(X(r[0]),Z(r[1]),(r[2]-r[0])*s,(r[3]-r[1])*s);};
+  rc([189,-189,205,189],'#44474e');rc([205,-6,437,6],'#44474e');for(const a of AREAS.slice(9))rc(a.r,'#c6c0b2');
   g.lineCap='round';const bd=(b,rad,col)=>{g.fillStyle=g.strokeStyle=col;if(b.len){g.lineWidth=2*rad*s;g.beginPath();g.moveTo(X(b.x),Z(b.z));g.lineTo(X(b.x2),Z(b.z2));g.stroke();}else{g.beginPath();g.arc(X(b.x),Z(b.z),rad*s,0,TAU);g.fill();}};
   for(const b of bowls)bd(b,b.r,'#2f86b8');for(const b of bowls)bd(b,Math.max(0.3,b.r-b.wallW),'#8fa9b6');
   for(const f of features){if(f.noMap)continue;const cs=[[-f.hw,f.v0],[f.hw,f.v0],[f.hw,f.v1],[-f.hw,f.v1]].map(q=>toWorld(f,q[0],q[1]));
     g.fillStyle=f.maxH>2.3&&f.maxH<3?'#555':'#'+new THREE.Color(f.color).offsetHSL(0,0,-0.18).getHexString();g.beginPath();cs.forEach((p,i)=>i?g.lineTo(X(p.x),Z(p.z)):g.moveTo(X(p.x),Z(p.z)));g.closePath();g.fill();}
   g.strokeStyle='#e9eef3';g.lineWidth=2;for(const r of rails){if(r.kind!=='rail')continue;g.beginPath();g.moveTo(X(r.ax),Z(r.az));g.lineTo(X(r.bx),Z(r.bz));g.stroke();}}
 function drawMini(){
-  const k=MS/180,s=1024/400;mg.setTransform(1,0,0,1,0,0);mg.clearRect(0,0,MS,MS);
+  const k=MS/180,s=MB_S;mg.setTransform(1,0,0,1,0,0);mg.clearRect(0,0,MS,MS);
   mg.save();mg.beginPath();mg.arc(MS/2,MS/2,MS/2,0,TAU);mg.clip();mg.fillStyle='#6e9748';mg.fillRect(0,0,MS,MS);
-  mg.setTransform(-k/s,0,0,-k/s,MS/2+(P.x+200)*k,MS/2+(P.z+200)*k);mg.drawImage(miniBase,0,0);mg.setTransform(1,0,0,1,0,0);
+  mg.setTransform(-k/s,0,0,-k/s,MS/2+(P.x-W.x0)*k,MS/2+(P.z-W.z0)*k);mg.drawImage(miniBase,0,0);mg.setTransform(1,0,0,1,0,0);
   for(const c of CH){if(!c.zone||save.done[c.id])continue;let mx=MS/2+(P.x-c.zone[0])*k,my=MS/2+(P.z-c.zone[1])*k;const dx=mx-MS/2,dy=my-MS/2,dd=Math.hypot(dx,dy),lim=MS/2-12;
     if(dd>lim){mx=MS/2+dx/dd*lim;my=MS/2+dy/dd*lim;}mg.fillStyle='#ffd43b';mg.strokeStyle='#12141b';mg.lineWidth=3;mg.beginPath();mg.arc(mx,my,8,0,TAU);mg.fill();mg.stroke();}
   mg.translate(MS/2,MS/2);mg.rotate(Math.atan2(-Math.cos(P.yaw),-Math.sin(P.yaw)));
@@ -1494,13 +1654,13 @@ async function renderBoard(){
 if(sb)sb.auth.getSession().then(({data})=>{if(data&&data.session)afterLogin(data.session.user);}).catch(()=>{});
 renderAccount();
 // ---------------- big map
-const CH_AT={hand:[37.5,-41.3],bigrail:[4.3,-100],hubba:[31.6,-126]};
+const CH_AT={hand:[37.5,-41.3],bigrail:[4.3,-100],hubba:[31.6,-126],mtrail:[256,-158]};
 const chPos=c=>c.zone?[c.zone[0],c.zone[1]]:CH_AT[c.id]||null;
 const bigmap=$('bigmap'),bmg=bigmap.getContext('2d'),mapCh=$('mapCh');let mapHL=-1;
 function drawBigMap(){
-  const S=bigmap.width,k=S/400,X=x=>(200-x)*k,Z=z=>(200-z)*k;
-  bmg.setTransform(1,0,0,1,0,0);bmg.fillStyle='#6e9748';bmg.fillRect(0,0,S,S);
-  bmg.setTransform(-S/1024,0,0,-S/1024,S,S);bmg.drawImage(miniBase,0,0);bmg.setTransform(1,0,0,1,0,0);
+  const S=bigmap.width,k=S/(W.x1-W.x0),X=x=>(W.x1-x)*k,Z=z=>(W.z1-z)*k;
+  bmg.setTransform(1,0,0,1,0,0);bmg.fillStyle='#6e9748';bmg.fillRect(0,0,S,bigmap.height);
+  bmg.setTransform(-k/MB_S,0,0,-k/MB_S,(W.x1-W.x0)*k,(W.z1-W.z0)*k);bmg.drawImage(miniBase,0,0);bmg.setTransform(1,0,0,1,0,0);
   bmg.textAlign='center';bmg.textBaseline='middle';
   for(const a of AREAS){const cx=X((a.r[0]+a.r[2])/2),cz=Z((a.r[1]+a.r[3])/2);bmg.strokeStyle='rgba(255,255,255,.35)';bmg.lineWidth=2;bmg.setLineDash([8,6]);
     bmg.strokeRect(X(a.r[2]),Z(a.r[3]),(a.r[2]-a.r[0])*k,(a.r[3]-a.r[1])*k);bmg.setLineDash([]);
