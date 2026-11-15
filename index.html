@@ -125,6 +125,13 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
 #lgForm input{font:inherit;font-size:1.15rem;padding:9px 12px;border-radius:6px;border:2px solid #343846;background:#1d2029;color:var(--paper);min-width:0}
 #lgForm input:focus-visible{outline:none;border-color:var(--grip)}
 #lgForm .go{margin-top:8px;justify-self:start}
+.gbtn{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;box-sizing:border-box;background:#fff;color:#1f1f1f;font-family:Roboto,Arial,sans-serif;font-weight:500;font-size:1rem;padding:11px 14px;border-radius:6px;border:1px solid #dadce0}
+.gbtn:hover{background:#f4f6f8}.gbtn:focus-visible{outline:3px solid var(--grip);outline-offset:2px}
+.orline{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;margin:4px 0 12px}
+.orline::before,.orline::after{content:"";flex:1;height:1px;background:#343846}
+#pkForm{display:grid;gap:6px}#pkForm label{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+#pkForm input{font:inherit;font-size:1.15rem;padding:9px 12px;border-radius:6px;border:2px solid #343846;background:#1d2029;color:var(--paper)}
+#pkForm input:focus-visible{outline:none;border-color:var(--grip)}#pkForm .go{justify-self:start;margin-top:8px}
 .lgerr{color:var(--hot);font-weight:700;margin:4px 0 0;min-height:1.2em}
 .lb{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .lb th{text-align:left;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:4px 8px}
@@ -180,7 +187,18 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
   <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px"><button class="go" id="setClose" type="button">Done</button><button class="go alt" id="padReset" type="button">Reset controller buttons</button></div></div></div>
 <div class="screen" id="login" hidden><div class="card logcard">
   <h2>Your account</h2>
+  <div id="lgPick" hidden>
+    <p class="tag" style="margin-top:0">You're signed in with Google. Pick a username for the leaderboard. Don't use your real name.</p>
+    <form id="pkForm" novalidate>
+      <label for="pkName">Username</label><input id="pkName" autocomplete="off" maxlength="16" spellcheck="false" autocapitalize="off">
+      <p class="lgerr" id="pkErr" role="alert"></p>
+      <button class="go" type="submit" id="pkGo">Save username</button>
+    </form>
+  </div>
   <div id="lgIn">
+    <button type="button" class="gbtn" id="gBtn"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continue with Google</button>
+    <p class="lgerr" id="gErr" role="alert"></p>
+    <div class="orline"><span>or use a username</span></div>
     <div class="chips" id="lgTabs" style="margin-bottom:14px"><button type="button" data-lg="login" aria-pressed="true">Log in</button><button type="button" data-lg="signup" aria-pressed="false">Make an account</button></div>
     <form id="lgForm" novalidate>
       <label for="lgName">Username</label><input id="lgName" name="username" autocomplete="username" maxlength="16" spellcheck="false" autocapitalize="off">
@@ -264,7 +282,7 @@ function padState(p){const st={};p.buttons.forEach((b,i)=>{if(b&&(b.pressed||b.v
 function firstPad(){const ps=navigator.getGamepads?navigator.getGamepads():[];for(const p of ps)if(p&&p.connected)return p;return null;}
 // ---------------- controls text
 const CONTROLS=[
- ['Riding'],['W / ↑','Push (Shift = harder)'],['S / ↓','Brake'],['A D / ← →','Steer · spin in the air'],['Space','Ollie (hold to crouch, let go to pop higher) · pop out of a grind'],
+ ['Riding'],['W / ↑','Push (Shift = harder)'],['S / ↓','Brake'],['A D / ← →','Steer · spin in the air'],['Space','Ollie · pop out of a grind'],
  ['Air tricks (tap)'],['J','Tailwhip (hold for doubles)'],['K','Bar spin (hold for doubles)'],['V','Heelwhip'],[',','Fingerwhip'],['.','Rewind'],
  ['L','Briflip'],['I','Backflip'],['O','Frontflip'],['F','Flair (backflip + 180)'],['/','Cash roll'],[';','Decade'],
  ['Grabs (hold in the air)'],['U','No-hander'],['Y','Can-can'],['X','X-up'],['Z','Superman'],["'",'Nac-nac'],['[','Tuck no-hander'],[']','No-footer'],
@@ -887,7 +905,8 @@ R.root=new THREE.Group();scene.add(R.root);
 R.tilt=new THREE.Group();R.tilt.rotation.order='YXZ';R.root.add(R.tilt);
 R.flip=new THREE.Group();R.flip.position.y=0.85;R.tilt.add(R.flip);
 R.inner=new THREE.Group();R.inner.position.y=-0.85;R.flip.add(R.inner);
-R.pivot=new THREE.Group();R.pivot.position.set(0,0,PZ);R.inner.add(R.pivot);
+R.scoot=new THREE.Group();R.scoot.position.set(0,0.88,PZ);R.inner.add(R.scoot);
+R.pivot=new THREE.Group();R.pivot.position.set(0,-0.88,0);R.scoot.add(R.pivot);
 R.deckA=new THREE.Group();R.pivot.add(R.deckA);R.barA=new THREE.Group();R.pivot.add(R.barA);
 function part(geo,col,x,y,z,parent){const m=new THREE.Mesh(geo,mat(col));m.position.set(x,y,z);m.castShadow=true;parent.add(m);return m;}
 // ---------------- scooters (original brands) + high-detail builder
@@ -1035,7 +1054,7 @@ const SPAWN={x:0,z:-50,yaw:0};
 const P={x:SPAWN.x,y:0,z:SPAWN.z,yaw:0,speed:0,vx:0,vy:0,vz:0,state:'ground',pitch:0,roll:0,yawOff:0,twist:0,vert:false,rail:null,gt:0,gs:0,gfakie:false,grind:'',manual:0,manualT:0,bailT:0,bvx:0,bvz:0,crouch:0.15,squash:0,wheel:0,manLift:0};
 let air=null;
 const anim={whip:{on:false,p:0,dur:0.34,kind:'tail'},bar:{on:false,p:0,dur:0.3},flip:{on:false,p:0,dur:0.65,type:''},lift:0,nh:0,cc:0,xu:0,sm:0,nn:0,tk:0,nf:0};
-const FLIP={Backflip:{dur:0.62,pts:800,axis:new V3(1,0,0),dir:-1},Frontflip:{dur:0.66,pts:900,axis:new V3(1,0,0),dir:1},Briflip:{dur:0.7,pts:1100,axis:new V3(0.75,0,0.66).normalize(),dir:1},Flair:{dur:0.78,pts:1300,axis:new V3(1,0,0),dir:-1,flair:true},'Cash Roll':{dur:0.7,pts:1000,axis:new V3(0,0,1),dir:1},Decade:{dur:0.55,pts:700,decade:true}};
+const FLIP={Backflip:{dur:0.62,pts:800,axis:new V3(1,0,0),dir:-1},Frontflip:{dur:0.66,pts:900,axis:new V3(1,0,0),dir:1},Briflip:{dur:0.7,pts:1100,axis:new V3(1,0,0),dir:1,scoot:true},Flair:{dur:0.78,pts:1300,axis:new V3(1,0,0),dir:-1,flair:true},'Cash Roll':{dur:0.7,pts:1000,axis:new V3(0,0,1),dir:1},Decade:{dur:0.55,pts:700,decade:true}};
 const SPIN_PTS=[0,150,400,700,1000,1400,1800,2300,2800];
 let score=0,bestCombo=0,started=false,paused=false,wideCam=false,shake=0;
 const combo={parts:[],base:0,mult:0,idle:0};
@@ -1170,7 +1189,7 @@ addEventListener('blur',()=>{for(const k in keys)keys[k]=false;if(started&&!paus
 const helpEl=$('help'),pauseEl=$('pause'),startEl=$('start');
 const mapEl=$('mapScr'),garEl=$('garage');let overlay=null;
 const setEl=$('settings');let listenFor=null;
-function setOverlay(n){overlay=n||null;paused=!!overlay;pauseEl.hidden=overlay!=='pause';helpEl.hidden=overlay!=='help';mapEl.hidden=overlay!=='map';garEl.hidden=overlay!=='garage';setEl.hidden=overlay!=='settings';loginEl.hidden=overlay!=='login';boardEl.hidden=overlay!=='board';if(overlay==='board')renderBoard();if(overlay==='login'){renderAccount();if(!me)setTimeout(()=>$('lgName').focus(),50);}listenFor=null;if(overlay==='settings')renderSettings();if(overlay!=='garage')setPersonShown(true);
+function setOverlay(n){overlay=n||null;paused=!!overlay;pauseEl.hidden=overlay!=='pause';helpEl.hidden=overlay!=='help';mapEl.hidden=overlay!=='map';garEl.hidden=overlay!=='garage';setEl.hidden=overlay!=='settings';loginEl.hidden=overlay!=='login';boardEl.hidden=overlay!=='board';if(overlay==='board')renderBoard();if(overlay==='login'){renderAccount();if(!me)setTimeout(()=>$(pendingUser?'pkName':'lgName').focus(),50);}listenFor=null;if(overlay==='settings')renderSettings();if(overlay!=='garage')setPersonShown(true);
   focusPad(overlay==='pause'?$('resumeBtn'):null);
   if(overlay==='map')renderMap();if(overlay==='garage')renderGarage();}
 function setPaused(v){setOverlay(v?'pause':null);}
@@ -1257,7 +1276,7 @@ function slopeAlong(x,z,dx,dz){const e=0.06;const h0=H(x,z),hf=H(x+dx*e,z+dz*e),
   const okF=Math.abs(df)<0.3,okB=Math.abs(db)<0.3;if(okF&&okB)return (df+db)/(2*e);if(okF)return df/e;if(okB)return db/e;return 0;}
 function grad(x,z){const e=0.08;return {x:(H(x+e,z)-H(x-e,z))/(2*e),z:(H(x,z+e)-H(x,z-e))/(2*e)};}
 function resetAnims(){anim.whip.on=anim.bar.on=anim.flip.on=false;anim.whip.p=anim.bar.p=anim.flip.p=0;}
-function enterAir(){P.state='air';P.manual=0;P.charge=0;air={t:0,whips:0,bars:0,heels:0,fingers:0,rewinds:0,flips:[],spin:0,nh:0,cc:0,xu:0,sm:0,nn:0,tk:0,nf:0,lx:P.x,lz:P.z};P.slide=false;resetAnims();}
+function enterAir(){P.state='air';P.manual=0;P.charge=0;P.pushPh=0;P.pushContact=false;air={t:0,whips:0,bars:0,heels:0,fingers:0,rewinds:0,flips:[],spin:0,nh:0,cc:0,xu:0,sm:0,nn:0,tk:0,nf:0,lx:P.x,lz:P.z};P.slide=false;resetAnims();}
 function launch(m){
   const fx=Math.sin(P.yaw),fz=Math.cos(P.yaw);const cs=1/Math.sqrt(1+m*m),sn=m*cs;
   P.vx=fx*P.speed*cs;P.vz=fz*P.speed*cs;P.vy=P.speed*sn;P.vert=false;
@@ -1269,7 +1288,7 @@ function launch(m){
   enterAir();
 }
 function ollie(c){const fx=Math.sin(P.yaw),fz=Math.cos(P.yaw);const m=slopeAlong(P.x,P.z,fx,fz);const cs=1/Math.sqrt(1+m*m),sn=m*cs;
-  P.vx=fx*P.speed*cs;P.vz=fz*P.speed*cs;P.vy=P.speed*sn+(6.9+2.7*clamp((c||0)/0.4,0,1))*STAT.pop;P.vert=false;P.y+=0.02;enterAir();sfx('pop');P.squash=-0.15;}
+  P.vx=fx*P.speed*cs;P.vz=fz*P.speed*cs;P.vy=P.speed*sn+7.6*STAT.pop;P.vert=false;P.y+=0.02;enterAir();sfx('pop');P.squash=-0.15;}
 let curArea=null;
 function areaAt(x,z){for(const a of AREAS)if(inR(a.r,x,z))return a;return null;}
 function respawn(quiet){const sp=(curArea||AREAS[0]).spawn;P.x=sp[0];P.z=sp[1];P.yaw=sp[2];P.twist=0;P.y=H(P.x,P.z);P.speed=0;P.vx=P.vy=P.vz=0;P.state='ground';P.rail=null;P.manual=0;resetAnims();loseCombo();
@@ -1331,7 +1350,7 @@ function groundStep(dt,inp){
   // arcade transitions: climbing costs less than descending gives back (lets you pump)
   P.speed-=G*sn*dt*(P.speed*sn>0?0.72:1.05);
   const man=(inp.manual||inp.nose)&&Math.abs(P.speed)>2;
-  if(inp.push&&!man&&!P.slide&&Math.abs(m)<0.4){const max=inp.fast?16:13,dir=P.speed<-0.5?-1:1;if(P.speed*dir<max)P.speed+=dir*(inp.fast?9:7)*dt;}
+  if(P.pushContact&&!man&&!P.slide&&Math.abs(m)<0.4){const max=inp.fast?16:13,dir=P.speed<-0.5?-1:1;if(P.speed*dir<max)P.speed+=dir*(inp.fast?19:15.5)*dt;}
   if(inp.brake){const b=12*dt;P.speed=Math.abs(P.speed)<=b?0:P.speed-Math.sign(P.speed)*b;}
   const surf=surface(P.x,P.z);const fr=((surf==='grass'&&P.y<0.05&&P.y>-0.05)?1.4:surf==='dirt'?0.6:0.3)+0.006*P.speed*P.speed;
   {const d=fr*dt;P.speed=Math.abs(P.speed)<=d?0:P.speed-Math.sign(P.speed)*d;}
@@ -1428,11 +1447,16 @@ function startFlip(type){const f=anim.flip;if(f.on)return;f.on=true;f.p=0;f.type
 let lastInp=readInput();
 function update(dt){
   const inp=readInput();lastInp=inp;
-  if(P.state==='ground'){if(inp.ollieHeld)P.charge=Math.min((P.charge||0)+dt,0.4);else if(P.charge>0||inp.ollie){const c=P.charge||0;P.charge=0;ollie(c);}}
+  if(P.state==='ground'&&inp.ollie)ollie();
   else if(P.state==='grind'&&inp.ollie)leaveGrind(true);
   else if(P.state==='air'){if(inp.whip)startTrick('whip');if(inp.bar)startTrick('bar');if(inp.bri)startFlip('Briflip');if(inp.back)startFlip('Backflip');if(inp.front)startFlip('Frontflip');
     if(inp.flair)startFlip('Flair');if(inp.cash)startFlip('Cash Roll');if(inp.decade)startFlip('Decade');if(inp.heel)startWhip('heel');if(inp.finger)startWhip('finger');if(inp.rewind)startWhip('rewind');}
   if(P.state==='ground'&&inp.slide&&!P.slide&&Math.abs(P.speed)>4){P.slide=true;P.slideT=0;P.slideDir=inp.steer?Math.sign(inp.steer):1;addCombo('Powerslide',150);sfx('slide');emit({kind:'slide',speed:Math.abs(P.speed)});}
+  // push cycle: back foot steps off, plants, kicks back, returns to the deck
+  {const max=inp.fast?16:13,want=P.state==='ground'&&inp.push&&!P.slide&&!(inp.manual||inp.nose)&&!(P.charge>0)&&Math.abs(P.speed)<max-0.4;
+   if(P.state!=='ground')P.pushPh=0;
+   else if(want||P.pushPh>0){P.pushPh=(P.pushPh||0)+dt/(inp.fast?0.56:0.72);if(P.pushPh>=1)P.pushPh=want?P.pushPh-1+1e-4:0;}
+   P.pushContact=want&&P.pushPh>0.25&&P.pushPh<0.68;}
   const N=Math.min(12,Math.max(2,Math.ceil(dt*240))),h=dt/N;
   for(let i=0;i<N;i++){
     if(P.state==='ground')groundStep(h,inp);else if(P.state==='air')airStep(h,inp);else if(P.state==='grind')grindStep(h);else if(P.state==='bail')bailStep(h);
@@ -1466,8 +1490,10 @@ function poseRider(dt){
   const dec=f.on&&f.type==='Decade',dA=dec?smooth(f.p)*TAU:0,cd=Math.cos(dA),sd=Math.sin(dA);
   const rv=v=>{const x=v.x,z=v.z;v.x=x*cd+z*sd;v.z=-x*sd+z*cd;return v;},rp=v=>{v.z-=PZ;rv(v);v.z+=PZ;return v;};
   anim.lift=damp(anim.lift,(w.on||dec)?1:0,26,dt);
-  const rel=b.on?Math.sin(b.p*Math.PI):0,tuck=f.on&&!dec?Math.sin(f.p*Math.PI):0,fing=w.on&&wk==='finger'?Math.sin(w.p*Math.PI):0;
-  const tc=inAir?0.3+tuck*0.55+fing*0.5+anim.tk*0.3:P.state==='grind'?0.45:P.state==='bail'?0.6:P.slide?0.5:0.12+Math.min(Math.abs(P.speed),14)*0.01+(P.charge||0)*1.4;
+  const bri=f.on&&FLIP[f.type].scoot,briT=bri?clamp(Math.sin(f.p*Math.PI)*2.4,0,1):0,ph=P.state==='ground'?(P.pushPh||0):0,pushBend=ph>0?Math.sin(ph*Math.PI)*0.2:0;
+  const bTh=bri?smooth(f.p)*TAU:0;R.scoot.rotation.set(0,0,bTh);R.scoot.position.y=0.88+(bri?0.4*Math.sin(f.p*Math.PI):0);
+  const rel=b.on?Math.sin(b.p*Math.PI):0,tuck=f.on&&!dec&&!bri?Math.sin(f.p*Math.PI):0,fing=w.on&&wk==='finger'?Math.sin(w.p*Math.PI):0;
+  const tc=inAir?0.3+tuck*0.55+fing*0.5+anim.tk*0.3:P.state==='grind'?0.45:P.state==='bail'?0.6:P.slide?0.5:0.12+Math.min(Math.abs(P.speed),14)*0.01+(P.charge||0)*1.4+pushBend;
   P.crouch=damp(P.crouch,tc,10,dt);P.squash=damp(P.squash,0,6,dt);
   const c=clamp(P.crouch+P.squash,0,1),L=anim.lift;
   T.hip.set(0,0.93-c*0.28+L*0.05,-0.07-c*0.04);
@@ -1476,6 +1502,9 @@ function poseRider(dt){
   const fl=(s,x,y,z,k)=>{if(k>0.01){T.j.set(x,y,z);T.foot[s].lerp(T.j,k);}};
   for(const s of [0,1]){const sx=s?-1:1;fl(s,0.08*sx,0.72,-0.72,anim.sm);fl(s,0.4*sx,0.42,-0.05,anim.nf);fl(s,0.06*sx,0.6,0.2,anim.tk);}
   fl(1,0.45,0.5,-0.35,anim.nn);
+  if(briT>0.01){fl(0,0.08,0.5,0.12,briT);fl(1,-0.08,0.48,0.02,briT);}
+  if(ph>0){const K=[[0,-0.045,0.125,-0.16],[0.13,-0.17,0.3,-0.02],[0.25,-0.21,0.0,0.18],[0.68,-0.21,0.0,-0.55],[0.84,-0.15,0.28,-0.36],[1,-0.045,0.125,-0.16]];
+    let i=1;while(i<K.length-1&&ph>K[i][0])i++;const a=K[i-1],b2=K[i],t=smooth(clamp((ph-a[0])/(b2[0]-a[0]),0,1));T.foot[1].set(lerp(a[1],b2[1],t),lerp(a[2],b2[2],t),lerp(a[3],b2[3],t));}
   T.hip.z-=0.22*anim.sm;T.hip.y+=0.08*anim.sm;
   if(dec){rp(T.hip);rp(T.foot[0]);rp(T.foot[1]);}
   T.neck.set(0,0.47-c*0.05,0.1+c*0.17+0.12*anim.sm);rv(T.neck);T.neck.add(T.hip);setSeg(R.torso,T.hip,T.neck);R.torso.rotateY(dA);
@@ -1492,12 +1521,13 @@ function poseRider(dt){
     const nh=Math.max(anim.nh,anim.tk),k=Math.max(rel,nh);
     if(nh>rel)T.free.set(0.64*sx,T.sh.y+0.04,T.sh.z-0.06);else T.free.set(0.3*sx,1.12-c*0.2,0.24);
     T.hand.copy(T.grip).lerp(T.free,k);
+    if(bri){if(s===0)T.hand.set(gx*Math.cos(bTh),R.scoot.position.y+gx*Math.sin(bTh),PZ);else{T.free.set(-0.6,T.sh.y-0.02,T.sh.z+0.05);T.hand.lerp(T.free,briT);}}
     if(s===0&&fing>0.01){const rz=-0.27-PZ;T.free.set(rz*Math.sin(wa),0.16,rz*Math.cos(wa)+PZ);T.hand.lerp(T.free,fing);}
     T.hint.set(sx,-0.4,-0.6);rv(T.hint);ik(T.sh,T.hand,0.31,0.31,T.hint,T.j);setSeg(R.upper[s],T.sh,T.j);setSeg(R.fore[s],T.j,T.hand);R.elbow[s].position.copy(T.j);R.hand[s].position.copy(T.hand);
   }
   // flips + bail tumble
   if(P.state==='bail'){const t=clamp(P.bailT/0.45,0,1);R.flip.rotation.set(-1.35*t,0,0.5*t*P.bailSide);}
-  else if(f.on&&!dec){const F=FLIP[f.type];R.flip.quaternion.setFromAxisAngle(F.axis,F.dir*smooth(f.p)*TAU);
+  else if(f.on&&!dec&&!bri){const F=FLIP[f.type];R.flip.quaternion.setFromAxisAngle(F.axis,F.dir*smooth(f.p)*TAU);
     if(F.flair){_q.setFromAxisAngle(UP,Math.PI*smooth(f.p));R.flip.quaternion.premultiply(_q);}}
   else R.flip.quaternion.identity();
 }
@@ -1581,7 +1611,7 @@ function drawMini(){
 // ---------------- online: accounts + leaderboard (Supabase)
 const ONLINE={url:'https://zcajzpqgvditxyuycxll.supabase.co',key:'sb_publishable_wPHYjkY3jYjTI4JmvX7Uvw_7l5s7V5Q'}; // filled in once the Supabase project is set up
 const sb=(ONLINE.url&&ONLINE.key&&window.supabase)?window.supabase.createClient(ONLINE.url,ONLINE.key,{auth:{persistSession:true,storageKey:'scootpark.auth'}}):null;
-let me=null,syncTimer=null,lgMode='login',boardSort='total_score';
+let me=null,syncTimer=null,lgMode='login',boardSort='total_score',pendingUser=null;
 const loginEl=$('login'),boardEl=$('board'),NAME_RE=/^[A-Za-z0-9_]{3,16}$/;
 const nameEmail=n=>n.toLowerCase()+'@players.scoot-park.example.com';
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1602,16 +1632,19 @@ async function afterLogin(user,newName){
   me={id:user.id,username:newName||(user.user_metadata&&user.user_metadata.username)||'rider'};
   const {data:row,error}=await sb.from('players').select('*').eq('id',me.id).maybeSingle();
   if(error){console.warn(error.message);}
-  if(!row){if(save.owner&&save.owner!==me.id)resetLocal();
-    const r=await sb.from('players').insert({id:me.id,username:me.username,total_score:Math.round(score),best_combo:Math.round(bestCombo),challenges:doneCount(),progress:blob()});
-    if(r.error)console.warn(r.error.message);save.owner=me.id;persist();}
+  if(!row){const uname=newName||(user.user_metadata&&user.user_metadata.username);
+    if(!uname){me=null;pendingUser=user;renderAccount();setOverlay('login');return;}
+    if(save.owner&&save.owner!==user.id)resetLocal();
+    const r=await sb.from('players').insert({id:me.id,username:uname,total_score:Math.round(score),best_combo:Math.round(bestCombo),challenges:doneCount(),progress:blob()});
+    if(r.error){if(r.error.code==='23505'||/duplicate|unique/i.test(r.error.message)){me=null;throw new Error('taken');}console.warn(r.error.message);}
+    me.username=uname;save.owner=me.id;persist();}
   else{me.username=row.username;const merge=!save.owner||save.owner===me.id;applyCloud(row,merge);if(merge)pushProgress();}
   renderAccount();}
-async function logOut(){if(sb)await sb.auth.signOut();me=null;save.owner=null;resetLocal();renderAccount();popup('Logged out');}
+async function logOut(){if(sb)await sb.auth.signOut();me=null;pendingUser=null;save.owner=null;resetLocal();renderAccount();popup('Logged out');}
 function renderAccount(){
   $('acctBtn').textContent=me?me.username:'Log in';$('startLogin').textContent=me?'Account':'Log in';
   $('startAcct').innerHTML=!sb?'Online leaderboard: not switched on yet.':me?`Riding as <b>${esc(me.username)}</b>. Your progress saves online.`:'Log in to save your progress online and get on the leaderboard.';
-  $('lgIn').hidden=!!me;$('lgOut').hidden=!me;if(me)$('lgWho').textContent=me.username;$('bdLogin').hidden=!!me;}
+  $('lgPick').hidden=!pendingUser;$('lgIn').hidden=!!me||!!pendingUser;$('lgOut').hidden=!me;if(me)$('lgWho').textContent=me.username;$('bdLogin').hidden=!!me;}
 function setLgMode(m){lgMode=m;$('lgTabs').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lg===m)));
   $('lgPass2Wrap').hidden=m!=='signup';$('lgGo').textContent=m==='signup'?'Make my account':'Log in';$('lgPass').autocomplete=m==='signup'?'new-password':'current-password';$('lgErr').textContent='';}
 $('lgTabs').addEventListener('click',e=>{const b=e.target.closest('[data-lg]');if(b)setLgMode(b.dataset.lg);});
@@ -1633,6 +1666,16 @@ $('lgForm').addEventListener('submit',async e=>{e.preventDefault();const err=$('
     $('lgPass').value='';$('lgPass2').value='';setOverlay(null);popup('Logged in','Riding as '+me.username,'gold');
   }catch(x){err.textContent='Couldn\u2019t reach the server. Check the internet connection.';}
   finally{go.disabled=false;go.textContent=lgMode==='signup'?'Make my account':'Log in';}});
+$('gBtn').onclick=async()=>{const err=$('gErr');err.textContent='';if(!sb){err.textContent='Online accounts aren\u2019t switched on yet.';return;}
+  const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});
+  if(error)err.textContent=/not enabled|provider/i.test(error.message)?'Google sign-in isn\u2019t switched on yet.':error.message;};
+$('pkForm').addEventListener('submit',async e=>{e.preventDefault();const err=$('pkErr'),name=$('pkName').value.trim();err.textContent='';
+  if(!NAME_RE.test(name)){err.textContent='Usernames are 3 to 16 letters, numbers or _ (no spaces).';return;}
+  const go=$('pkGo');go.disabled=true;go.textContent='Checking…';
+  const u=pendingUser;
+  try{pendingUser=null;await afterLogin(u,name);sb.auth.updateUser({data:{username:name}}).catch(()=>{});setOverlay(null);popup('Logged in','Riding as '+name,'gold');}
+  catch(x){pendingUser=u;err.textContent=x.message==='taken'?'That username is taken. Try another one.':'Couldn\u2019t save it. Check the internet connection.';}
+  finally{go.disabled=false;go.textContent='Save username';renderAccount();}});
 $('lgLogout').onclick=()=>{logOut();setOverlay(null);};$('lgClose').onclick=()=>setOverlay(null);
 $('acctBtn').onclick=e=>{e.currentTarget.blur();setOverlay('login');};$('startLogin').onclick=()=>setOverlay('login');
 $('boardBtn').onclick=e=>{e.currentTarget.blur();if(started)setOverlay('board');};$('bdClose').onclick=()=>setOverlay(null);$('bdLogin').onclick=()=>setOverlay('login');
@@ -1651,7 +1694,8 @@ async function renderBoard(){
     const {count}=await sb.from('players').select('id',{count:'exact',head:true}).gt(boardSort,mine);html+=`<p class="note">You\u2019re number ${(count||0)+1}.</p>`;}
   if(!me)html+='<p class="note">Log in to get your name on the board.</p>';
   body.innerHTML=html;}
-if(sb)sb.auth.getSession().then(({data})=>{if(data&&data.session)afterLogin(data.session.user);}).catch(()=>{});
+if(sb){sb.auth.getSession().then(({data})=>{if(data&&data.session&&!me&&!pendingUser)afterLogin(data.session.user).catch(()=>{});}).catch(()=>{});
+  sb.auth.onAuthStateChange((ev,session)=>{if(ev==='SIGNED_IN'&&session&&!me&&!pendingUser)setTimeout(()=>afterLogin(session.user).catch(()=>{}),0);});}
 renderAccount();
 // ---------------- big map
 const CH_AT={hand:[37.5,-41.3],bigrail:[4.3,-100],hubba:[31.6,-126],mtrail:[256,-158]};
@@ -1685,7 +1729,7 @@ const SWATCH=['#16171b','#f2f2ee','#9aa3ad','#ff4d5e','#ff8a3d','#ffd43b','#7bd3
 const TYRES=['#18181b','#f2f2ee','#c9a36b','#ff4d5e','#3f7fbf','#ffd43b'];
 function persistLook(){persist();buildScooter();}
 let garTab='scooter',garHidePerson=false;
-function setPersonShown(on){for(const o of R.inner.children){if(o!==R.pivot)o.visible=on;}if(on)applyRider();}
+function setPersonShown(on){for(const o of R.inner.children){if(o!==R.scoot)o.visible=on;}if(on)applyRider();}
 function syncPerson(){setPersonShown(!(overlay==='garage'&&garTab==='scooter'&&garHidePerson));}
 const SKINS=['#f6d5b8','#e8b98f','#d9a07a','#b97c50','#8d5a3b','#5e3a26'];
 const HAIRC=['#16130f','#3a2a1c','#6b4423','#b0793f','#e2c06b','#c94a2a','#9aa3ad','#40d6c8','#ff6fb5','#8e5bd6'];
