@@ -140,7 +140,11 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
 .lb tr.me td{background:#2c3140;color:var(--grip);font-weight:700}
 .lb .rk{font-family:var(--display);width:44px}
 .wcard-wrap{max-width:860px}
-.mpcard{max-width:720px}.mpgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:8px 0 14px}
+.mpcard{max-width:720px}
+.tunecode{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}.tunecode input{flex:1;min-width:120px;font:inherit;font-size:1rem;padding:8px 10px;border-radius:6px;border:2px solid #343a4a;background:#0f1117;color:var(--paper)}
+.tunecode input:focus-visible{outline:none;border-color:var(--grip)}.tunecode .go{padding:6px 16px;font-size:1rem}
+.tune{display:grid;gap:8px}.tune label{display:grid;grid-template-columns:minmax(0,1fr) 56px;gap:2px 10px;align-items:center}
+.tune label span{grid-column:1/-1;font-size:.9rem;color:var(--muted)}.tune input{width:100%;accent-color:var(--grip)}.tune b{font-family:var(--display);font-size:.95rem;color:var(--grip);text-align:right}.mpgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:8px 0 14px}
 .mpgrid .note{margin:4px 0 10px}.mpjoin{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 .mpjoin input{flex:1;min-width:140px;font:inherit;font-size:1.05rem;padding:10px 12px;border-radius:6px;border:2px solid #343a4a;background:#0f1117;color:var(--paper);text-transform:uppercase}
 .mpjoin input:focus-visible{outline:none;border-color:var(--grip)}.mpjoin .go{padding:8px 20px;font-size:1.1rem}
@@ -1192,6 +1196,10 @@ const MODELS=[
 ];
 for(const m of MODELS)m.stats=Object.assign({speed:1,land:1},m.stats);
 let STAT={whip:1,spin:1,pop:1,speed:1,land:1};
+// ---------------- secret tuning (unlocked with a code; only a hash of the code is stored here)
+const TUNE=[['speed','Speed',0.6,2.5],['pop','Pop (jump height)',0.6,2.5],['whip','Whips',0.6,2.5],['spin','Spins',0.6,2.5],['land','Landings (big drops)',1,3]];
+const codeHash=c=>{let x=0x811c9dc5;for(const ch of String(c).toUpperCase().replace(/[^A-Z0-9]/g,'')){x^=ch.charCodeAt(0);x=Math.imul(x,0x01000193)>>>0;}return x.toString(36);};
+function tunedStats(model){const t=save.tuneOK&&save.tune&&save.tune[model.id];return Object.assign({},model.stats,t||{});}
 const GRIPS=['brand','classic','logo','checker','camo','galaxy','flames'];
 const GRIP_FILE={starter:'scoot-park-starter',penpen:'pen-pen-v',kowhai:'kowhai-pro',tui:'tui-street',fantail:'fantail-fx',rimu:'rimu-ridge'},gripCache={};
 function brandGrip(m){if(gripCache[m.id])return gripCache[m.id];const t=new THREE.TextureLoader().load(`assets/grip/grip-${GRIP_FILE[m.id]}.png`);t.anisotropy=maxAniso;t.center.set(.5,.5);t.rotation=Math.PI;return gripCache[m.id]=t;}
@@ -1219,7 +1227,7 @@ function wheel(core,tyre){
   return w;
 }
 function buildScooter(){
-  const cfg=save.cfg,model=MODELS.find(m=>m.id===save.model)||MODELS[0];STAT=model.stats;
+  const cfg=save.cfg,model=MODELS.find(m=>m.id===save.model)||MODELS[0];STAT=tunedStats(model);
   for(const g of [R.deckA,R.barA]){while(g.children.length){const c=g.children.pop();c.traverse(o=>{if(o.geometry)o.geometry.dispose();});}}
   const deckM=stdMat(cfg.deck,cfg.finish),barM=stdMat(cfg.bars,cfg.finish),clampM=stdMat(cfg.clamp,cfg.finish==='matte'?'gloss':cfg.finish),
         coreM=stdMat(cfg.core,'gloss'),tyreM=new THREE.MeshStandardMaterial({color:new THREE.Color(cfg.tyre),roughness:.85,metalness:0}),
@@ -2157,6 +2165,11 @@ function setPersonShown(on){for(const o of R.inner.children){if(o!==R.scoot)o.vi
 function syncPerson(){setPersonShown(!(overlay==='garage'&&garTab==='scooter'&&garHidePerson));}
 const SKINS=['#f6d5b8','#e8b98f','#d9a07a','#b97c50','#8d5a3b','#5e3a26'];
 const HAIRC=['#16130f','#3a2a1c','#6b4423','#b0793f','#e2c06b','#c94a2a','#9aa3ad','#40d6c8','#ff6fb5','#8e5bd6'];
+function tuneHTML(){const m=MODELS.find(x=>x.id===save.model)||MODELS[0];
+  if(!save.tuneOK)return `<div class="gsec">Tuning</div><form class="tunecode" id="tuneForm"><input id="tuneCode" maxlength="24" placeholder="Got a code?" autocomplete="off" spellcheck="false" aria-label="Tuning code"><button type="submit" class="go alt">Unlock</button></form><p class="note" id="tuneMsg"></p>`;
+  const st=tunedStats(m);
+  return `<div class="gsec">Tuning · ${m.name}</div><div class="tune">${TUNE.map(([k,label,lo,hi])=>`<label><span>${label}</span><input type="range" min="${lo}" max="${hi}" step="0.05" value="${st[k]}" data-tune="${k}"><b id="tv-${k}">${st[k].toFixed(2)}×</b></label>`).join('')}</div>
+    <button type="button" class="go alt" id="tuneReset" style="margin-top:8px;padding:6px 18px;font-size:1rem">Back to stock</button>`;}
 function renderGarage(){
   $('gTabs').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tab===garTab)));
   const obj=o=>o==='rider'?save.rider:save.cfg;
@@ -2167,7 +2180,7 @@ function renderGarage(){
     $('gModels').innerHTML=`<div class="gsec" style="margin-top:0">Person</div><div class="chips" style="margin-bottom:10px"><button type="button" data-person="on" aria-pressed="${!garHidePerson}">Show</button><button type="button" data-person="off" aria-pressed="${garHidePerson}">Hide</button></div>`+MODELS.map(m=>`<button type="button" class="gm" data-m="${m.id}" aria-pressed="${m.id===save.model}"><span class="sw" style="background:${m.cfg.deck};box-shadow:inset 0 -10px 0 ${m.cfg.bars}"></span><span><b>${m.name}</b><small>${m.tag}</small>
       ${['speed','whip','spin','pop'].map(k=>`<span class="stat">${k}<i style="width:${Math.min(96,Math.round((m.stats[k]-0.85)*300))}px${m.max?';background:linear-gradient(90deg,#ff4fd8,#ffd43b)':''}"></i>${m.max?'<b style="color:#ffd43b">MAX</b>':''}</span>`).join('')}</span></button>`).join('');
     $('gOpts').innerHTML=sw('Deck colour','deck',SWATCH,'cfg')+ch('Finish','finish',['gloss','matte','chrome'])+ch('Grip tape','grip',GRIPS)+
-      ch('Bar style','barStyle',['T','Y'],['T-bar','Y-bar'])+sw('Bars','bars',SWATCH,'cfg')+sw('Clamp','clamp',SWATCH,'cfg')+sw('Wheel cores','core',SWATCH,'cfg')+sw('Tyres','tyre',TYRES,'cfg');
+      ch('Bar style','barStyle',['T','Y'],['T-bar','Y-bar'])+sw('Bars','bars',SWATCH,'cfg')+sw('Clamp','clamp',SWATCH,'cfg')+sw('Wheel cores','core',SWATCH,'cfg')+sw('Tyres','tyre',TYRES,'cfg')+tuneHTML();
   }else{
     $('gModels').innerHTML='';
     $('gOpts').innerHTML=sw('Skin tone','skin',SKINS,'rider')+ch('Hair','hair',['short','long','buzz','curly','bald'],null,'rider')+sw('Hair colour','hairCol',HAIRC,'rider')+
@@ -2176,6 +2189,14 @@ function renderGarage(){
       ch('Feet','feet',['skate','hightop','socks','bare'],['Skate shoes','High-tops','Socks only','Barefoot'],'rider')+sw('Shoe / sock colour','shoes',SWATCH,'rider')+ch('Hands','gloves',['off','on'],['No gloves','Gloves'],'rider');
   }
 }
+garEl.addEventListener('submit',e=>{if(e.target.id!=='tuneForm')return;e.preventDefault();const v=$('tuneCode').value;
+  if(codeHash(v)==='naq7ic'){save.tuneOK=true;save.tune=save.tune||{};persist();buildScooter();renderGarage();popup('Tuning unlocked','Slide to tweak your scooter','gold');sfx('chime');}
+  else{$('tuneMsg').textContent='Nope, that is not the code.';$('tuneCode').select();}});
+garEl.addEventListener('input',e=>{const r=e.target.closest('[data-tune]');if(!r)return;const k=r.dataset.tune,v=+r.value;
+  save.tune=save.tune||{};const t=save.tune[save.model]||(save.tune[save.model]={});t[k]=v;$('tv-'+k).textContent=v.toFixed(2)+'×';
+  STAT=tunedStats(MODELS.find(x=>x.id===save.model)||MODELS[0]);});
+garEl.addEventListener('change',e=>{if(e.target.closest('[data-tune]'))persist();});
+garEl.addEventListener('click',e=>{if(e.target.id==='tuneReset'){if(save.tune)delete save.tune[save.model];persist();buildScooter();renderGarage();popup('Back to stock');return;}});
 garEl.addEventListener('click',e=>{const tb=e.target.closest('[data-tab]');if(tb){garTab=tb.dataset.tab;renderGarage();return;}
   const pe=e.target.closest('[data-person]');if(pe){garHidePerson=pe.dataset.person==='off';renderGarage();return;}
   const m=e.target.closest('[data-m]');if(m){save.model=m.dataset.m;save.cfg=Object.assign({},MODELS.find(x=>x.id===save.model).cfg);persistLook();renderGarage();return;}
