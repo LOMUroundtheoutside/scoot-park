@@ -140,6 +140,23 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
 .lb tr.me td{background:#2c3140;color:var(--grip);font-weight:700}
 .lb .rk{font-family:var(--display);width:44px}
 .wcard-wrap{max-width:860px}
+.mpcard{max-width:720px}.mpgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:8px 0 14px}
+.mpgrid .note{margin:4px 0 10px}.mpjoin{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.mpjoin input{flex:1;min-width:140px;font:inherit;font-size:1.05rem;padding:10px 12px;border-radius:6px;border:2px solid #343a4a;background:#0f1117;color:var(--paper);text-transform:uppercase}
+.mpjoin input:focus-visible{outline:none;border-color:var(--grip)}.mpjoin .go{padding:8px 20px;font-size:1.1rem}
+.mpcode{display:flex;align-items:center;gap:14px;background:#1d2029;border-radius:8px;padding:10px 14px;margin:0 0 12px}.mpcode span{color:var(--muted)}
+.mpcode b{font-family:var(--display);font-size:1.8rem;color:var(--grip);letter-spacing:.06em}.mpcode .go{padding:6px 16px;font-size:1rem;margin-left:auto}
+.mpplayers{list-style:none;margin:6px 0 10px;padding:0;display:grid;gap:6px;max-height:180px;overflow:auto}
+.mpplayers li{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#1d2029;border-radius:6px;padding:6px 10px}
+.mpplayers li.sys{color:var(--muted)}.mpplayers button{all:unset;cursor:pointer;background:#2a2e3a;padding:3px 10px;border-radius:4px;font-weight:700}
+.mpplayers button:focus-visible{outline:2px solid var(--paper)}
+.mpb{background:#40d6c8 !important;color:#12141b !important}
+#chat{left:calc(16px + env(safe-area-inset-left,0px));bottom:calc(96px + env(safe-area-inset-bottom,0px));width:min(380px,calc(100vw - 32px));pointer-events:auto}
+#chatLog{list-style:none;margin:0 0 6px;padding:0;display:grid;gap:3px}
+#chatLog li{background:rgba(16,18,26,.72);padding:4px 9px;border-radius:5px;font-size:.98rem;line-height:1.25;overflow-wrap:anywhere;transition:opacity 1s}
+#chatLog li b{color:#ffd43b}#chatLog li.sys{color:#9fe8df;font-style:italic}#chatLog li.old{opacity:.35}
+#chatIn{width:100%;box-sizing:border-box;font:inherit;font-size:1rem;padding:8px 10px;border-radius:6px;border:2px solid var(--grip);background:rgba(15,17,23,.92);color:var(--paper)}
+#chatIn:focus-visible{outline:none}#chat .chint{font-size:.78rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}#chatIn:not([hidden])+.chint{display:none}
 .wcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:18px}
 .wcard{all:unset;box-sizing:border-box;cursor:pointer;border-radius:10px;overflow:hidden;background:#1d2029;display:flex;flex-direction:column;outline:3px solid transparent;transition:transform .12s}
 .wcard:hover,.wcard:focus-visible{outline-color:var(--grip);transform:translateY(-2px)}
@@ -166,13 +183,14 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
   <div id="score">0</div>
   <div class="lbl">Best combo <span id="best">0</span></div>
   <div class="hbtns"><button type="button" id="worldBtn">Worlds <kbd>Tab</kbd></button><button type="button" id="mapBtn">Map <kbd>N</kbd></button><button type="button" id="garBtn">Garage <kbd>B</kbd></button><button type="button" id="setBtn">Settings</button><button type="button" id="boardBtn">Leaderboard <kbd>`</kbd></button></div>
-  <div class="hbtns"><button type="button" id="acctBtn">Log in</button></div>
+  <div class="hbtns"><button type="button" id="acctBtn">Log in</button><button type="button" id="mpBtn" class="mpb">Ride with friends</button></div>
 </div>
 <div class="hud" id="comboBox"><div id="comboList"></div><div id="comboPts"></div><div id="comboBar" hidden><i></i></div></div>
 <div class="hud" id="pop"></div>
 <div class="hud" id="area"></div>
 <div class="hud" id="bl"><div id="spd">0</div><div class="lbl">km/h</div><div id="stateTag"></div></div>
 <div class="hud" id="tr"><button id="chBtn" type="button">Challenges <b id="chCount">0/0</b></button><ol id="chList"></ol></div>
+<div class="hud" id="chat" hidden><ol id="chatLog"></ol><input id="chatIn" maxlength="120" autocomplete="off" spellcheck="false" placeholder="Say something nice, then Enter (Esc to cancel)" hidden><div class="chint">Enter to chat</div></div>
 <canvas class="hud" id="mini" width="340" height="340"></canvas>
 <div class="hud" id="hint">H controls · 1–9, 0 - = \ travel · Esc pause · M mute · R respawn</div>
 
@@ -231,6 +249,18 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
   <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px"><button class="go" id="bdClose" type="button">Close</button><button class="go alt" id="bdLogin" type="button">Log in</button></div>
 </div></div>
 <div class="screen" id="worlds" hidden><div class="card wcard-wrap"><h2>Worlds</h2><p class="note" style="margin:0 0 14px">Pick where to ride. Your score, garage and challenges carry over.</p><div class="wcards" id="wCards"></div><button class="go alt" id="wClose" type="button">Back to riding</button></div></div>
+<div class="screen" id="mp" hidden><div class="card mpcard"><h2>Ride with friends</h2>
+  <p class="tag" id="mpStatus" style="margin-top:0"></p>
+  <div id="mpCodeBox" class="mpcode" hidden><span>Room code</span><b id="mpCode"></b><button type="button" class="go alt" id="mpCopy">Copy</button></div>
+  <div class="mpgrid">
+    <div><div class="gsec">Public lobby</div><p class="note">Ride with anyone who is online.</p><button type="button" class="go" id="mpPublic">Join public</button></div>
+    <div><div class="gsec">Private room</div><p class="note">Make a room, then give the code to your friends.</p><button type="button" class="go" id="mpCreate">Make a room</button>
+      <form id="mpJoinForm" class="mpjoin"><input id="mpJoinCode" maxlength="12" placeholder="Room code, like KEA-47" autocomplete="off" spellcheck="false" aria-label="Room code"><button type="submit" class="go alt">Join</button></form></div>
+  </div>
+  <div class="gsec">Riders here</div><ol id="mpPlayers" class="mpplayers"></ol>
+  <p class="note">You show up as <b id="mpName"></b>. Never share your real name, school, address or passwords. Mute anyone who isn't kind.</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px"><button type="button" class="go alt" id="mpChatTog">Chat: on</button><button type="button" class="go alt" id="mpLeave" hidden>Leave</button><button type="button" class="go" id="mpClose">Back to riding</button></div>
+</div></div>
 <div class="screen" id="pause" hidden><div class="card"><h2>Paused</h2><p class="tag">Press Esc, or A on a controller, to keep riding. B also goes back.</p><div style="display:flex;gap:12px;flex-wrap:wrap"><button class="go" id="resumeBtn" type="button">Resume</button><button class="go" id="pauseSet" type="button">Settings</button></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"></script>
@@ -322,7 +352,7 @@ const controlsList=()=>[
  ['Grabs (hold in the air)'],['U','No-hander'],['Y','Can-can'],['X','X-up'],['Z','Superman'],["'",'Nac-nac'],['[','Tuck no-hander'],[']','No-footer'],
  ['Ground & grinds'],['P','Powerslide (hold to keep sliding)'],['Q (hold)','Manual · Smith grind'],['E (hold)','Nose manual · Feeble grind'],['Land on a rail','50-50 grind'],
  ['Travel: '+world.name],...areasIn(world).map(a=>[a.key,a.name]),
- ['Other'],['Tab','Worlds: switch between Scoot Park and Night City'],['`','Leaderboard (the key left of 1)'],['Esc','Pause · Settings (controller buttons, graphics, sound)'],['N','Map + challenge locations'],['B','Garage: pick + customise your scooter'],['G','Graphics: Ultra / High / Fast'],['C','Camera distance'],['R','Respawn'],['T','Show/hide challenges'],['H','This list'],['M','Mute'],['Esc','Pause'],
+ ['Other'],['Tab','Worlds: switch between Scoot Park and Night City'],['Enter','Chat (when riding with friends)'],['`','Leaderboard (the key left of 1)'],['Esc','Pause · Settings (controller buttons, graphics, sound)'],['N','Map + challenge locations'],['B','Garage: pick + customise your scooter'],['G','Graphics: Ultra / High / Fast'],['C','Camera distance'],['R','Respawn'],['T','Show/hide challenges'],['H','This list'],['M','Mute'],['Esc','Pause'],
 ];
 function renderKeys(el){el.innerHTML=controlsList().map(c=>c.length===1?`<div class="sec">${c[0]}</div>`:`<div><kbd>${c[0]}</kbd><span>${c[1]}</span></div>`).join('');}
 renderKeys(document.getElementById('keysStart'));renderKeys(document.getElementById('keysHelp'));
@@ -1127,7 +1157,7 @@ function applyWorldLook(){const L=world.light,ul=quality==='ultra',city=world.id
   if(ul)scene.environment=city?cityEnv:envTex;renderer.toneMappingExposure=city?1.12:1.25;}
 function setWorld(id,quiet){const w=WORLDS.find(x=>x.id===id);if(!w)return;const changed=w!==world;world=w;save.world=id;
   applyWorldLook();if(changed)scene.traverse(o=>{if(o.material)for(const m of [].concat(o.material))m.needsUpdate=true;});
-  curArea=areasIn(world)[0];respawn(true);renderChallenges();renderKeys($('keysHelp'));
+  curArea=areasIn(world)[0];respawn(true);renderChallenges();mpRetrack();renderKeys($('keysHelp'));
   $('hint').textContent=id==='city'?'H controls · 1–6 travel · Tab worlds · Esc pause · R respawn':'H controls · 1–9, 0 - = \\ travel · Tab worlds · Esc pause · R respawn';
   if(!quiet){showArea(curArea,'Welcome to '+world.name);persist();}}
 applyQuality();
@@ -1138,7 +1168,8 @@ function ik(a,b,L1,L2,hint,out){_d.subVectors(b,a);let d=_d.length();d=clamp(d,1
   const al=(L1*L1-L2*L2+d*d)/(2*d),hh=Math.sqrt(Math.max(0,L1*L1-al*al));
   _p.copy(hint).addScaledVector(_d,-hint.dot(_d)).normalize();return out.copy(a).addScaledVector(_d,al).addScaledVector(_p,hh);}
 const RC={pants:0x2b3a55,shirt:0xff4d5e,skin:0xd9a07a,helmet:0xffd43b,shoe:0xf4f4f4,deck:0x1e1f24,bar:0x40d6c8,wheel:0x18181b,hub:0xffd43b,glove:0x1e1f24};
-const R={};const PZ=0.29;
+let R={};const PZ=0.29;
+function rigGroups(){
 R.root=new THREE.Group();scene.add(R.root);
 R.tilt=new THREE.Group();R.tilt.rotation.order='YXZ';R.root.add(R.tilt);
 R.flip=new THREE.Group();R.flip.position.y=0.85;R.tilt.add(R.flip);
@@ -1146,6 +1177,8 @@ R.inner=new THREE.Group();R.inner.position.y=-0.85;R.flip.add(R.inner);
 R.scoot=new THREE.Group();R.scoot.position.set(0,0.88,PZ);R.inner.add(R.scoot);
 R.pivot=new THREE.Group();R.pivot.position.set(0,-0.88,0);R.scoot.add(R.pivot);
 R.deckA=new THREE.Group();R.pivot.add(R.deckA);R.barA=new THREE.Group();R.pivot.add(R.barA);
+}
+rigGroups();
 function part(geo,col,x,y,z,parent){const m=new THREE.Mesh(geo,mat(col));m.position.set(x,y,z);m.castShadow=true;parent.add(m);return m;}
 // ---------------- scooters (original brands) + high-detail builder
 const MODELS=[
@@ -1226,11 +1259,13 @@ function buildScooter(){
 }
 // ---------------- rider (detailed + customisable)
 const fab=c=>new THREE.MeshStandardMaterial({color:c,roughness:.88,metalness:0});
-const RM={skin:fab(0xd9a07a),top:fab(RC.shirt),pants:fab(RC.pants),hair:fab(0x3a2a1c),hat:new THREE.MeshStandardMaterial({color:RC.helmet,roughness:.32,metalness:.08}),
-  shoe:fab(0xf4f4f4),sole:fab(0xf2f2ee),sock:fab(0xf4f4f4),glove:fab(0x1e1f24),dark:fab(0x141418),eyeW:fab(0xf7f7f2),eye:new THREE.MeshStandardMaterial({color:0x1a1410,roughness:.25})};
+const newRM=()=>({skin:fab(0xd9a07a),top:fab(RC.shirt),pants:fab(RC.pants),hair:fab(0x3a2a1c),hat:new THREE.MeshStandardMaterial({color:RC.helmet,roughness:.32,metalness:.08}),
+  shoe:fab(0xf4f4f4),sole:fab(0xf2f2ee),sock:fab(0xf4f4f4),glove:fab(0x1e1f24),dark:fab(0x141418),eyeW:fab(0xf7f7f2),eye:new THREE.MeshStandardMaterial({color:0x1a1410,roughness:.25})});
+let RM=newRM();
 function rpart(geo,m,parent,x,y,z){const o=new THREE.Mesh(geo,m);o.position.set(x||0,y||0,z||0);o.castShadow=true;(parent||R.inner).add(o);return o;}
 function limb(r0,r1,m){const g=new THREE.CylinderGeometry(r1,r0,1,16);g.translate(0,0.5,0);return rpart(g,m);}
 const sph=(r,w,h)=>new THREE.SphereGeometry(r,w||16,h||12);
+function rigBody(){
 R.thigh=[limb(.078,.062,RM.pants),limb(.078,.062,RM.pants)];R.shin=[limb(.06,.047,RM.pants),limb(.06,.047,RM.pants)];
 R.knee=[rpart(sph(.062),RM.pants),rpart(sph(.062),RM.pants)];
 R.upper=[limb(.056,.046,RM.top),limb(.056,.046,RM.top)];R.fore=[limb(.043,.035,RM.skin),limb(.043,.035,RM.skin)];
@@ -1279,7 +1314,8 @@ R.shoe=[0,1].map(()=>{const g=new THREE.Group();R.inner.add(g);g.userData={};
   // socks / bare feet: a foot shape that takes the sock or skin colour
   const ft=new THREE.Group();g.add(ft);g.userData.foot=rpart(up(.062,.19,.022,.012),RM.sock,ft,0,.036,.01);
   g.userData.v={skate:sk,hightop:ht,foot:ft};return g;});
-R.hand=[rpart(sph(.044,14,10),RM.skin),rpart(sph(.044,14,10),RM.skin)];R.hand.forEach(h=>h.scale.set(1,.85,1.15));
+R.hand=[rpart(sph(.044,14,10),RM.skin),rpart(sph(.044,14,10),RM.skin)];R.hand.forEach(h=>h.scale.set(1,.85,1.15));}
+rigBody();
 function applyRider(){const r=save.rider;
   RM.skin.color.set(r.skin);RM.top.color.set(r.shirt);RM.pants.color.set(r.pants);RM.hair.color.set(r.hairCol);RM.hat.color.set(r.helmet);RM.shoe.color.set(r.shoes);RM.sock.color.set(r.shoes);
   for(const g of R.shoe){const v=g.userData.v,f=r.feet||'skate';v.skate.visible=f==='skate';v.hightop.visible=f==='hightop';v.foot.visible=f==='socks'||f==='bare';g.userData.foot.material=f==='bare'?RM.skin:RM.sock;}
@@ -1308,7 +1344,7 @@ save.pad=Object.assign({},DEFAULT_PAD,save.pad||{});
 save.rider=Object.assign({shirt:'#ff4d5e',pants:'#2b3a55',helmet:'#ffd43b',skin:'#d9a07a',hair:'short',hairCol:'#3a2a1c',headwear:'helmet',top:'tee',shoes:'#f4f4f4',feet:'skate',gloves:'off'},save.rider||{});
 buildScooter();
 score=save.score||0;bestCombo=save.best||0;
-function persist(){save.score=score;save.best=bestCombo;try{localStorage.setItem('scootpark.v1',JSON.stringify(save));}catch(e){}queueSync();}
+function persist(){save.score=score;save.best=bestCombo;try{localStorage.setItem('scootpark.v1',JSON.stringify(save));}catch(e){}queueSync();if(typeof MP!=='undefined')mpRetrack();}
 
 // ---------------- challenges
 const CH=[
@@ -1440,7 +1476,7 @@ addEventListener('blur',()=>{for(const k in keys)keys[k]=false;if(started&&!paus
 const helpEl=$('help'),pauseEl=$('pause'),startEl=$('start');
 const mapEl=$('mapScr'),garEl=$('garage'),worldsEl=$('worlds');let overlay=null;
 const setEl=$('settings');let listenFor=null;
-function setOverlay(n){overlay=n||null;paused=!!overlay;pauseEl.hidden=overlay!=='pause';helpEl.hidden=overlay!=='help';mapEl.hidden=overlay!=='map';garEl.hidden=overlay!=='garage';setEl.hidden=overlay!=='settings';loginEl.hidden=overlay!=='login';boardEl.hidden=overlay!=='board';worldsEl.hidden=overlay!=='worlds';if(overlay==='worlds')renderWorlds();if(overlay==='board')renderBoard();if(overlay==='login'){renderAccount();if(!me)setTimeout(()=>$(pendingUser?'pkName':'lgName').focus(),50);}listenFor=null;if(overlay==='settings')renderSettings();if(overlay!=='garage')setPersonShown(true);
+function setOverlay(n){overlay=n||null;paused=!!overlay;pauseEl.hidden=overlay!=='pause';helpEl.hidden=overlay!=='help';mapEl.hidden=overlay!=='map';garEl.hidden=overlay!=='garage';setEl.hidden=overlay!=='settings';loginEl.hidden=overlay!=='login';boardEl.hidden=overlay!=='board';worldsEl.hidden=overlay!=='worlds';mpEl.hidden=overlay!=='mp';if(overlay==='mp')mpUI();if(overlay==='worlds')renderWorlds();if(overlay==='board')renderBoard();if(overlay==='login'){renderAccount();if(!me)setTimeout(()=>$(pendingUser?'pkName':'lgName').focus(),50);}listenFor=null;if(overlay==='settings')renderSettings();if(overlay!=='garage')setPersonShown(true);
   focusPad(overlay==='pause'?$('resumeBtn'):overlay==='worlds'?$('wCards').querySelector('[aria-current="false"]'):null);
   if(overlay==='map')renderMap();if(overlay==='garage')renderGarage();}
 function setPaused(v){setOverlay(v?'pause':null);}
@@ -1454,6 +1490,7 @@ function uiKey(code){
   else if(code==='Escape'){if(listenFor){listenFor=null;renderSettings();}else setOverlay(overlay?null:'pause');}
   else if(code==='KeyN')setOverlay(overlay==='map'?null:'map');
   else if(code==='Tab')setOverlay(overlay==='worlds'?null:'worlds');
+  else if(code==='Enter'&&!overlay&&MP.ch)setTimeout(chatOpen,0);
   else if(code==='KeyB')setOverlay(overlay==='garage'?null:'garage');
   else if(code==='Backquote')setOverlay(overlay==='board'?null:'board');
   else if(code==='KeyM')setMute(!muted);
@@ -1484,7 +1521,7 @@ setEl.addEventListener('click',e=>{const g=e.target.closest('[data-gfx]');if(g){
   const c=e.target.closest('[data-clear]');if(c){delete save.pad[c.dataset.clear];persist();renderSettings();}});
 // controller while menus are open: Start pauses/unpauses, and settings can listen for a new button
 const TRAVEL_KEYS={Digit1:0,Digit2:1,Digit3:2,Digit4:3,Digit5:4,Digit6:5,Digit7:6,Digit8:7,Digit9:8,Digit0:9,Minus:10,Equal:11,Backslash:12};
-const OVL={pause:'pause',help:'help',map:'mapScr',garage:'garage',settings:'settings',login:'login',board:'board'};
+const OVL={pause:'pause',help:'help',map:'mapScr',garage:'garage',settings:'settings',login:'login',board:'board',worlds:'worlds',mp:'mp'};
 function navRoot(){return overlay?$(OVL[overlay]):!started?startEl:null;}
 function navItems(){const r=navRoot();return r?[...r.querySelectorAll('button')].filter(b=>b.offsetParent!==null):[];}
 function focusPad(el){document.querySelectorAll('.padfocus').forEach(e=>e.classList.remove('padfocus'));if(!el)return;el.classList.add('padfocus');el.focus();el.scrollIntoView({block:'nearest'});}
@@ -1842,6 +1879,7 @@ function updateVisuals(dt){
   sun.position.set(P.x+SUN_OFF.x,P.y+SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,P.y,P.z);
   if(world.id==='city'){plT-=dt;if(plT<=0){plT=0.25;const near=CITY_LAMPS.map(l=>[l,(l.x-P.x)**2+(l.z-P.z)**2]).sort((a,b)=>a[1]-b[1]);CITY_PL.forEach((pl,i)=>{const l=near[i][0];pl.position.set(l.x,l.y,l.z);});}
     const on=(performance.now()%1600)<700;for(const b of BLINK)b.visible=on;}
+  mpFrame(dt);
   const pulse=0.14+0.08*Math.sin(performance.now()/400);for(const id in beacons){beacons[id].children[0].material.opacity=pulse;beacons[id].children[1].rotation.z+=dt;}
 }
 
@@ -1962,6 +2000,129 @@ async function renderBoard(){
 if(sb){sb.auth.getSession().then(({data})=>{if(data&&data.session&&!me&&!pendingUser)afterLogin(data.session.user).catch(()=>{});}).catch(()=>{});
   sb.auth.onAuthStateChange((ev,session)=>{if(ev==='SIGNED_IN'&&session&&!me&&!pendingUser)setTimeout(()=>afterLogin(session.user).catch(()=>{}),0);});}
 renderAccount();
+// ---------------- online play: ride with friends (Supabase Realtime: presence + broadcast, no game server needed)
+const MP={ch:null,room:null,joining:false,id:(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2)+Date.now()),peers:new Map(),
+  sendT:0,lastSig:'',beatT:0,trace:[],lastChat:0,muted:new Set(),chatOn:true,metaSig:''};
+try{const c=JSON.parse(localStorage.getItem('scootpark.mp')||'{}');if(c.chatOn===false)MP.chatOn=false;if(Array.isArray(c.muted))c.muted.forEach(x=>MP.muted.add(x));}catch(e){}
+const mpSaveCfg=()=>{try{localStorage.setItem('scootpark.mp',JSON.stringify({chatOn:MP.chatOn,muted:[...MP.muted]}));}catch(e){}};
+const MP_MAX_ROOM=12,MP_MAX_SHOWN=16,MP_HZ=10;
+const ROOM_WORDS=['KIWI','TUI','KEA','WEKA','MOA','PIPI','KAKA','RURU','TAKA','PUKEKO','KERERU','HOIHO','TOTARA','KAURI','NIKAU','PAUA'];
+function mpName(){return me&&me.username?me.username:'Rider-'+MP.id.replace(/[^a-z0-9]/gi,'').slice(0,4).toUpperCase();}
+// --- chat safety: mask rude words, hide links, emails and phone numbers (so nobody shares personal info by accident)
+const BAD=['fuck','fuk','fck','shit','sh1t','bitch','b1tch','cunt','pussy','asshole','arsehole','bastard','slut','whore','faggot','retard','nigger','nigga','wanker','twat','bollocks','porn','nazi','penis','vagina','boobs','dildo','horny','skank','douche','motherfucker','dickhead','jackass','dumbass'];
+const BAD_SHORT=['cum','sex','sexy','kys','fag','tits','cock','dick','prick','rape','ass','arse','hoe','thot','milf'];
+const reEsc=c=>c.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),fuzz=w=>w.split('').map(c=>reEsc(c)+'+').join('[\\s._-]*');
+const BAD_RE=new RegExp('('+BAD.map(fuzz).join('|')+')|(?<![a-z])('+BAD_SHORT.map(fuzz).join('|')+')(?![a-z])','gi');
+const BAD_TEST=new RegExp(BAD_RE.source,'i');
+function cleanChat(t){t=String(t||'').replace(/[\u0000-\u001f​-‏‪-‮]/g,'').slice(0,120);
+  t=t.replace(/\b(?:https?:\/\/|www\.)\S+|\b\S+\.(?:com|net|org|nz|io|gg|co|me|tv|ly|app|xyz)\b\S*/gi,'[link hidden]');
+  t=t.replace(/\S+@\S+\.\S+/g,'[email hidden]').replace(/(?:\+?\d[\s-]?){7,}/g,'[number hidden]');
+  return t.replace(BAD_RE,m=>'*'.repeat(Math.min(m.length,6))).trim();}
+const cleanName=n=>{n=String(n||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,16)||'Rider';return BAD_TEST.test(n)?'Rider':n;};
+// --- remote riders: a full copy of the rider rig, dressed in their look, posed from the network
+const poseNodes=r=>[r.tilt,r.flip,r.inner,r.scoot,r.pivot,r.deckA,r.barA,r.fw,r.rw,r.head,r.torso,r.pelvis,r.hood,r.neck,...r.thigh,...r.shin,...r.knee,...r.upper,...r.fore,...r.elbow,...r.shoulder,...r.shoe,...r.hand];
+function makeRemoteRig(look){const sR=R,sRM=RM,sSave=save,sSTAT=STAT;
+  try{R={};RM=newRM();rigGroups();rigBody();
+    const mid=MODELS.some(m=>m.id===look.model)?look.model:'starter';
+    save={model:mid,cfg:Object.assign({},MODELS.find(m=>m.id===mid).cfg,look.cfg||{}),rider:Object.assign({},sSave.rider,look.rider||{})};
+    buildScooter();R.root.traverse(o=>{if(o.isMesh)o.castShadow=false;});return {R,RM};}
+  finally{R=sR;RM=sRM;save=sSave;STAT=sSTAT;}}
+function disposeRig(rig){scene.remove(rig.R.root);rig.R.root.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material&&o.material.map&&o.material.map.isCanvasTexture)o.material.map.dispose();});}
+function nameTag(text){const c=document.createElement('canvas');c.width=256;c.height=64;const g=c.getContext('2d');g.font='bold 30px Barlow Condensed, Arial Narrow, sans-serif';
+  const w=Math.min(250,g.measureText(text).width+28);g.fillStyle='rgba(16,18,26,.78)';g.beginPath();g.roundRect?g.roundRect(128-w/2,8,w,46,10):g.rect(128-w/2,8,w,46);g.fill();
+  g.fillStyle='#ffd43b';g.textAlign='center';g.textBaseline='middle';g.fillText(text,128,32);
+  const t=new THREE.CanvasTexture(c);const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:t,depthTest:false,transparent:true,fog:false}));sp.scale.set(1.6,0.4,1);sp.renderOrder=5;scene.add(sp);return sp;}
+function peerFor(id,meta){let p=MP.peers.get(id);const sig=JSON.stringify(meta.look||{});
+  if(!p){p={id,name:'',sig:'',rig:null,tag:null,w:'park',tgt:null,seen:performance.now(),nodes:null};MP.peers.set(id,p);}
+  p.w=meta.w||'park';
+  if(p.name!==cleanName(meta.n)){p.name=cleanName(meta.n);if(p.tag){scene.remove(p.tag);p.tag.material.map.dispose();}p.tag=nameTag(p.name);}
+  if(p.sig!==sig){p.sig=sig;if(p.rig)disposeRig(p.rig);p.rig=makeRemoteRig(meta.look||{});p.nodes=poseNodes(p.rig.R);p.rig.R.root.visible=false;}
+  return p;}
+function dropPeer(id){const p=MP.peers.get(id);if(!p)return;if(p.rig)disposeRig(p.rig);if(p.tag){scene.remove(p.tag);p.tag.material.map.dispose();}MP.peers.delete(id);}
+// --- pose packets: root position + rotation, then every rig node (position, rotation, scale), rounded
+const q3=v=>Math.round(v*1000)/1000;
+function packPose(){const a=[];const r=R.root;a.push(q3(r.position.x),q3(r.position.y),q3(r.position.z),q3(r.rotation.y));
+  for(const o of poseNodes(R)){a.push(q3(o.position.x),q3(o.position.y),q3(o.position.z),q3(o.quaternion.x),q3(o.quaternion.y),q3(o.quaternion.z),q3(o.quaternion.w),q3(o.scale.x),q3(o.scale.y),q3(o.scale.z));}
+  return a;}
+const _mq=new THREE.Quaternion();
+function applyPose(p,dt,snap){const t=p.tgt;if(!t||!p.rig)return;const r=p.rig.R.root,k=snap?1:1-Math.exp(-14*dt);
+  r.position.x=lerp(r.position.x,t[0],k);r.position.y=lerp(r.position.y,t[1],k);r.position.z=lerp(r.position.z,t[2],k);r.rotation.y=snap?t[3]:dampA(r.rotation.y,t[3],14,dt);
+  const n=p.nodes;for(let i=0;i<n.length;i++){const o=n[i],j=4+i*10;if(j+9>=t.length)break;
+    o.position.set(lerp(o.position.x,t[j],k),lerp(o.position.y,t[j+1],k),lerp(o.position.z,t[j+2],k));
+    _mq.set(t[j+3],t[j+4],t[j+5],t[j+6]);if(_mq.lengthSq()>0.5)o.quaternion.slerp(_mq.normalize(),k);
+    o.scale.set(lerp(o.scale.x,t[j+7],k),lerp(o.scale.y,t[j+8],k),lerp(o.scale.z,t[j+9],k));}}
+function mpFrame(dt){if(!MP.ch)return;const now=performance.now();
+  // send our pose ~10x a second while moving, or a heartbeat every 2 s when still
+  MP.sendT+=dt;MP.beatT+=dt;
+  if(MP.sendT>=1/MP_HZ&&started){MP.sendT=0;const a=packPose();const sig=a.slice(0,4).join(',')+P.state+(anim.whip.on||anim.bar.on||anim.flip.on?1:0);
+    if(sig!==MP.lastSig||MP.beatT>2||P.state!=='ground'){MP.lastSig=sig;MP.beatT=0;MP.ch.send({type:'broadcast',event:'p',payload:{i:MP.id,w:world.id,a}});}}
+  // show the nearest riders in this world
+  const list=[...MP.peers.values()].filter(p=>p.rig&&p.tgt&&p.w===world.id&&now-p.seen<8000)
+    .sort((a,b)=>((a.tgt[0]-P.x)**2+(a.tgt[2]-P.z)**2)-((b.tgt[0]-P.x)**2+(b.tgt[2]-P.z)**2));
+  const shown=new Set(list.slice(0,MP_MAX_SHOWN));
+  for(const p of MP.peers.values()){const on=shown.has(p);if(p.rig){if(on&&!p.rig.R.root.visible){p.rig.R.root.visible=true;applyPose(p,dt,true);}p.rig.R.root.visible=on;}if(p.tag)p.tag.visible=on;
+    if(on){applyPose(p,dt);const r=p.rig.R.root;p.tag.position.set(r.position.x,r.position.y+2.25,r.position.z);}}}
+// --- joining and leaving
+function mpMeta(){return {n:mpName(),w:world.id,look:{model:save.model,cfg:save.cfg,rider:save.rider}};}
+function mpRetrack(){if(!MP.ch)return;const m=mpMeta(),sig=JSON.stringify(m);if(sig===MP.metaSig)return;MP.metaSig=sig;MP.ch.track(m).catch(()=>{});}
+async function mpLeave(quiet){const ch=MP.ch;MP.ch=null;MP.room=null;MP.metaSig='';for(const id of [...MP.peers.keys()])dropPeer(id);
+  if(ch){try{await ch.untrack();}catch(e){}try{await sb.removeChannel(ch);}catch(e){}}if(!quiet)popup('Offline','You left online play');mpUI();}
+function mpJoin(room){if(!sb){mpStatus('Online play needs the internet. Open the game from the website (not the file) and try again.');return;}
+  if(MP.joining)return;MP.joining=true;mpStatus('Connecting…');
+  (MP.ch?mpLeave(true):Promise.resolve()).then(()=>{
+    const ch=sb.channel(room?'scoot-room-'+room:'scoot-lobby',{config:{broadcast:{self:false},presence:{key:MP.id}}});
+    ch.on('broadcast',{event:'p'},({payload:d})=>{if(!d||d.i===MP.id)return;const p=MP.peers.get(d.i);if(!p||!Array.isArray(d.a))return;p.tgt=d.a;p.w=d.w;p.seen=performance.now();});
+    ch.on('broadcast',{event:'c'},({payload:d})=>{if(!d||d.i===MP.id||MP.muted.has(d.i)||!MP.chatOn)return;const p=MP.peers.get(d.i);chatLine(p?p.name:cleanName(d.n),cleanChat(d.m));});
+    ch.on('presence',{event:'sync'},()=>{const st=ch.presenceState(),ids=new Set();
+      for(const id in st){if(id===MP.id)continue;const meta=st[id][0];if(!meta)continue;ids.add(id);try{peerFor(id,meta);}catch(e){console.warn(e);}}
+      for(const id of [...MP.peers.keys()])if(!ids.has(id))dropPeer(id);
+      mpUI();});
+    ch.on('presence',{event:'join'},({key,newPresences})=>{if(key!==MP.id&&MP.ch&&newPresences[0])chatLine('',cleanName(newPresences[0].n)+' joined',true);});
+    ch.on('presence',{event:'leave'},({key,leftPresences})=>{if(key!==MP.id&&MP.ch&&leftPresences[0])chatLine('',cleanName(leftPresences[0].n)+' left',true);});
+    let done=false;
+    ch.subscribe(async (st,err)=>{MP.trace.push(st+(err?':'+(err.message||err):''));if(MP.trace.length>20)MP.trace.shift();
+      if(st==='SUBSCRIBED'&&!done){done=true;MP.joining=false;MP.ch=ch;MP.room=room||null;MP.metaSig='';mpRetrack();mpUI();
+        popup(room?'Room '+room:'Public lobby',room?'Share this code with your friends':'Riding with everyone online','gold');chatLine('',room?'You are in room '+room+'. Friends join with this code.':'You joined the public lobby. Be kind!',true);
+        if(room)setTimeout(()=>{if(MP.ch===ch&&Object.keys(ch.presenceState()).length>MP_MAX_ROOM){mpLeave(true);mpStatus('That room is full ('+MP_MAX_ROOM+' riders). Try another code.');}},2000);}
+      else if((st==='CHANNEL_ERROR'||st==='TIMED_OUT')&&!done){done=true;MP.joining=false;try{sb.removeChannel(ch);}catch(e){}mpStatus('Could not connect. Check the internet and try again.');}
+      else if(st==='CLOSED'&&MP.ch===ch){MP.ch=null;mpUI();}});
+    setTimeout(()=>{if(!done){done=true;MP.joining=false;try{sb.removeChannel(ch);}catch(e){}mpStatus('Could not connect (timed out). Try again.');}},12000);
+  });}
+function newRoomCode(){return ROOM_WORDS[Math.floor(Math.random()*ROOM_WORDS.length)]+'-'+String(10+Math.floor(Math.random()*90));}
+const normCode=c=>String(c||'').toUpperCase().replace(/[^A-Z0-9-]/g,'').slice(0,12);
+// --- chat
+const chatEl=$('chat'),chatLog=$('chatLog'),chatIn=$('chatIn');
+function chatLine(name,text,sys){if(!text)return;const li=document.createElement('li');if(sys){li.className='sys';li.textContent=text;}
+  else{const b=document.createElement('b');b.textContent=name+': ';li.appendChild(b);li.appendChild(document.createTextNode(text));}
+  chatLog.appendChild(li);while(chatLog.children.length>8)chatLog.firstChild.remove();setTimeout(()=>li.classList.add('old'),12000);mpUI();}
+function chatOpen(){if(!MP.ch||!MP.chatOn||!started)return;chatIn.hidden=false;chatIn.value='';chatIn.focus();for(const k in keys)keys[k]=false;}
+function chatClose(){chatIn.hidden=true;chatIn.blur();}
+chatIn.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){const t=cleanChat(chatIn.value);const now=performance.now();
+    if(t&&MP.ch){if(now-MP.lastChat<1200){chatLine('','Slow down a little',true);return;}MP.lastChat=now;MP.ch.send({type:'broadcast',event:'c',payload:{i:MP.id,n:mpName(),m:t}});chatLine(mpName(),t);}chatClose();}
+  else if(e.key==='Escape')chatClose();});
+chatIn.addEventListener('blur',()=>{chatIn.hidden=true;});
+// --- menu
+const mpEl=$('mp');
+function mpStatus(t){$('mpStatus').textContent=t;}
+function mpUI(){const on=!!MP.ch;chatEl.hidden=!on||!MP.chatOn;$('mpBtn').textContent=on?(MP.room?'Room '+MP.room:'Online')+' · '+(MP.peers.size+1):'Ride with friends';
+  if(mpEl.hidden)return;
+  mpStatus(on?(MP.room?`You're in private room ${MP.room}. Friends type this code to join you.`:"You're in the public lobby with everyone online."):'Not connected. Pick public or private below.');
+  $('mpCode').textContent=MP.room||'';$('mpCodeBox').hidden=!MP.room;$('mpLeave').hidden=!on;$('mpName').textContent=mpName()+(me?'':' (log in to use your username)');
+  $('mpChatTog').textContent=MP.chatOn?'Chat: on':'Chat: off';
+  const pl=$('mpPlayers');const peers=[...MP.peers.values()];
+  pl.innerHTML=on?(peers.length?'':'<li class="sys">No one else here yet.</li>'):'';
+  for(const p of peers){const li=document.createElement('li');const n=document.createElement('span');n.textContent=p.name+' · '+(p.w==='city'?'Night City':'Scoot Park');li.appendChild(n);
+    const b=document.createElement('button');b.type='button';b.dataset.mute=p.id;b.textContent=MP.muted.has(p.id)?'Unmute':'Mute';li.appendChild(b);pl.appendChild(li);}}
+$('mpBtn').onclick=e=>{e.currentTarget.blur();if(started)setOverlay('mp');};
+$('mpPublic').onclick=()=>mpJoin(null);
+$('mpCreate').onclick=()=>mpJoin(newRoomCode());
+$('mpJoinForm').addEventListener('submit',e=>{e.preventDefault();const c=normCode($('mpJoinCode').value);if(c.length<3){mpStatus('Type the room code your friend gave you, like KEA-47.');return;}mpJoin(c);});
+$('mpLeave').onclick=()=>mpLeave();
+$('mpChatTog').onclick=()=>{MP.chatOn=!MP.chatOn;mpSaveCfg();mpUI();};
+$('mpPlayers').addEventListener('click',e=>{const b=e.target.closest('[data-mute]');if(!b)return;const id=b.dataset.mute;MP.muted.has(id)?MP.muted.delete(id):MP.muted.add(id);mpSaveCfg();mpUI();});
+$('mpClose').onclick=()=>setOverlay(null);
+$('mpCopy').onclick=()=>{try{navigator.clipboard.writeText(MP.room||'');popup('Copied',MP.room);}catch(e){}};
+addEventListener('beforeunload',()=>{if(MP.ch)try{MP.ch.untrack();}catch(e){}});
 // ---------------- big map
 const bigmap=$('bigmap'),bmg=bigmap.getContext('2d'),mapCh=$('mapCh');let mapHL=-1;
 function drawBigMap(){
