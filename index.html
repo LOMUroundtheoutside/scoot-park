@@ -141,6 +141,25 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
 .lb .rk{font-family:var(--display);width:44px}
 .wcard-wrap{max-width:860px}
 .mpcard{max-width:720px}
+.coins{font-family:var(--display);font-size:1.35rem;color:#7bd389;margin-top:2px;display:inline-block}.coins.bump{animation:bump .45s}
+@keyframes bump{40%{transform:scale(1.25);color:#c6ffd0}}
+.bst{color:#7bd389;font-size:.85em}
+.gtabs{flex-wrap:wrap}.igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.icard{all:unset;box-sizing:border-box;cursor:pointer;display:grid;gap:3px;padding:8px;border-radius:8px;background:#1d2029;border:2px solid transparent;border-bottom:3px solid var(--rc,#555)}
+.icard:hover,.icard:focus-visible{border-color:var(--rc)}.icard.eq{border-color:#7bd389;background:#232a2a}.icard b{font-size:.95rem;line-height:1.1}.icard small{font-size:.78rem}
+.icard.locked{cursor:default;opacity:.55}.isw{display:grid;place-items:center;height:54px;border-radius:6px;font-family:var(--display);color:var(--muted)}.isw.big{height:120px;width:160px;margin:0 auto}
+.cnt{color:var(--muted);font-family:inherit;font-size:.85rem;margin-left:6px}
+.crates{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;margin-bottom:6px}
+.ccard{display:grid;gap:4px;justify-items:center;text-align:center;background:#1d2029;border-radius:8px;padding:10px 6px;border-bottom:3px solid var(--cc)}
+.ccard small{font-size:.72rem;line-height:1.25}.ccard small i{font-style:normal;display:block}.ccard .go{padding:6px 14px;font-size:1rem;box-shadow:3px 3px 0 var(--hot)}.ccard .go.alt{box-shadow:3px 3px 0 #0b0c10;opacity:.7}
+.crate{display:block;width:54px;height:44px;border-radius:6px;background:linear-gradient(135deg,var(--cc,#9aa3ad),#2a2e3a);box-shadow:inset 0 0 0 3px rgba(255,255,255,.25),inset 0 -14px 0 rgba(0,0,0,.25);position:relative}
+.crate:after{content:"?";position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);color:#fff;font-size:1.3rem}
+.reveal{display:grid;gap:6px;justify-items:center;text-align:center;padding:16px;margin-bottom:12px;border-radius:10px;background:radial-gradient(circle,color-mix(in srgb,var(--rc) 35%,transparent),#1d2029 70%);border:2px solid var(--rc);animation:pop .4s}
+.reveal b{font-family:var(--display);font-size:1.3rem}.reveal .rbtns{display:flex;gap:10px;margin-top:6px}.reveal .go{padding:6px 18px;font-size:1.05rem}
+.crate.shake{width:90px;height:72px;animation:shake .35s infinite}
+@keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg) scale(1.05)}75%{transform:rotate(7deg) scale(1.05)}}
+@keyframes pop{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+.cash{color:#7bd389}
 .tunecode{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}.tunecode input{flex:1;min-width:120px;font:inherit;font-size:1rem;padding:8px 10px;border-radius:6px;border:2px solid #343a4a;background:#0f1117;color:var(--paper)}
 .tunecode input:focus-visible{outline:none;border-color:var(--grip)}.tunecode .go{padding:6px 16px;font-size:1rem}
 .tune{display:grid;gap:8px}.tune label{display:grid;grid-template-columns:minmax(0,1fr) 56px;gap:2px 10px;align-items:center}
@@ -188,7 +207,8 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
   <div class="lbl">Score</div>
   <div id="score">0</div>
   <div class="lbl">Best combo <span id="best">0</span></div>
-  <div class="hbtns"><button type="button" id="worldBtn">Worlds <kbd>Tab</kbd></button><button type="button" id="mapBtn">Map <kbd>N</kbd></button><button type="button" id="garBtn">Garage <kbd>B</kbd></button><button type="button" id="setBtn">Settings</button><button type="button" id="boardBtn">Leaderboard <kbd>`</kbd></button></div>
+  <div id="coins" class="coins">$0</div>
+  <div class="hbtns"><button type="button" id="worldBtn">Worlds <kbd>Tab</kbd></button><button type="button" id="mapBtn">Map <kbd>N</kbd></button><button type="button" id="garBtn">Garage <kbd>B</kbd></button><button type="button" id="lockBtn">Locker</button><button type="button" id="setBtn">Settings</button><button type="button" id="boardBtn">Leaderboard <kbd>`</kbd></button></div>
   <div class="hbtns"><button type="button" id="acctBtn">Log in</button><button type="button" id="mpBtn" class="mpb">Ride with friends</button></div>
 </div>
 <div class="hud" id="comboBox"><div id="comboList"></div><div id="comboPts"></div><div id="comboBar" hidden><i></i></div></div>
@@ -214,7 +234,7 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
 <div class="screen" id="help" hidden><div class="card"><h2>Controls</h2><div class="keys" id="keysHelp"></div><button class="go" id="helpClose" type="button">Back to riding</button></div></div>
 <div class="screen" id="mapScr" hidden><div class="mapwrap"><canvas id="bigmap" width="1600" height="1000" aria-label="Map of Scoot Park"></canvas>
   <div class="card maplist"><h2>Map</h2><p class="note" style="margin:0 0 10px">Yellow pins are challenges still to do. Press Go to travel to that area.</p><ol id="mapCh"></ol><button class="go" id="mapClose" type="button">Close map</button></div></div></div>
-<div id="garage" hidden><div class="gpanel"><h2>Garage</h2><div class="chips gtabs" id="gTabs"><button type="button" data-tab="scooter" aria-pressed="true">Scooter</button><button type="button" data-tab="rider" aria-pressed="false">Rider</button></div><div id="gModels" class="gmodels"></div><div id="gOpts"></div><button class="go" id="garClose" type="button">Ride it</button></div></div>
+<div id="garage" hidden><div class="gpanel"><h2>Garage</h2><div class="chips gtabs" id="gTabs"><button type="button" data-tab="scooter" aria-pressed="true">Scooter</button><button type="button" data-tab="rider" aria-pressed="false">Rider</button><button type="button" data-tab="locker" aria-pressed="false">Locker</button><button type="button" data-tab="crates" aria-pressed="false">Crates</button></div><div id="gModels" class="gmodels"></div><div id="gOpts"></div><button class="go" id="garClose" type="button">Ride it</button></div></div>
 <div class="screen" id="settings" hidden><div class="card setcard"><h2>Settings</h2>
   <div class="gsec">Graphics</div><div class="chips" id="setGfx"></div>
   <div class="gsec">Sound</div><div class="chips" id="setSnd"></div>
@@ -1314,6 +1334,10 @@ const MODELS=[
  {id:'fantail',name:'Fantail FX',tag:'Small and twitchy. Spins all day.',stats:{whip:1.02,spin:1.16,pop:0.95},cfg:{deck:'#ff6fb5',finish:'gloss',grip:'brand',bars:'#f2f2ee',barStyle:'T',clamp:'#8e5bd6',core:'#40d6c8',tyre:'#f2f2ee'}},
  {id:'rimu',name:'Rimu Ridge',tag:'Park beast. Smooth, stable, solid pop.',stats:{whip:1.04,spin:1,pop:1.08},cfg:{deck:'#7a4b2a',finish:'matte',grip:'brand',bars:'#ff8a3d',barStyle:'T',clamp:'#16171b',core:'#ff8a3d',tyre:'#c9a36b'}},
  {id:'taniwha',name:'Taniwha MAX',tag:'Maxed out on everything. Way faster, huge pop, crazy whips and spins.',max:true,stats:{whip:1.4,spin:1.4,pop:1.45,speed:1.6,land:1.7},cfg:{deck:'#16171b',finish:'chrome',grip:'galaxy',bars:'#ff4fd8',barStyle:'Y',clamp:'#40d6c8',core:'#ff4fd8',tyre:'#16171b'}},
+ {id:'pukeko',name:'Pūkeko Pop',tag:'Crate scooter. Bouncy deck, extra pop.',crate:true,rarity:'common',stats:{whip:1.05,spin:1.02,pop:1.15},cfg:{deck:'#3f7fbf',finish:'gloss',grip:'checker',bars:'#ff4d5e',barStyle:'T',clamp:'#ff4d5e',core:'#ff4d5e',tyre:'#18181b'}},
+ {id:'kea',name:'Kea Kraze',tag:'Crate scooter. Cheeky, quick whips and spins.',crate:true,rarity:'rare',stats:{whip:1.22,spin:1.15,pop:1.06,speed:1.08},cfg:{deck:'#5cb85c',finish:'matte',grip:'camo',bars:'#ff8a3d',barStyle:'Y',clamp:'#ff8a3d',core:'#ff8a3d',tyre:'#16171b'}},
+ {id:'moa',name:'Moa Mega',tag:'Crate scooter. Huge pop and top speed.',crate:true,rarity:'epic',stats:{whip:1.1,spin:1.1,pop:1.3,speed:1.22,land:1.25},cfg:{deck:'#8e5bd6',finish:'chrome',grip:'flames',bars:'#ffd43b',barStyle:'Y',clamp:'#16171b',core:'#ffd43b',tyre:'#16171b'}},
+ {id:'aurora',name:'Aurora X',tag:'Legendary crate scooter. Glows like the southern lights.',crate:true,rarity:'legendary',stats:{whip:1.3,spin:1.3,pop:1.32,speed:1.35,land:1.4},cfg:{deck:'#40d6c8',finish:'chrome',grip:'galaxy',bars:'#ff6fb5',barStyle:'Y',clamp:'#8e5bd6',core:'#ff6fb5',tyre:'#f2f2ee'}},
 ];
 for(const m of MODELS)m.stats=Object.assign({speed:1,land:1},m.stats);
 let STAT={whip:1,spin:1,pop:1,speed:1,land:1};
@@ -1445,13 +1469,87 @@ R.shoe=[0,1].map(()=>{const g=new THREE.Group();R.inner.add(g);g.userData={};
   g.userData.v={skate:sk,hightop:ht,foot:ft};return g;});
 R.hand=[rpart(sph(.044,14,10),RM.skin),rpart(sph(.044,14,10),RM.skin)];R.hand.forEach(h=>h.scale.set(1,.85,1.15));}
 rigBody();
-function applyRider(){const r=save.rider;
-  RM.skin.color.set(r.skin);RM.top.color.set(r.shirt);RM.pants.color.set(r.pants);RM.hair.color.set(r.hairCol);RM.hat.color.set(r.helmet);RM.shoe.color.set(r.shoes);RM.sock.color.set(r.shoes);
-  for(const g of R.shoe){const v=g.userData.v,f=r.feet||'skate';v.skate.visible=f==='skate';v.hightop.visible=f==='hightop';v.foot.visible=f==='socks'||f==='bare';g.userData.foot.material=f==='bare'?RM.skin:RM.sock;}
-  const hat=r.headwear!=='none';
-  for(const k in R.hats)R.hats[k].visible=k===r.headwear;
+// ---------------- locker items (clothes with patterns), rarities, crates
+const RARITY={common:{name:'Common',col:'#b8c0c9'},rare:{name:'Rare',col:'#3fa0ff'},epic:{name:'Epic',col:'#b06bff'},legendary:{name:'Legendary',col:'#ffb52e'},special:{name:'Special',col:'#ff4d5e'}};
+const SLOTS=[['head','Head'],['top','Top'],['pants','Pants'],['shoes','Shoes']];
+const ITEMS=[
+ {id:'h_checker',name:'Checker Lid',slot:'head',kind:'helmet',pat:'checker',a:'#16171b',b:'#f2f2ee',rarity:'common'},
+ {id:'h_stripe',name:'Racing Stripe Helmet',slot:'head',kind:'helmet',pat:'stripes',a:'#ff4d5e',b:'#f2f2ee',rarity:'common'},
+ {id:'h_camocap',name:'Camo Cap',slot:'head',kind:'cap',pat:'camo',rarity:'common'},
+ {id:'h_kiwibeanie',name:'Kiwi Beanie',slot:'head',kind:'beanie',pat:'kiwi',a:'#2b2e36',b:'#7bd389',rarity:'common'},
+ {id:'h_flame',name:'Flame Helmet',slot:'head',kind:'helmet',pat:'flames',a:'#16171b',rarity:'rare'},
+ {id:'h_neoncap',name:'Neon Cap',slot:'head',kind:'cap',pat:'neon',a:'#12131a',b:'#40d6c8',rarity:'rare'},
+ {id:'h_rainbow',name:'Rainbow Beanie',slot:'head',kind:'beanie',pat:'rainbow',rarity:'rare'},
+ {id:'h_galaxy',name:'Galaxy Helmet',slot:'head',kind:'helmet',pat:'galaxy',rarity:'epic'},
+ {id:'h_tiedye',name:'Tie-Dye Beanie',slot:'head',kind:'beanie',pat:'tiedye',rarity:'epic'},
+ {id:'h_gold',name:'Gold Helmet',slot:'head',kind:'helmet',pat:'gold',fin:'gold',rarity:'legendary'},
+ {id:'rb_helmet',name:'Rad Bull Helmet',slot:'head',kind:'helmet',pat:'radbull',rarity:'special'},
+ {id:'rb_beanie',name:'Rad Bull Beanie',slot:'head',kind:'beanie',pat:'radbull',rarity:'special'},
+ {id:'t_stripe',name:'Striped Tee',slot:'top',kind:'tee',pat:'stripes',a:'#3f7fbf',b:'#f2f2ee',rarity:'common'},
+ {id:'t_camo',name:'Camo Tee',slot:'top',kind:'tee',pat:'camo',rarity:'common'},
+ {id:'t_checker',name:'Checker Tee',slot:'top',kind:'tee',pat:'checker',a:'#16171b',b:'#ffd43b',rarity:'common'},
+ {id:'t_tiedye',name:'Tie-Dye Tee',slot:'top',kind:'tee',pat:'tiedye',rarity:'rare'},
+ {id:'t_kiwi',name:'Kiwi Hoodie',slot:'top',kind:'hoodie',pat:'kiwi',a:'#1f5a3d',b:'#7bd389',rarity:'rare'},
+ {id:'t_flame',name:'Flame Hoodie',slot:'top',kind:'hoodie',pat:'flames',a:'#16171b',rarity:'epic'},
+ {id:'t_neon',name:'Neon Hoodie',slot:'top',kind:'hoodie',pat:'neon',a:'#12131a',b:'#ff4fd8',rarity:'epic'},
+ {id:'t_galaxy',name:'Galaxy Hoodie',slot:'top',kind:'hoodie',pat:'galaxy',rarity:'legendary'},
+ {id:'p_camo',name:'Camo Pants',slot:'pants',pat:'camo',rarity:'common'},
+ {id:'p_checker',name:'Checker Pants',slot:'pants',pat:'checker',a:'#16171b',b:'#f2f2ee',rarity:'rare'},
+ {id:'p_flame',name:'Flame Pants',slot:'pants',pat:'flames',a:'#16171b',rarity:'epic'},
+ {id:'p_gold',name:'Gold Pants',slot:'pants',pat:'gold',fin:'gold',rarity:'legendary'},
+ {id:'s_checker',name:'Checker Shoes',slot:'shoes',pat:'checker',a:'#16171b',b:'#f2f2ee',rarity:'common'},
+ {id:'s_neon',name:'Neon Kicks',slot:'shoes',pat:'neon',a:'#12131a',b:'#7bd389',rarity:'rare'},
+ {id:'s_galaxy',name:'Galaxy Kicks',slot:'shoes',pat:'galaxy',rarity:'epic'},
+ {id:'s_gold',name:'Gold Kicks',slot:'shoes',pat:'gold',fin:'gold',rarity:'legendary'},
+];
+const itemById=id=>ITEMS.find(x=>x.id===id);
+// patterns are drawn on canvases once and shared
+const patCache={};
+function patTex(it){const key=it.pat+'|'+(it.a||'')+'|'+(it.b||'');if(patCache[key])return patCache[key];
+  const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d'),A=it.a||'#2b2e36',Bc=it.b||'#f2f2ee';
+  const P={
+    stripes(){g.fillStyle=A;g.fillRect(0,0,256,256);g.fillStyle=Bc;for(let y=0;y<256;y+=32)g.fillRect(0,y,256,12);},
+    checker(){for(let y=0;y<8;y++)for(let x=0;x<8;x++){g.fillStyle=(x+y)%2?A:Bc;g.fillRect(x*32,y*32,32,32);}},
+    camo(){g.fillStyle='#5b6b3a';g.fillRect(0,0,256,256);const cs=['#7a8a4a','#3d4a28','#8c7a52','#2f3a20'];for(let i=0;i<70;i++){g.fillStyle=cs[i%4];g.beginPath();g.ellipse(Math.random()*256,Math.random()*256,10+Math.random()*26,6+Math.random()*14,Math.random()*3,0,TAU);g.fill();}},
+    flames(){g.fillStyle=A;g.fillRect(0,0,256,256);for(const [col,hh] of [['#ff4d1f',150],['#ff9a1f',110],['#ffd43b',70]]){g.fillStyle=col;g.beginPath();g.moveTo(0,256);
+      for(let x=0;x<=256;x+=16){const t=256-hh-(Math.sin(x*0.09)*0.5+0.5)*hh*0.6;g.quadraticCurveTo(x-8,t,x,256-hh*0.35);}g.lineTo(256,256);g.closePath();g.fill();}},
+    galaxy(){const gr=g.createLinearGradient(0,0,256,256);gr.addColorStop(0,'#1a0b3d');gr.addColorStop(.5,'#3b1a6e');gr.addColorStop(1,'#0b1a3d');g.fillStyle=gr;g.fillRect(0,0,256,256);
+      for(let i=0;i<6;i++){const x=Math.random()*256,y=Math.random()*256,r=40+Math.random()*60,n=g.createRadialGradient(x,y,0,x,y,r);n.addColorStop(0,i%2?'rgba(255,79,216,.45)':'rgba(64,214,200,.4)');n.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=n;g.fillRect(0,0,256,256);}
+      g.fillStyle='#fff';for(let i=0;i<160;i++){const r=Math.random()<.9?1:2;g.fillRect(Math.random()*256,Math.random()*256,r,r);}},
+    tiedye(){const cs=['#ff4d5e','#ffd43b','#40d6c8','#8e5bd6','#ff6fb5','#7bd389'];for(let r=380;r>0;r-=14){g.fillStyle=cs[(r/14|0)%cs.length];g.beginPath();g.arc(128,128,r,0,TAU);g.fill();}},
+    rainbow(){const cs=['#ff4d5e','#ff8a3d','#ffd43b','#7bd389','#40d6c8','#3f7fbf','#8e5bd6'];cs.forEach((col,i)=>{g.fillStyle=col;g.fillRect(0,i*256/7,256,256/7+1);});},
+    neon(){g.fillStyle=A;g.fillRect(0,0,256,256);g.strokeStyle=Bc;g.lineWidth=5;g.shadowColor=Bc;g.shadowBlur=12;for(let i=-256;i<256;i+=40){g.beginPath();g.moveTo(i,0);g.lineTo(i+256,256);g.stroke();}},
+    kiwi(){g.fillStyle=A;g.fillRect(0,0,256,256);g.fillStyle=Bc;g.font='bold 30px Bungee, Impact, sans-serif';g.textAlign='center';for(let y=0;y<5;y++)for(let x=0;x<3;x++)g.fillText('KIWI',x*90+(y%2?45:0),y*56+40);},
+    gold(){const gr=g.createLinearGradient(0,0,0,256);gr.addColorStop(0,'#ffe58a');gr.addColorStop(.5,'#d4a537');gr.addColorStop(1,'#a87a1a');g.fillStyle=gr;g.fillRect(0,0,256,256);},
+    // "Rad Bull": our own parody design (navy and silver, a red bull in front of a yellow sun). Not the real brand's logo.
+    radbull(){g.fillStyle='#14204a';g.fillRect(0,0,256,256);g.fillStyle='#c9ced8';g.fillRect(0,196,256,60);g.fillStyle='#d6142c';g.fillRect(0,190,256,6);
+      const logo=(cx,cy,s)=>{g.save();g.translate(cx,cy);g.scale(s,s);g.fillStyle='#ffcc1a';g.beginPath();g.arc(0,-4,22,0,TAU);g.fill();
+        g.fillStyle='#d6142c';g.beginPath();g.ellipse(0,8,24,10,0,0,TAU);g.fill();g.beginPath();g.ellipse(-18,2,8,7,-0.4,0,TAU);g.fill();
+        g.beginPath();g.moveTo(-22,-2);g.lineTo(-30,-14);g.lineTo(-18,-6);g.fill();g.beginPath();g.moveTo(-14,-2);g.lineTo(-10,-14);g.lineTo(-8,-2);g.fill();
+        for(const lx of [-14,-4,8,18]){g.fillRect(lx,14,4,10);}g.restore();};
+      logo(64,92,1.4);logo(192,92,1.4);g.fillStyle='#d6142c';g.font='bold 30px Bungee, Impact, sans-serif';g.textAlign='center';g.fillText('RAD BULL',64,160);g.fillText('RAD BULL',192,160);},
+  };
+  (P[it.pat]||P.stripes)();
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=maxAniso;t.isShared=true;return patCache[key]=t;}
+function setPat(m,it,base){const hat=m===RM.hat;
+  if(it){m.map=patTex(it);m.color.set('#ffffff');m.metalness=it.fin==='gold'?0.55:hat?0.08:0;m.roughness=it.fin==='gold'?0.3:hat?0.32:0.88;}
+  else{m.map=null;m.color.set(base);m.metalness=hat?0.08:0;m.roughness=hat?0.32:0.88;}
+  m.needsUpdate=true;}
+const CRATES=[
+ {id:'street',name:'Street Crate',price:150,col:'#9aa3ad',odds:{common:70,rare:25,epic:5}},
+ {id:'pro',name:'Pro Crate',price:400,col:'#3fa0ff',odds:{common:30,rare:45,epic:20,legendary:5}},
+ {id:'legend',name:'Legend Crate',price:900,col:'#ffb52e',odds:{rare:35,epic:45,legendary:20}},
+];
+
+function applyRider(){const r=save.rider,eq=r.items||{},I=k=>eq[k]&&itemById(eq[k]);const hi=I('head'),ti=I('top'),pi=I('pants'),si=I('shoes');
+  RM.skin.color.set(r.skin);RM.hair.color.set(r.hairCol);RM.sock.color.set(r.shoes);
+  setPat(RM.top,ti,r.shirt);setPat(RM.pants,pi,r.pants);setPat(RM.hat,hi,r.helmet);setPat(RM.shoe,si,r.shoes);
+  let f=r.feet||'skate';if(si&&(f==='socks'||f==='bare'))f='skate';
+  for(const g of R.shoe){const v=g.userData.v;v.skate.visible=f==='skate';v.hightop.visible=f==='hightop';v.foot.visible=f==='socks'||f==='bare';g.userData.foot.material=f==='bare'?RM.skin:RM.sock;}
+  const head=hi?hi.kind:r.headwear,hat=head!=='none';
+  for(const k in R.hats)R.hats[k].visible=k===head;
   for(const k in R.hairs){const g=R.hairs[k];g.visible=k===r.hair&&(!hat||k==='long');g.children.forEach(c=>{if(c.name==='cap')c.visible=!hat;});}
-  const hood=r.top==='hoodie';R.hood.visible=hood;R.fore.forEach(m=>m.material=hood?RM.top:RM.skin);R.elbow.forEach(m=>m.material=hood?RM.top:RM.skin);
+  const hood=(ti?ti.kind:r.top)==='hoodie';R.hood.visible=hood;R.fore.forEach(m=>m.material=hood?RM.top:RM.skin);R.elbow.forEach(m=>m.material=hood?RM.top:RM.skin);
   R.hand.forEach(m=>m.material=r.gloves==='on'?RM.glove:RM.skin);}
 
 // ---------------- game state
@@ -1467,10 +1565,11 @@ const combo={parts:[],base:0,mult:0,idle:0};
 // ---------------- save
 let save={done:{},best:0,score:0};
 try{const s=JSON.parse(localStorage.getItem('scootpark.v1')||'null');if(s&&s.done)save=Object.assign(save,s);}catch(e){}
-if(!save.model||!MODELS.some(m=>m.id===save.model))save.model='starter';
+if(save.coins==null)save.coins=150;save.owned=save.owned||{};
+if(!save.model||!MODELS.some(m=>m.id===save.model&&(!m.crate||save.owned[m.id])))save.model='starter';
 save.cfg=Object.assign({},MODELS.find(m=>m.id===save.model).cfg,save.cfg||{});
 save.pad=Object.assign({},DEFAULT_PAD,save.pad||{});
-save.rider=Object.assign({shirt:'#ff4d5e',pants:'#2b3a55',helmet:'#ffd43b',skin:'#d9a07a',hair:'short',hairCol:'#3a2a1c',headwear:'helmet',top:'tee',shoes:'#f4f4f4',feet:'skate',gloves:'off'},save.rider||{});
+save.rider=Object.assign({items:{},shirt:'#ff4d5e',pants:'#2b3a55',helmet:'#ffd43b',skin:'#d9a07a',hair:'short',hairCol:'#3a2a1c',headwear:'helmet',top:'tee',shoes:'#f4f4f4',feet:'skate',gloves:'off'},save.rider||{});
 buildScooter();
 score=save.score||0;bestCombo=save.best||0;
 function persist(){save.score=score;save.best=bestCombo;try{localStorage.setItem('scootpark.v1',JSON.stringify(save));}catch(e){}queueSync();if(typeof MP!=='undefined')mpRetrack();}
@@ -1555,7 +1654,7 @@ function hud(){
   elScore.textContent=fmt(score);elBest.textContent=fmt(bestCombo);
   const key=combo.parts.length+'|'+Math.round(combo.base)+'|'+combo.mult;
   if(key!==hudCache){hudCache=key;
-    if(combo.mult>0){const ps=combo.parts.slice(-6);elCL.textContent=(combo.parts.length>6?'… + ':'')+ps.join(' + ');elCP.innerHTML=`${fmt(combo.base)} <b>×${combo.mult}</b>`;}
+    if(combo.mult>0){const ps=combo.parts.slice(-6);elCL.textContent=(combo.parts.length>6?'… + ':'')+ps.join(' + ');elCP.innerHTML=`${fmt(combo.base)} <b>×${combo.mult}</b>`+(combo.mult>1?` <span class="bst">$ ×${booster(combo.mult)}</span>`:'');}
     else{elCL.textContent='';elCP.textContent='';}}
   elBar.hidden=!(combo.mult>0&&P.state==='ground'&&!P.manual);elBarI.style.width=(100*clamp(1-combo.idle/1.1,0,1))+'%';
   const sp=P.state==='air'?Math.hypot(P.vx,P.vy,P.vz):P.state==='grind'?Math.abs(P.gs):Math.abs(P.speed);
@@ -1568,8 +1667,8 @@ let areaTick=0;const elArea=document.getElementById('area');
 function showArea(a,lead){elArea.innerHTML='';const d=document.createElement('div');d.className='ab';const sm=document.createElement('small');sm.textContent=a.real?lead+' · based on the real park in '+a.real:lead;d.appendChild(sm);d.appendChild(document.createTextNode(a.name));elArea.appendChild(d);}
 // ---------------- combo
 function addCombo(name,pts,silent){combo.parts.push(name);combo.base+=pts;combo.mult++;combo.idle=0;if(!silent)popup(name,'+'+fmt(pts));}
-function bankCombo(){if(combo.mult>0){const total=Math.round(combo.base*combo.mult);score+=total;
-  if(total>bestCombo)bestCombo=total;if(combo.mult>1||total>500)popup('+'+fmt(total),combo.mult>1?`${combo.mult}-trick combo`:'Landed','gold');
+function bankCombo(){if(combo.mult>0){const total=Math.round(combo.base*combo.mult);score+=total;const cash=coinsFor(combo.base,combo.mult),bst=booster(combo.mult);addCoins(cash);
+  if(total>bestCombo)bestCombo=total;if(combo.mult>1||total>500)popup('+'+fmt(total),(combo.mult>1?`${combo.mult}-trick combo`:'Landed')+` · +$${cash}`+(bst>1?` (×${bst} booster)`:''),'gold');
   emit({kind:'combo',count:combo.mult,total});sfx('bank');persist();}
   combo.parts=[];combo.base=0;combo.mult=0;combo.idle=0;}
 function loseCombo(){combo.parts=[];combo.base=0;combo.mult=0;combo.idle=0;}
@@ -2008,7 +2107,7 @@ function updateVisuals(dt){
   const dist=wideCam?10:5.4,ht=wideCam?4.6:2.3;
   camPos.set(P.x-Math.sin(camAng)*dist,P.y+ht,P.z-Math.cos(camAng)*dist);
   const gh=H(camPos.x,camPos.z)+0.7;if(camPos.y<gh)camPos.y=gh;
-  if(started&&overlay==='garage'){const rt=garTab==='rider',sc=!rt&&garHidePerson,d=rt?1.75:sc?1.35:2.3,t=performance.now()/5000,cx=P.x+Math.sin(t)*d,cz=P.z+Math.cos(t)*d;
+  if(started&&overlay==='garage'){const rt=garTab!=='scooter',sc=!rt&&garHidePerson,d=rt?1.75:sc?1.35:2.3,t=performance.now()/5000,cx=P.x+Math.sin(t)*d,cz=P.z+Math.cos(t)*d;
     camPos.set(cx,Math.max(P.y+(rt?1.45:sc?0.75:1.05),H(cx,cz)+0.4),cz);camera.position.lerp(camPos,1-Math.exp(-4*dt));camera.lookAt(P.x,P.y+(rt?1.05:sc?0.3:0.55),P.z);}
   else if(!started){const t=performance.now()/9000;camPos.set(Math.sin(t)*46,16,Math.cos(t)*46-5);camera.position.lerp(camPos,1-Math.exp(-3*dt));camera.lookAt(0,1,0);}
   else{const sp=P.state==='air'?Math.hypot(P.vx,P.vz):P.state==='grind'?Math.abs(P.gs):Math.abs(P.speed);
@@ -2062,18 +2161,19 @@ const loginEl=$('login'),boardEl=$('board'),NAME_RE=/^[A-Za-z0-9_]{3,16}$/;
 const nameEmail=n=>n.toLowerCase()+'@players.scoot-park.example.com';
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const doneCount=()=>Object.keys(save.done).length;
-const blob=()=>({done:save.done,model:save.model,cfg:save.cfg,rider:save.rider});
+const blob=()=>({done:save.done,model:save.model,cfg:save.cfg,rider:save.rider,coins:save.coins,owned:save.owned,tuneOK:save.tuneOK,tune:save.tune});
 function queueSync(){if(!sb||!me)return;clearTimeout(syncTimer);syncTimer=setTimeout(pushProgress,2500);}
 async function pushProgress(){if(!sb||!me)return;
   const {error}=await sb.from('players').update({total_score:Math.round(score),best_combo:Math.round(bestCombo),challenges:doneCount(),progress:blob(),updated_at:new Date().toISOString()}).eq('id',me.id);
   if(error)console.warn('Scoot Park sync:',error.message);}
 function resetLocal(){score=0;bestCombo=0;save.done={};persist();renderChallenges();hudCache='';}
 function applyCloud(row,merge){const pr=row.progress||{};
-  if(merge){score=Math.max(score,row.total_score||0);bestCombo=Math.max(bestCombo,row.best_combo||0);save.done=Object.assign({},pr.done||{},save.done);}
-  else{score=row.total_score||0;bestCombo=row.best_combo||0;save.done=Object.assign({},pr.done||{});
+  save.owned=Object.assign({},pr.owned||{},save.owned);if(pr.tuneOK)save.tuneOK=true;if(pr.tune)save.tune=Object.assign({},pr.tune,save.tune);
+  if(merge){score=Math.max(score,row.total_score||0);bestCombo=Math.max(bestCombo,row.best_combo||0);save.done=Object.assign({},pr.done||{},save.done);save.coins=Math.max(save.coins||0,pr.coins||0);}
+  else{score=row.total_score||0;bestCombo=row.best_combo||0;save.done=Object.assign({},pr.done||{});if(pr.coins!=null)save.coins=pr.coins;
     if(pr.model&&MODELS.some(m=>m.id===pr.model)){save.model=pr.model;save.cfg=Object.assign({},MODELS.find(m=>m.id===pr.model).cfg,pr.cfg||{});}
     if(pr.rider)save.rider=Object.assign({},save.rider,pr.rider);}
-  save.owner=me.id;persist();buildScooter();renderChallenges();hudCache='';}
+  save.owner=me.id;persist();buildScooter();renderChallenges();hudCache='';addCoins(0);}
 async function afterLogin(user,newName){
   me={id:user.id,username:newName||(user.user_metadata&&user.user_metadata.username)||'rider'};
   const {data:row,error}=await sb.from('players').select('*').eq('id',me.id).maybeSingle();
@@ -2170,7 +2270,7 @@ function makeRemoteRig(look){const sR=R,sRM=RM,sSave=save,sSTAT=STAT;
     save={model:mid,cfg:Object.assign({},MODELS.find(m=>m.id===mid).cfg,look.cfg||{}),rider:Object.assign({},sSave.rider,look.rider||{})};
     buildScooter();R.root.traverse(o=>{if(o.isMesh)o.castShadow=false;});return {R,RM};}
   finally{R=sR;RM=sRM;save=sSave;STAT=sSTAT;}}
-function disposeRig(rig){scene.remove(rig.R.root);rig.R.root.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material&&o.material.map&&o.material.map.isCanvasTexture)o.material.map.dispose();});}
+function disposeRig(rig){scene.remove(rig.R.root);rig.R.root.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material&&o.material.map&&o.material.map.isCanvasTexture&&!o.material.map.isShared)o.material.map.dispose();});}
 function nameTag(text){const c=document.createElement('canvas');c.width=256;c.height=64;const g=c.getContext('2d');g.font='bold 30px Barlow Condensed, Arial Narrow, sans-serif';
   const w=Math.min(250,g.measureText(text).width+28);g.fillStyle='rgba(16,18,26,.78)';g.beginPath();g.roundRect?g.roundRect(128-w/2,8,w,46,10):g.rect(128-w/2,8,w,46);g.fill();
   g.fillStyle='#ffd43b';g.textAlign='center';g.textBaseline='middle';g.fillText(text,128,32);
@@ -2312,12 +2412,14 @@ function renderGarage(){
   const ch=(title,key,list,labels,o)=>`<div class="gsec">${title}</div><div class="chips">${list.map((v,i)=>`<button type="button" data-k="${key}" data-o="${o||'cfg'}" data-v="${v}" aria-pressed="${obj(o||'cfg')[key]===v}">${labels?labels[i]:v[0].toUpperCase()+v.slice(1)}</button>`).join('')}</div>`;
   syncPerson();
   if(garTab==='scooter'){
-    $('gModels').innerHTML=`<div class="gsec" style="margin-top:0">Person</div><div class="chips" style="margin-bottom:10px"><button type="button" data-person="on" aria-pressed="${!garHidePerson}">Show</button><button type="button" data-person="off" aria-pressed="${garHidePerson}">Hide</button></div>`+MODELS.map(m=>`<button type="button" class="gm" data-m="${m.id}" aria-pressed="${m.id===save.model}"><span class="sw" style="background:${m.cfg.deck};box-shadow:inset 0 -10px 0 ${m.cfg.bars}"></span><span><b>${m.name}</b><small>${m.tag}</small>
+    $('gModels').innerHTML=`<div class="gsec" style="margin-top:0">Person</div><div class="chips" style="margin-bottom:10px"><button type="button" data-person="on" aria-pressed="${!garHidePerson}">Show</button><button type="button" data-person="off" aria-pressed="${garHidePerson}">Hide</button></div>`+MODELS.filter(m=>!m.crate||owns(m.id)).map(m=>`<button type="button" class="gm" data-m="${m.id}" aria-pressed="${m.id===save.model}"${m.crate?` style="border-left:4px solid ${RARITY[m.rarity].col}"`:''}><span class="sw" style="background:${m.cfg.deck};box-shadow:inset 0 -10px 0 ${m.cfg.bars}"></span><span><b>${m.name}</b>${m.crate?`<small style="color:${RARITY[m.rarity].col}">${RARITY[m.rarity].name} crate scooter</small>`:''}<small>${m.tag}</small>
       ${['speed','whip','spin','pop'].map(k=>`<span class="stat">${k}<i style="width:${Math.min(96,Math.round((m.stats[k]-0.85)*300))}px${m.max?';background:linear-gradient(90deg,#ff4fd8,#ffd43b)':''}"></i>${m.max?'<b style="color:#ffd43b">MAX</b>':''}</span>`).join('')}</span></button>`).join('');
     $('gOpts').innerHTML=sw('Deck colour','deck',SWATCH,'cfg')+ch('Finish','finish',['gloss','matte','chrome'])+ch('Grip tape','grip',GRIPS)+
       ch('Bar style','barStyle',['T','Y'],['T-bar','Y-bar'])+sw('Bars','bars',SWATCH,'cfg')+sw('Clamp','clamp',SWATCH,'cfg')+sw('Wheel cores','core',SWATCH,'cfg')+sw('Tyres','tyre',TYRES,'cfg')+tuneHTML();
+  }else if(garTab==='locker'){$('gModels').innerHTML='';$('gOpts').innerHTML=lockerHTML();
+  }else if(garTab==='crates'){$('gModels').innerHTML='';$('gOpts').innerHTML=cratesHTML();
   }else{
-    $('gModels').innerHTML='';
+    $('gModels').innerHTML='<p class="note" style="margin:0 0 6px">Basic colours and style. Clothes from crates go on in the Locker tab and cover these.</p>';
     $('gOpts').innerHTML=sw('Skin tone','skin',SKINS,'rider')+ch('Hair','hair',['short','long','buzz','curly','bald'],null,'rider')+sw('Hair colour','hairCol',HAIRC,'rider')+
       ch('On your head','headwear',['helmet','cap','beanie','none'],['Helmet','Cap (backwards)','Beanie','Nothing'],'rider')+sw('Helmet / hat colour','helmet',SWATCH,'rider')+
       ch('Top','top',['tee','hoodie'],['T-shirt','Hoodie'],'rider')+sw('Top colour','shirt',SWATCH,'rider')+sw('Pants','pants',SWATCH,'rider')+
@@ -2337,6 +2439,57 @@ garEl.addEventListener('click',e=>{const tb=e.target.closest('[data-tab]');if(tb
   const m=e.target.closest('[data-m]');if(m){save.model=m.dataset.m;save.cfg=Object.assign({},MODELS.find(x=>x.id===save.model).cfg);persistLook();renderGarage();return;}
   const b=e.target.closest('[data-k]');if(!b)return;
   if(b.dataset.o==='rider'){save.rider[b.dataset.k]=b.dataset.v;persist();applyRider();}else{save.cfg[b.dataset.k]=b.dataset.v;persistLook();}renderGarage();});
+// ---------------- money, locker, crates, codes
+const owns=id=>!!(save.owned&&save.owned[id]);
+const modelOK=m=>!m.crate||owns(m.id);
+const elCoins=$('coins');
+function addCoins(n){save.coins=Math.max(0,Math.round((save.coins||0)+n));elCoins.textContent='$'+fmt(save.coins);if(n>0){elCoins.classList.remove('bump');void elCoins.offsetWidth;elCoins.classList.add('bump');}}
+addCoins(0);
+const booster=n=>Math.min(5,1+0.25*(n-1));
+function coinsFor(base,mult){return Math.max(1,Math.round(base/100*booster(mult)));}
+const crateItems=()=>[...ITEMS.filter(i=>i.rarity!=='special'),...MODELS.filter(m=>m.crate).map(m=>({id:m.id,name:m.name,slot:'scooter',rarity:m.rarity,model:m}))];
+function rollCrate(cr){const tot=Object.values(cr.odds).reduce((a,b)=>a+b,0);let r=Math.random()*tot,rar='common';for(const [k,v] of Object.entries(cr.odds)){if(r<v){rar=k;break;}r-=v;}
+  const pool=crateItems().filter(i=>i.rarity===rar);return pool[Math.floor(Math.random()*pool.length)];}
+function equip(it){if(it.slot==='scooter'){save.model=it.id;save.cfg=Object.assign({},it.model.cfg);persistLook();return;}
+  save.rider.items=Object.assign({},save.rider.items);save.rider.items[it.slot]=it.id;persist();applyRider();}
+let crateState=null; // {cr, item, dup, refund, t0}
+function openCrate(cr){if(crateState&&!crateState.done)return;if((save.coins||0)<cr.price){popup('Not enough cash','Land tricks and combos to earn more','bad');return;}
+  addCoins(-cr.price);const it=rollCrate(cr),dup=owns(it.id),refund=dup?Math.round(cr.price*0.4):0;
+  save.owned=Object.assign({},save.owned,{[it.id]:1});if(refund)addCoins(refund);persist();sfx('whoosh');
+  crateState={cr,item:it,dup,refund,done:false};renderGarage();setTimeout(()=>{if(crateState&&crateState.item===it){crateState.done=true;sfx('chime');renderGarage();}},1400);}
+function itemSwatch(it){if(it.slot==='scooter')return `background:${it.model.cfg.deck};box-shadow:inset 0 -12px 0 ${it.model.cfg.bars}`;
+  const t=patTex(it);return `background-image:url(${t.swatchUrl||(t.swatchUrl=t.image.toDataURL())});background-size:cover`;}
+function itemCard(it,opts){const R0=RARITY[it.rarity],eq=opts&&opts.eq;
+  return `<button type="button" class="icard${eq?' eq':''}" data-item="${it.id}" style="--rc:${R0.col}" aria-pressed="${!!eq}"><span class="isw" style="${itemSwatch(it)}"></span><b>${it.name}</b><small style="color:${R0.col}">${R0.name}${it.kind?' · '+it.kind:''}</small></button>`;}
+function lockerHTML(){const eqd=save.rider.items||{};let h='';
+  for(const [slot,label] of SLOTS){const all=ITEMS.filter(i=>i.slot===slot),mine=all.filter(i=>owns(i.id));
+    h+=`<div class="gsec">${label} <span class="cnt">${mine.length}/${all.filter(i=>i.rarity!=='special'||owns(i.id)).length}</span></div><div class="igrid">`+
+      `<button type="button" class="icard${!eqd[slot]?' eq':''}" data-unequip="${slot}" aria-pressed="${!eqd[slot]}"><span class="isw" style="background:#2a2e3a"></span><b>Basic</b><small>Your Rider colours</small></button>`+
+      mine.map(i=>itemCard(i,{eq:eqd[slot]===i.id})).join('')+`</div>`;
+    if(!mine.length)h+=`<p class="note" style="margin:4px 0 0">Nothing yet. Open crates to collect ${label.toLowerCase()} gear.</p>`;}
+  h+=`<div class="gsec">Got a code?</div><form class="tunecode" id="codeForm"><input id="codeIn" maxlength="24" placeholder="Type a code" autocomplete="off" spellcheck="false" aria-label="Code"><button type="submit" class="go alt">Redeem</button></form><p class="note" id="codeMsg"></p>`;
+  return h;}
+function cratesHTML(){let h=`<p class="note" style="margin:0 0 10px">You have <b class="cash">$${fmt(save.coins||0)}</b>. Land tricks to earn cash. Bigger tricks pay more, and combos add a booster (up to ×5).</p>`;
+  if(crateState){const it=crateState.item,R0=RARITY[it.rarity];
+    h+=crateState.done?`<div class="reveal" style="--rc:${R0.col}"><span class="isw big" style="${itemSwatch(it)}"></span><small style="color:${R0.col}">${R0.name}${it.slot==='scooter'?' scooter':''}</small><b>${it.name}</b>${crateState.dup?`<p class="note">You already had this one. +$${crateState.refund} back.</p>`:''}
+      <div class="rbtns">${crateState.dup?'':`<button type="button" class="go" id="rEquip">${it.slot==='scooter'?'Ride it':'Wear it'}</button>`}<button type="button" class="go alt" id="rOk">Nice</button></div></div>`
+      :`<div class="reveal opening" style="--rc:${crateState.cr.col}"><span class="crate shake" style="--cc:${crateState.cr.col}"></span><b>Opening ${crateState.cr.name}…</b></div>`;}
+  h+=`<div class="crates">`+CRATES.map(c=>`<div class="ccard" style="--cc:${c.col}"><span class="crate"></span><b>${c.name}</b><small>${Object.entries(c.odds).map(([k,v])=>`<i style="color:${RARITY[k].col}">${RARITY[k].name} ${v}%</i>`).join(' ')}</small>
+    <button type="button" class="go${(save.coins||0)<c.price?' alt':''}" data-crate="${c.id}">$${c.price}</button></div>`).join('')+`</div>`;
+  const all=crateItems(),got=all.filter(i=>owns(i.id)).length;
+  h+=`<div class="gsec">Collection <span class="cnt">${got}/${all.length}</span></div><div class="igrid">`+all.map(i=>owns(i.id)?itemCard(i):`<span class="icard locked" style="--rc:${RARITY[i.rarity].col}"><span class="isw" style="background:#1d2029">?</span><b>???</b><small style="color:${RARITY[i.rarity].col}">${RARITY[i.rarity].name}</small></span>`).join('')+`</div>`;
+  return h;}
+garEl.addEventListener('click',e=>{
+  const cr=e.target.closest('[data-crate]');if(cr){openCrate(CRATES.find(c=>c.id===cr.dataset.crate));return;}
+  if(e.target.id==='rOk'){crateState=null;renderGarage();return;}
+  if(e.target.id==='rEquip'&&crateState){const it=crateState.item;equip(it);crateState=null;garTab=it.slot==='scooter'?'scooter':'locker';renderGarage();return;}
+  const un=e.target.closest('[data-unequip]');if(un){save.rider.items=Object.assign({},save.rider.items);delete save.rider.items[un.dataset.unequip];persist();applyRider();renderGarage();return;}
+  const ic=e.target.closest('[data-item]');if(ic&&(garTab==='locker'||garTab==='crates')){const it=itemById(ic.dataset.item)||crateItems().find(i=>i.id===ic.dataset.item);if(it&&owns(it.id)){equip(it);if(it.slot==='scooter')garTab='scooter';renderGarage();}return;}});
+const CODES={'1omvj69':()=>{save.owned=Object.assign({},save.owned,{rb_helmet:1,rb_beanie:1});save.rider.items=Object.assign({},save.rider.items,{head:'rb_helmet'});persist();applyRider();return 'Rad Bull helmet and beanie unlocked!';},
+  'naq7ic':()=>{save.tuneOK=true;save.tune=save.tune||{};persist();return 'Scooter tuning unlocked! Find it in the Scooter tab.';}};
+garEl.addEventListener('submit',e=>{if(e.target.id!=='codeForm')return;e.preventDefault();const f=CODES[codeHash($('codeIn').value)];
+  if(f){const msg=f();renderGarage();popup('Code redeemed',msg,'gold');sfx('chime');}else{$('codeMsg').textContent='Nope, that code does not work.';$('codeIn').select();}});
+$('lockBtn').onclick=e=>{e.currentTarget.blur();if(started){garTab='locker';setOverlay('garage');}};
 // ---------------- loop
 respawn(true);if(save.world==='city')setWorld('city',true);
 let last=performance.now(),fc=0,perfT=0,perfN=0;
