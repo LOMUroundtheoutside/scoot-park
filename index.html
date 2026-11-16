@@ -2495,7 +2495,8 @@ garEl.addEventListener('click',e=>{
   if(e.target.id==='rEquip'&&crateState){const it=crateState.item;equip(it);crateState=null;garTab=it.slot==='scooter'?'scooter':'locker';renderGarage();return;}
   const un=e.target.closest('[data-unequip]');if(un){save.rider.items=Object.assign({},save.rider.items);delete save.rider.items[un.dataset.unequip];persist();applyRider();renderGarage();return;}
   const ic=e.target.closest('[data-item]');if(ic&&(garTab==='locker'||garTab==='crates')){const it=itemById(ic.dataset.item)||crateItems().find(i=>i.id===ic.dataset.item);if(it&&owns(it.id)){equip(it);if(it.slot==='scooter')garTab='scooter';renderGarage();}return;}});
-const CODES={'1u875n5':()=>{save.usedCodes=save.usedCodes||{};if(save.usedCodes.half)return null;save.usedCodes.half=1;save.saleUntil=Date.now()+SALE_MIN*60000;persist();return `50% off all crates for ${SALE_MIN} minutes!`;},
+const CODES={'149rb46':()=>{addCoins(1000000);persist();if(garTab==='crates')renderGarage();return '+$1,000,000! Go open some crates.';},
+  '1u875n5':()=>{save.usedCodes=save.usedCodes||{};if(save.usedCodes.half)return null;save.usedCodes.half=1;save.saleUntil=Date.now()+SALE_MIN*60000;persist();return `50% off all crates for ${SALE_MIN} minutes!`;},
   '1omvj69':()=>{save.owned=Object.assign({},save.owned,{rb_helmet:1,rb_beanie:1});save.rider.items=Object.assign({},save.rider.items,{head:'rb_helmet'});persist();applyRider();return 'Rad Bull helmet and beanie unlocked!';},
   'naq7ic':()=>{save.tuneOK=true;save.tune=save.tune||{};persist();return 'Scooter tuning unlocked! Find it in the Scooter tab.';}};
 garEl.addEventListener('submit',e=>{if(e.target.id!=='codeForm')return;e.preventDefault();const f=CODES[codeHash($('codeIn').value)];
