@@ -160,6 +160,9 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
 @keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg) scale(1.05)}75%{transform:rotate(7deg) scale(1.05)}}
 @keyframes pop{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
 .cash{color:#7bd389}
+.saleb{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:4px;background:#ff4d5e;color:#fff;font-family:var(--display);font-size:.8rem;vertical-align:4px;animation:bump 1.2s infinite}
+.sale{background:#ff4d5e;color:#fff;font-family:var(--display);text-align:center;padding:8px;border-radius:8px;margin-bottom:10px}
+.ccard .go s{opacity:.6;font-size:.8em}
 .tunecode{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}.tunecode input{flex:1;min-width:120px;font:inherit;font-size:1rem;padding:8px 10px;border-radius:6px;border:2px solid #343a4a;background:#0f1117;color:var(--paper)}
 .tunecode input:focus-visible{outline:none;border-color:var(--grip)}.tunecode .go{padding:6px 16px;font-size:1rem}
 .tune{display:grid;gap:8px}.tune label{display:grid;grid-template-columns:minmax(0,1fr) 56px;gap:2px 10px;align-items:center}
@@ -207,7 +210,7 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
   <div class="lbl">Score</div>
   <div id="score">0</div>
   <div class="lbl">Best combo <span id="best">0</span></div>
-  <div id="coins" class="coins">$0</div>
+  <div id="coins" class="coins">$0</div> <span id="saleBadge" class="saleb" hidden></span>
   <div class="hbtns"><button type="button" id="worldBtn">Worlds <kbd>Tab</kbd></button><button type="button" id="mapBtn">Map <kbd>N</kbd></button><button type="button" id="garBtn">Garage <kbd>B</kbd></button><button type="button" id="lockBtn">Locker</button><button type="button" id="setBtn">Settings</button><button type="button" id="boardBtn">Leaderboard <kbd>`</kbd></button></div>
   <div class="hbtns"><button type="button" id="acctBtn">Log in</button><button type="button" id="mpBtn" class="mpb">Ride with friends</button></div>
 </div>
@@ -2161,14 +2164,14 @@ const loginEl=$('login'),boardEl=$('board'),NAME_RE=/^[A-Za-z0-9_]{3,16}$/;
 const nameEmail=n=>n.toLowerCase()+'@players.scoot-park.example.com';
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const doneCount=()=>Object.keys(save.done).length;
-const blob=()=>({done:save.done,model:save.model,cfg:save.cfg,rider:save.rider,coins:save.coins,owned:save.owned,tuneOK:save.tuneOK,tune:save.tune});
+const blob=()=>({done:save.done,model:save.model,cfg:save.cfg,rider:save.rider,coins:save.coins,owned:save.owned,usedCodes:save.usedCodes,saleUntil:save.saleUntil,tuneOK:save.tuneOK,tune:save.tune});
 function queueSync(){if(!sb||!me)return;clearTimeout(syncTimer);syncTimer=setTimeout(pushProgress,2500);}
 async function pushProgress(){if(!sb||!me)return;
   const {error}=await sb.from('players').update({total_score:Math.round(score),best_combo:Math.round(bestCombo),challenges:doneCount(),progress:blob(),updated_at:new Date().toISOString()}).eq('id',me.id);
   if(error)console.warn('Scoot Park sync:',error.message);}
 function resetLocal(){score=0;bestCombo=0;save.done={};persist();renderChallenges();hudCache='';}
 function applyCloud(row,merge){const pr=row.progress||{};
-  save.owned=Object.assign({},pr.owned||{},save.owned);if(pr.tuneOK)save.tuneOK=true;if(pr.tune)save.tune=Object.assign({},pr.tune,save.tune);
+  save.owned=Object.assign({},pr.owned||{},save.owned);save.usedCodes=Object.assign({},pr.usedCodes||{},save.usedCodes);save.saleUntil=Math.max(save.saleUntil||0,pr.saleUntil||0);if(pr.tuneOK)save.tuneOK=true;if(pr.tune)save.tune=Object.assign({},pr.tune,save.tune);
   if(merge){score=Math.max(score,row.total_score||0);bestCombo=Math.max(bestCombo,row.best_combo||0);save.done=Object.assign({},pr.done||{},save.done);save.coins=Math.max(save.coins||0,pr.coins||0);}
   else{score=row.total_score||0;bestCombo=row.best_combo||0;save.done=Object.assign({},pr.done||{});if(pr.coins!=null)save.coins=pr.coins;
     if(pr.model&&MODELS.some(m=>m.id===pr.model)){save.model=pr.model;save.cfg=Object.assign({},MODELS.find(m=>m.id===pr.model).cfg,pr.cfg||{});}
@@ -2443,9 +2446,16 @@ garEl.addEventListener('click',e=>{const tb=e.target.closest('[data-tab]');if(tb
 const owns=id=>!!(save.owned&&save.owned[id]);
 const modelOK=m=>!m.crate||owns(m.id);
 const elCoins=$('coins');
+let saleWas=false;
+setInterval(()=>{const l=saleLeft();const b=$('saleBadge');if(l>0){b.hidden=false;b.textContent='50% OFF '+mmss(l);const st=$('saleT');if(st)st.textContent=mmss(l);saleWas=true;}
+  else{b.hidden=true;if(saleWas){saleWas=false;popup('Sale over','Crates are back to normal price');if(overlay==='garage'&&garTab==='crates')renderGarage();}}},1000);
 function addCoins(n){save.coins=Math.max(0,Math.round((save.coins||0)+n));elCoins.textContent='$'+fmt(save.coins);if(n>0){elCoins.classList.remove('bump');void elCoins.offsetWidth;elCoins.classList.add('bump');}}
 addCoins(0);
 const booster=n=>Math.min(5,1+0.25*(n-1));
+const SALE_MIN=30;
+const saleLeft=()=>Math.max(0,(save.saleUntil||0)-Date.now());
+const priceOf=cr=>saleLeft()>0?Math.round(cr.price/2):cr.price;
+const mmss=ms=>{const t=Math.ceil(ms/1000);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0');};
 function coinsFor(base,mult){return Math.max(1,Math.round(base/100*booster(mult)));}
 const crateItems=()=>[...ITEMS.filter(i=>i.rarity!=='special'),...MODELS.filter(m=>m.crate).map(m=>({id:m.id,name:m.name,slot:'scooter',rarity:m.rarity,model:m}))];
 function rollCrate(cr){const tot=Object.values(cr.odds).reduce((a,b)=>a+b,0);let r=Math.random()*tot,rar='common';for(const [k,v] of Object.entries(cr.odds)){if(r<v){rar=k;break;}r-=v;}
@@ -2453,8 +2463,8 @@ function rollCrate(cr){const tot=Object.values(cr.odds).reduce((a,b)=>a+b,0);let
 function equip(it){if(it.slot==='scooter'){save.model=it.id;save.cfg=Object.assign({},it.model.cfg);persistLook();return;}
   save.rider.items=Object.assign({},save.rider.items);save.rider.items[it.slot]=it.id;persist();applyRider();}
 let crateState=null; // {cr, item, dup, refund, t0}
-function openCrate(cr){if(crateState&&!crateState.done)return;if((save.coins||0)<cr.price){popup('Not enough cash','Land tricks and combos to earn more','bad');return;}
-  addCoins(-cr.price);const it=rollCrate(cr),dup=owns(it.id),refund=dup?Math.round(cr.price*0.4):0;
+function openCrate(cr){if(crateState&&!crateState.done)return;const cost=priceOf(cr);if((save.coins||0)<cost){popup('Not enough cash','Land tricks and combos to earn more','bad');return;}
+  addCoins(-cost);const it=rollCrate(cr),dup=owns(it.id),refund=dup?Math.round(cost*0.4):0;
   save.owned=Object.assign({},save.owned,{[it.id]:1});if(refund)addCoins(refund);persist();sfx('whoosh');
   crateState={cr,item:it,dup,refund,done:false};renderGarage();setTimeout(()=>{if(crateState&&crateState.item===it){crateState.done=true;sfx('chime');renderGarage();}},1400);}
 function itemSwatch(it){if(it.slot==='scooter')return `background:${it.model.cfg.deck};box-shadow:inset 0 -12px 0 ${it.model.cfg.bars}`;
@@ -2469,13 +2479,13 @@ function lockerHTML(){const eqd=save.rider.items||{};let h='';
     if(!mine.length)h+=`<p class="note" style="margin:4px 0 0">Nothing yet. Open crates to collect ${label.toLowerCase()} gear.</p>`;}
   h+=`<div class="gsec">Got a code?</div><form class="tunecode" id="codeForm"><input id="codeIn" maxlength="24" placeholder="Type a code" autocomplete="off" spellcheck="false" aria-label="Code"><button type="submit" class="go alt">Redeem</button></form><p class="note" id="codeMsg"></p>`;
   return h;}
-function cratesHTML(){let h=`<p class="note" style="margin:0 0 10px">You have <b class="cash">$${fmt(save.coins||0)}</b>. Land tricks to earn cash. Bigger tricks pay more, and combos add a booster (up to ×5).</p>`;
+function cratesHTML(){let h=(saleLeft()>0?`<div class="sale">50% OFF all crates · <b id="saleT">${mmss(saleLeft())}</b> left</div>`:'')+`<p class="note" style="margin:0 0 10px">You have <b class="cash">$${fmt(save.coins||0)}</b>. Land tricks to earn cash. Bigger tricks pay more, and combos add a booster (up to ×5).</p>`;
   if(crateState){const it=crateState.item,R0=RARITY[it.rarity];
     h+=crateState.done?`<div class="reveal" style="--rc:${R0.col}"><span class="isw big" style="${itemSwatch(it)}"></span><small style="color:${R0.col}">${R0.name}${it.slot==='scooter'?' scooter':''}</small><b>${it.name}</b>${crateState.dup?`<p class="note">You already had this one. +$${crateState.refund} back.</p>`:''}
       <div class="rbtns">${crateState.dup?'':`<button type="button" class="go" id="rEquip">${it.slot==='scooter'?'Ride it':'Wear it'}</button>`}<button type="button" class="go alt" id="rOk">Nice</button></div></div>`
       :`<div class="reveal opening" style="--rc:${crateState.cr.col}"><span class="crate shake" style="--cc:${crateState.cr.col}"></span><b>Opening ${crateState.cr.name}…</b></div>`;}
   h+=`<div class="crates">`+CRATES.map(c=>`<div class="ccard" style="--cc:${c.col}"><span class="crate"></span><b>${c.name}</b><small>${Object.entries(c.odds).map(([k,v])=>`<i style="color:${RARITY[k].col}">${RARITY[k].name} ${v}%</i>`).join(' ')}</small>
-    <button type="button" class="go${(save.coins||0)<c.price?' alt':''}" data-crate="${c.id}">$${c.price}</button></div>`).join('')+`</div>`;
+    <button type="button" class="go${(save.coins||0)<priceOf(c)?' alt':''}" data-crate="${c.id}">${saleLeft()>0?`<s>$${c.price}</s> `:''}$${priceOf(c)}</button></div>`).join('')+`</div>`;
   const all=crateItems(),got=all.filter(i=>owns(i.id)).length;
   h+=`<div class="gsec">Collection <span class="cnt">${got}/${all.length}</span></div><div class="igrid">`+all.map(i=>owns(i.id)?itemCard(i):`<span class="icard locked" style="--rc:${RARITY[i.rarity].col}"><span class="isw" style="background:#1d2029">?</span><b>???</b><small style="color:${RARITY[i.rarity].col}">${RARITY[i.rarity].name}</small></span>`).join('')+`</div>`;
   return h;}
@@ -2485,10 +2495,12 @@ garEl.addEventListener('click',e=>{
   if(e.target.id==='rEquip'&&crateState){const it=crateState.item;equip(it);crateState=null;garTab=it.slot==='scooter'?'scooter':'locker';renderGarage();return;}
   const un=e.target.closest('[data-unequip]');if(un){save.rider.items=Object.assign({},save.rider.items);delete save.rider.items[un.dataset.unequip];persist();applyRider();renderGarage();return;}
   const ic=e.target.closest('[data-item]');if(ic&&(garTab==='locker'||garTab==='crates')){const it=itemById(ic.dataset.item)||crateItems().find(i=>i.id===ic.dataset.item);if(it&&owns(it.id)){equip(it);if(it.slot==='scooter')garTab='scooter';renderGarage();}return;}});
-const CODES={'1omvj69':()=>{save.owned=Object.assign({},save.owned,{rb_helmet:1,rb_beanie:1});save.rider.items=Object.assign({},save.rider.items,{head:'rb_helmet'});persist();applyRider();return 'Rad Bull helmet and beanie unlocked!';},
+const CODES={'1u875n5':()=>{save.usedCodes=save.usedCodes||{};if(save.usedCodes.half)return null;save.usedCodes.half=1;save.saleUntil=Date.now()+SALE_MIN*60000;persist();return `50% off all crates for ${SALE_MIN} minutes!`;},
+  '1omvj69':()=>{save.owned=Object.assign({},save.owned,{rb_helmet:1,rb_beanie:1});save.rider.items=Object.assign({},save.rider.items,{head:'rb_helmet'});persist();applyRider();return 'Rad Bull helmet and beanie unlocked!';},
   'naq7ic':()=>{save.tuneOK=true;save.tune=save.tune||{};persist();return 'Scooter tuning unlocked! Find it in the Scooter tab.';}};
 garEl.addEventListener('submit',e=>{if(e.target.id!=='codeForm')return;e.preventDefault();const f=CODES[codeHash($('codeIn').value)];
-  if(f){const msg=f();renderGarage();popup('Code redeemed',msg,'gold');sfx('chime');}else{$('codeMsg').textContent='Nope, that code does not work.';$('codeIn').select();}});
+  const msg=f&&f();if(f&&!msg){$('codeMsg').textContent='You already used that code.';return;}
+  if(f){renderGarage();popup('Code redeemed',msg,'gold');sfx('chime');}else{$('codeMsg').textContent='Nope, that code does not work.';$('codeIn').select();}});
 $('lockBtn').onclick=e=>{e.currentTarget.blur();if(started){garTab='locker';setOverlay('garage');}};
 // ---------------- loop
 respawn(true);if(save.world==='city')setWorld('city',true);
