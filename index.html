@@ -2575,7 +2575,7 @@ const CODES={'149rb46':()=>{addCoins(1000000);persist();if(garTab==='crates')ren
   '1u875n5':()=>{save.usedCodes=save.usedCodes||{};if(save.usedCodes.half)return null;save.usedCodes.half=1;save.saleUntil=Date.now()+SALE_MIN*60000;persist();return `50% off all crates for ${SALE_MIN} minutes!`;},
   '1omvj69':()=>{save.owned=Object.assign({},save.owned,{rb_helmet:1,rb_beanie:1});save.rider.items=Object.assign({},save.rider.items,{head:'rb_helmet'});persist();applyRider();return 'Rad Bull helmet and beanie unlocked!';},
   'naq7ic':()=>{save.tuneOK=true;save.tune=save.tune||{};persist();return 'Scooter tuning unlocked! Find it in the Scooter tab.';}};
-garEl.addEventListener('submit',e=>{if(e.target.id!=='codeForm')return;e.preventDefault();const f=CODES[codeHash($('codeIn').value)];
+garEl.addEventListener('submit',e=>{if(e.target.id!=='codeForm')return;e.preventDefault();const h=codeHash($('codeIn').value);const f=(h==='149rb46'&&!(me&&String(me.username||'').toLowerCase()==='theo_thomas'))?null:CODES[h];
   const msg=f&&f();if(f&&!msg){$('codeMsg').textContent='You already used that code.';return;}
   if(f){renderGarage();popup('Code redeemed',msg,'gold');sfx('chime');}else{$('codeMsg').textContent='Nope, that code does not work.';$('codeIn').select();}});
 $('lockBtn').onclick=e=>{e.currentTarget.blur();if(started){garTab='locker';setOverlay('garage');}};
