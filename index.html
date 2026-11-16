@@ -2227,9 +2227,12 @@ const loginEl=$('login'),boardEl=$('board'),NAME_RE=/^[A-Za-z0-9_]{3,16}$/;
 const nameEmail=n=>n.toLowerCase()+'@players.scoot-park.example.com';
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const doneCount=()=>Object.keys(save.done).length;
-const blob=()=>({done:save.done,model:save.model,cfg:save.cfg,rider:save.rider,coins:save.coins,owned:save.owned,usedCodes:save.usedCodes,saleUntil:save.saleUntil,tuneOK:save.tuneOK,tune:save.tune});
+const blob=()=>({done:save.done,model:save.model,cfg:save.cfg,rider:save.rider,coins:save.coins,owned:save.owned,usedCodes:save.usedCodes,saleUntil:save.saleUntil,tuneOK:save.tuneOK,tune:save.tune,coinsSet:save.coinsSet});
+// Admin money reset: a newer progress.coinsSet stamp in the cloud beats this device's cash.
+function adoptReset(pr){if(pr&&(+pr.coinsSet||0)>(+save.coinsSet||0)){save.coinsSet=+pr.coinsSet;save.coins=pr.coins!=null?+pr.coins:150;persist();addCoins(0);return true;}return false;}
 function queueSync(){if(!sb||!me)return;clearTimeout(syncTimer);syncTimer=setTimeout(pushProgress,2500);}
 async function pushProgress(){if(!sb||!me)return;
+  try{const r=await sb.from('players').select('progress').eq('id',me.id).maybeSingle();if(r.data)adoptReset(r.data.progress);}catch(e){}
   const {error}=await sb.from('players').update({total_score:Math.round(score),best_combo:Math.round(bestCombo),challenges:doneCount(),progress:blob(),updated_at:new Date().toISOString()}).eq('id',me.id);
   if(error)console.warn('Scoot Park sync:',error.message);}
 function resetLocal(){score=0;bestCombo=0;save.done={};persist();renderChallenges();hudCache='';}
@@ -2239,7 +2242,7 @@ function applyCloud(row,merge){const pr=row.progress||{};
   else{score=row.total_score||0;bestCombo=row.best_combo||0;save.done=Object.assign({},pr.done||{});if(pr.coins!=null)save.coins=pr.coins;
     if(pr.model&&MODELS.some(m=>m.id===pr.model)){save.model=pr.model;save.cfg=Object.assign({},MODELS.find(m=>m.id===pr.model).cfg,pr.cfg||{});}
     if(pr.rider)save.rider=Object.assign({},save.rider,pr.rider);}
-  save.owner=me.id;persist();buildScooter();renderChallenges();hudCache='';addCoins(0);}
+  adoptReset(pr);save.owner=me.id;persist();buildScooter();renderChallenges();hudCache='';addCoins(0);}
 async function afterLogin(user,newName){
   me={id:user.id,username:newName||(user.user_metadata&&user.user_metadata.username)||'rider'};
   const {data:row,error}=await sb.from('players').select('*').eq('id',me.id).maybeSingle();
