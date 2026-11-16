@@ -160,6 +160,12 @@ kbd{font-family:var(--hud);font-weight:700;background:#2a2e3a;border-bottom:2px 
 @keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg) scale(1.05)}75%{transform:rotate(7deg) scale(1.05)}}
 @keyframes pop{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
 .cash{color:#7bd389}
+.multi-n{display:flex;gap:4px}.mn{all:unset;cursor:pointer;display:grid;justify-items:center;background:#2a2e3a;border-radius:5px;padding:3px 7px;font-family:var(--display);font-size:.9rem;color:var(--grip)}
+.mn i{font-style:normal;font-family:inherit;font-size:.68rem;color:var(--muted)}.mn:hover,.mn:focus-visible{outline:2px solid var(--cc)}.mn.poor{opacity:.45}
+.reveal.multi{justify-items:stretch}.reveal.multi>b,.reveal.multi>small{text-align:center}.reveal.multi .igrid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr))}
+.reveal.multi .rbtns{justify-content:center}.icard.best{box-shadow:0 0 0 2px var(--rc),0 0 18px var(--rc)}
+.icard[style*='#ff3df2']{border-bottom-color:transparent;background:linear-gradient(#1d2029,#1d2029) padding-box,linear-gradient(90deg,#ff4d5e,#ffd43b,#7bd389,#40d6c8,#8e5bd6,#ff3df2) border-box;border:2px solid transparent;animation:myth 2s linear infinite}
+@keyframes myth{50%{filter:hue-rotate(60deg) brightness(1.15)}}
 .saleb{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:4px;background:#ff4d5e;color:#fff;font-family:var(--display);font-size:.8rem;vertical-align:4px;animation:bump 1.2s infinite}
 .sale{background:#ff4d5e;color:#fff;font-family:var(--display);text-align:center;padding:8px;border-radius:8px;margin-bottom:10px}
 .ccard .go s{opacity:.6;font-size:.8em}
@@ -1337,9 +1343,13 @@ const MODELS=[
  {id:'fantail',name:'Fantail FX',tag:'Small and twitchy. Spins all day.',stats:{whip:1.02,spin:1.16,pop:0.95},cfg:{deck:'#ff6fb5',finish:'gloss',grip:'brand',bars:'#f2f2ee',barStyle:'T',clamp:'#8e5bd6',core:'#40d6c8',tyre:'#f2f2ee'}},
  {id:'rimu',name:'Rimu Ridge',tag:'Park beast. Smooth, stable, solid pop.',stats:{whip:1.04,spin:1,pop:1.08},cfg:{deck:'#7a4b2a',finish:'matte',grip:'brand',bars:'#ff8a3d',barStyle:'T',clamp:'#16171b',core:'#ff8a3d',tyre:'#c9a36b'}},
  {id:'taniwha',name:'Taniwha MAX',tag:'Maxed out on everything. Way faster, huge pop, crazy whips and spins.',max:true,stats:{whip:1.4,spin:1.4,pop:1.45,speed:1.6,land:1.7},cfg:{deck:'#16171b',finish:'chrome',grip:'galaxy',bars:'#ff4fd8',barStyle:'Y',clamp:'#40d6c8',core:'#ff4fd8',tyre:'#16171b'}},
- {id:'pukeko',name:'Pūkeko Pop',tag:'Crate scooter. Bouncy deck, extra pop.',crate:true,rarity:'common',stats:{whip:1.05,spin:1.02,pop:1.15},cfg:{deck:'#3f7fbf',finish:'gloss',grip:'checker',bars:'#ff4d5e',barStyle:'T',clamp:'#ff4d5e',core:'#ff4d5e',tyre:'#18181b'}},
- {id:'kea',name:'Kea Kraze',tag:'Crate scooter. Cheeky, quick whips and spins.',crate:true,rarity:'rare',stats:{whip:1.22,spin:1.15,pop:1.06,speed:1.08},cfg:{deck:'#5cb85c',finish:'matte',grip:'camo',bars:'#ff8a3d',barStyle:'Y',clamp:'#ff8a3d',core:'#ff8a3d',tyre:'#16171b'}},
+ {id:'pukeko',name:'Pūkeko Pop',tag:'Crate scooter. Bouncy deck, extra pop.',crate:true,rarity:'common',tags:['kiwi'],stats:{whip:1.05,spin:1.02,pop:1.15},cfg:{deck:'#3f7fbf',finish:'gloss',grip:'checker',bars:'#ff4d5e',barStyle:'T',clamp:'#ff4d5e',core:'#ff4d5e',tyre:'#18181b'}},
+ {id:'kea',name:'Kea Kraze',tag:'Crate scooter. Cheeky, quick whips and spins.',crate:true,rarity:'rare',tags:['kiwi'],stats:{whip:1.22,spin:1.15,pop:1.06,speed:1.08},cfg:{deck:'#5cb85c',finish:'matte',grip:'camo',bars:'#ff8a3d',barStyle:'Y',clamp:'#ff8a3d',core:'#ff8a3d',tyre:'#16171b'}},
  {id:'moa',name:'Moa Mega',tag:'Crate scooter. Huge pop and top speed.',crate:true,rarity:'epic',stats:{whip:1.1,spin:1.1,pop:1.3,speed:1.22,land:1.25},cfg:{deck:'#8e5bd6',finish:'chrome',grip:'flames',bars:'#ffd43b',barStyle:'Y',clamp:'#16171b',core:'#ffd43b',tyre:'#16171b'}},
+ {id:'ruru',name:'Ruru Night',tag:'Crate scooter. Dark and quiet, with neon wheels.',crate:true,rarity:'rare',tags:['neon','kiwi'],stats:{whip:1.15,spin:1.2,pop:1.1,speed:1.1},cfg:{deck:'#16171b',finish:'matte',grip:'galaxy',bars:'#40d6c8',barStyle:'T',clamp:'#40d6c8',core:'#40d6c8',tyre:'#16171b'}},
+ {id:'kahu',name:'Kahu Hawk',tag:'Crate scooter. Floats through big air.',crate:true,rarity:'epic',tags:['kiwi'],stats:{whip:1.15,spin:1.2,pop:1.35,speed:1.15,land:1.3},cfg:{deck:'#7a4b2a',finish:'gloss',grip:'flames',bars:'#f2f2ee',barStyle:'Y',clamp:'#d4a537',core:'#d4a537',tyre:'#16171b'}},
+ {id:'pounamu',name:'Pounamu Prime',tag:'Legendary crate scooter. Greenstone chrome, super smooth.',crate:true,rarity:'legendary',tags:['kiwi'],stats:{whip:1.3,spin:1.3,pop:1.3,speed:1.35,land:1.45},cfg:{deck:'#1f7a4d',finish:'chrome',grip:'camo',bars:'#7bd389',barStyle:'Y',clamp:'#16171b',core:'#7bd389',tyre:'#16171b'}},
+ {id:'tuatara',name:'Tuatara Mythic',tag:'MYTHIC crate scooter. Ancient power: the best in the shop.',crate:true,rarity:'mythic',tags:['kiwi'],max:true,stats:{whip:1.5,spin:1.5,pop:1.55,speed:1.6,land:1.8},cfg:{deck:'#ff3df2',finish:'chrome',grip:'galaxy',bars:'#ffd43b',barStyle:'Y',clamp:'#40d6c8',core:'#ffd43b',tyre:'#16171b'}},
  {id:'aurora',name:'Aurora X',tag:'Legendary crate scooter. Glows like the southern lights.',crate:true,rarity:'legendary',stats:{whip:1.3,spin:1.3,pop:1.32,speed:1.35,land:1.4},cfg:{deck:'#40d6c8',finish:'chrome',grip:'galaxy',bars:'#ff6fb5',barStyle:'Y',clamp:'#8e5bd6',core:'#ff6fb5',tyre:'#f2f2ee'}},
 ];
 for(const m of MODELS)m.stats=Object.assign({speed:1,land:1},m.stats);
@@ -1473,15 +1483,15 @@ R.shoe=[0,1].map(()=>{const g=new THREE.Group();R.inner.add(g);g.userData={};
 R.hand=[rpart(sph(.044,14,10),RM.skin),rpart(sph(.044,14,10),RM.skin)];R.hand.forEach(h=>h.scale.set(1,.85,1.15));}
 rigBody();
 // ---------------- locker items (clothes with patterns), rarities, crates
-const RARITY={common:{name:'Common',col:'#b8c0c9'},rare:{name:'Rare',col:'#3fa0ff'},epic:{name:'Epic',col:'#b06bff'},legendary:{name:'Legendary',col:'#ffb52e'},special:{name:'Special',col:'#ff4d5e'}};
+const RARITY={common:{name:'Common',col:'#b8c0c9'},rare:{name:'Rare',col:'#3fa0ff'},epic:{name:'Epic',col:'#b06bff'},legendary:{name:'Legendary',col:'#ffb52e'},mythic:{name:'Mythic',col:'#ff3df2'},special:{name:'Special',col:'#ff4d5e'}};
 const SLOTS=[['head','Head'],['top','Top'],['pants','Pants'],['shoes','Shoes']];
 const ITEMS=[
  {id:'h_checker',name:'Checker Lid',slot:'head',kind:'helmet',pat:'checker',a:'#16171b',b:'#f2f2ee',rarity:'common'},
  {id:'h_stripe',name:'Racing Stripe Helmet',slot:'head',kind:'helmet',pat:'stripes',a:'#ff4d5e',b:'#f2f2ee',rarity:'common'},
  {id:'h_camocap',name:'Camo Cap',slot:'head',kind:'cap',pat:'camo',rarity:'common'},
- {id:'h_kiwibeanie',name:'Kiwi Beanie',slot:'head',kind:'beanie',pat:'kiwi',a:'#2b2e36',b:'#7bd389',rarity:'common'},
+ {id:'h_kiwibeanie',name:'Kiwi Beanie',slot:'head',kind:'beanie',pat:'kiwi',a:'#2b2e36',b:'#7bd389',rarity:'common',tags:['kiwi']},
  {id:'h_flame',name:'Flame Helmet',slot:'head',kind:'helmet',pat:'flames',a:'#16171b',rarity:'rare'},
- {id:'h_neoncap',name:'Neon Cap',slot:'head',kind:'cap',pat:'neon',a:'#12131a',b:'#40d6c8',rarity:'rare'},
+ {id:'h_neoncap',name:'Neon Cap',slot:'head',kind:'cap',pat:'neon',a:'#12131a',b:'#40d6c8',rarity:'rare',tags:['neon']},
  {id:'h_rainbow',name:'Rainbow Beanie',slot:'head',kind:'beanie',pat:'rainbow',rarity:'rare'},
  {id:'h_galaxy',name:'Galaxy Helmet',slot:'head',kind:'helmet',pat:'galaxy',rarity:'epic'},
  {id:'h_tiedye',name:'Tie-Dye Beanie',slot:'head',kind:'beanie',pat:'tiedye',rarity:'epic'},
@@ -1492,18 +1502,49 @@ const ITEMS=[
  {id:'t_camo',name:'Camo Tee',slot:'top',kind:'tee',pat:'camo',rarity:'common'},
  {id:'t_checker',name:'Checker Tee',slot:'top',kind:'tee',pat:'checker',a:'#16171b',b:'#ffd43b',rarity:'common'},
  {id:'t_tiedye',name:'Tie-Dye Tee',slot:'top',kind:'tee',pat:'tiedye',rarity:'rare'},
- {id:'t_kiwi',name:'Kiwi Hoodie',slot:'top',kind:'hoodie',pat:'kiwi',a:'#1f5a3d',b:'#7bd389',rarity:'rare'},
+ {id:'t_kiwi',name:'Kiwi Hoodie',slot:'top',kind:'hoodie',pat:'kiwi',a:'#1f5a3d',b:'#7bd389',rarity:'rare',tags:['kiwi']},
  {id:'t_flame',name:'Flame Hoodie',slot:'top',kind:'hoodie',pat:'flames',a:'#16171b',rarity:'epic'},
- {id:'t_neon',name:'Neon Hoodie',slot:'top',kind:'hoodie',pat:'neon',a:'#12131a',b:'#ff4fd8',rarity:'epic'},
+ {id:'t_neon',name:'Neon Hoodie',slot:'top',kind:'hoodie',pat:'neon',a:'#12131a',b:'#ff4fd8',rarity:'epic',tags:['neon']},
  {id:'t_galaxy',name:'Galaxy Hoodie',slot:'top',kind:'hoodie',pat:'galaxy',rarity:'legendary'},
  {id:'p_camo',name:'Camo Pants',slot:'pants',pat:'camo',rarity:'common'},
  {id:'p_checker',name:'Checker Pants',slot:'pants',pat:'checker',a:'#16171b',b:'#f2f2ee',rarity:'rare'},
  {id:'p_flame',name:'Flame Pants',slot:'pants',pat:'flames',a:'#16171b',rarity:'epic'},
  {id:'p_gold',name:'Gold Pants',slot:'pants',pat:'gold',fin:'gold',rarity:'legendary'},
  {id:'s_checker',name:'Checker Shoes',slot:'shoes',pat:'checker',a:'#16171b',b:'#f2f2ee',rarity:'common'},
- {id:'s_neon',name:'Neon Kicks',slot:'shoes',pat:'neon',a:'#12131a',b:'#7bd389',rarity:'rare'},
+ {id:'s_neon',name:'Neon Kicks',slot:'shoes',pat:'neon',a:'#12131a',b:'#7bd389',rarity:'rare',tags:['neon']},
  {id:'s_galaxy',name:'Galaxy Kicks',slot:'shoes',pat:'galaxy',rarity:'epic'},
  {id:'s_gold',name:'Gold Kicks',slot:'shoes',pat:'gold',fin:'gold',rarity:'legendary'},
+ // --- wave 2: more patterns, a Mythic tier, themed tags for the Neon and Kiwi crates
+ {id:'h_leopard',name:'Leopard Cap',slot:'head',kind:'cap',pat:'leopard',rarity:'common'},
+ {id:'h_ocean',name:'Ocean Beanie',slot:'head',kind:'beanie',pat:'ocean',rarity:'common'},
+ {id:'h_lightning',name:'Lightning Helmet',slot:'head',kind:'helmet',pat:'lightning',a:'#16171b',rarity:'rare',tags:['neon']},
+ {id:'h_pixel',name:'Pixel Helmet',slot:'head',kind:'helmet',pat:'pixel',rarity:'rare',tags:['neon']},
+ {id:'h_koru',name:'Koru Beanie',slot:'head',kind:'beanie',pat:'koru',a:'#16171b',b:'#7bd389',rarity:'rare',tags:['kiwi']},
+ {id:'h_lava',name:'Lava Helmet',slot:'head',kind:'helmet',pat:'lava',rarity:'epic'},
+ {id:'h_paua',name:'Pāua Helmet',slot:'head',kind:'helmet',pat:'paua',rarity:'epic',tags:['kiwi']},
+ {id:'h_silver',name:'Chrome Helmet',slot:'head',kind:'helmet',pat:'silver',fin:'chrome',rarity:'legendary'},
+ {id:'h_diamond',name:'Diamond Helmet',slot:'head',kind:'helmet',pat:'diamond',fin:'chrome',rarity:'mythic'},
+ {id:'t_ocean',name:'Ocean Tee',slot:'top',kind:'tee',pat:'ocean',rarity:'common'},
+ {id:'t_zebra',name:'Zebra Tee',slot:'top',kind:'tee',pat:'zebra',rarity:'common'},
+ {id:'t_lightning',name:'Lightning Tee',slot:'top',kind:'tee',pat:'lightning',a:'#3f3f8f',rarity:'common',tags:['neon']},
+ {id:'t_leopard',name:'Leopard Hoodie',slot:'top',kind:'hoodie',pat:'leopard',rarity:'rare'},
+ {id:'t_pixel',name:'Pixel Hoodie',slot:'top',kind:'hoodie',pat:'pixel',rarity:'rare',tags:['neon']},
+ {id:'t_koru',name:'Koru Tee',slot:'top',kind:'tee',pat:'koru',a:'#1f5a3d',b:'#f2f2ee',rarity:'rare',tags:['kiwi']},
+ {id:'t_lava',name:'Lava Hoodie',slot:'top',kind:'hoodie',pat:'lava',rarity:'epic'},
+ {id:'t_paua',name:'Pāua Hoodie',slot:'top',kind:'hoodie',pat:'paua',rarity:'legendary',tags:['kiwi']},
+ {id:'t_diamond',name:'Diamond Hoodie',slot:'top',kind:'hoodie',pat:'diamond',rarity:'mythic'},
+ {id:'p_ocean',name:'Ocean Pants',slot:'pants',pat:'ocean',rarity:'common'},
+ {id:'p_zebra',name:'Zebra Pants',slot:'pants',pat:'zebra',rarity:'common'},
+ {id:'p_lightning',name:'Lightning Pants',slot:'pants',pat:'lightning',a:'#16171b',rarity:'rare',tags:['neon']},
+ {id:'p_lava',name:'Lava Pants',slot:'pants',pat:'lava',rarity:'epic'},
+ {id:'p_galaxy',name:'Galaxy Pants',slot:'pants',pat:'galaxy',rarity:'legendary'},
+ {id:'p_diamond',name:'Diamond Pants',slot:'pants',pat:'diamond',rarity:'mythic'},
+ {id:'s_ocean',name:'Ocean Kicks',slot:'shoes',pat:'ocean',rarity:'common'},
+ {id:'s_pixel',name:'Pixel Kicks',slot:'shoes',pat:'pixel',rarity:'common',tags:['neon']},
+ {id:'s_lava',name:'Lava Kicks',slot:'shoes',pat:'lava',rarity:'rare'},
+ {id:'s_paua',name:'Pāua Kicks',slot:'shoes',pat:'paua',rarity:'epic',tags:['kiwi']},
+ {id:'s_silver',name:'Chrome Kicks',slot:'shoes',pat:'silver',fin:'chrome',rarity:'legendary'},
+ {id:'s_diamond',name:'Diamond Kicks',slot:'shoes',pat:'diamond',fin:'chrome',rarity:'mythic'},
 ];
 const itemById=id=>ITEMS.find(x=>x.id===id);
 // patterns are drawn on canvases once and shared
@@ -1524,6 +1565,25 @@ function patTex(it){const key=it.pat+'|'+(it.a||'')+'|'+(it.b||'');if(patCache[k
     neon(){g.fillStyle=A;g.fillRect(0,0,256,256);g.strokeStyle=Bc;g.lineWidth=5;g.shadowColor=Bc;g.shadowBlur=12;for(let i=-256;i<256;i+=40){g.beginPath();g.moveTo(i,0);g.lineTo(i+256,256);g.stroke();}},
     kiwi(){g.fillStyle=A;g.fillRect(0,0,256,256);g.fillStyle=Bc;g.font='bold 30px Bungee, Impact, sans-serif';g.textAlign='center';for(let y=0;y<5;y++)for(let x=0;x<3;x++)g.fillText('KIWI',x*90+(y%2?45:0),y*56+40);},
     gold(){const gr=g.createLinearGradient(0,0,0,256);gr.addColorStop(0,'#ffe58a');gr.addColorStop(.5,'#d4a537');gr.addColorStop(1,'#a87a1a');g.fillStyle=gr;g.fillRect(0,0,256,256);},
+    lightning(){g.fillStyle=A;g.fillRect(0,0,256,256);g.fillStyle='#ffd43b';g.shadowColor='#ffd43b';g.shadowBlur=10;
+      for(let k=0;k<5;k++){const x=k*56+10,y=(k%2)*60+20;g.beginPath();g.moveTo(x+20,y);g.lineTo(x,y+60);g.lineTo(x+16,y+60);g.lineTo(x+6,y+120);g.lineTo(x+34,y+46);g.lineTo(x+18,y+46);g.lineTo(x+30,y);g.closePath();g.fill();}},
+    leopard(){g.fillStyle='#d9a55a';g.fillRect(0,0,256,256);for(let i=0;i<46;i++){const x=Math.random()*256,y=Math.random()*256,r=7+Math.random()*7;
+      g.fillStyle='#8a5a22';g.beginPath();g.ellipse(x,y,r,r*0.8,Math.random()*3,0,TAU);g.fill();g.strokeStyle='#1d140b';g.lineWidth=3;g.beginPath();g.arc(x,y,r+2,Math.random()*2,Math.random()*2+3.5);g.stroke();}},
+    lava(){g.fillStyle='#14080a';g.fillRect(0,0,256,256);g.strokeStyle='#ff5a1f';g.shadowColor='#ffb31f';g.shadowBlur=14;g.lineWidth=4;
+      for(let i=0;i<14;i++){let x=Math.random()*256,y=Math.random()*256;g.beginPath();g.moveTo(x,y);for(let k=0;k<5;k++){x+=(Math.random()-.5)*70;y+=(Math.random()-.5)*70;g.lineTo(x,y);}g.stroke();}},
+    ocean(){const gr=g.createLinearGradient(0,0,0,256);gr.addColorStop(0,'#3fb8e8');gr.addColorStop(1,'#0b3d7a');g.fillStyle=gr;g.fillRect(0,0,256,256);
+      g.strokeStyle='rgba(255,255,255,.75)';g.lineWidth=5;for(let y=20;y<256;y+=36){g.beginPath();for(let x=0;x<=256;x+=8)g.lineTo(x,y+Math.sin(x*0.08+y)*7);g.stroke();}},
+    pixel(){const cs=['#ff4d5e','#ffd43b','#40d6c8','#8e5bd6','#7bd389','#16171b','#ff8a3d'];for(let y=0;y<16;y++)for(let x=0;x<16;x++){g.fillStyle=cs[Math.floor(Math.random()*cs.length)];g.fillRect(x*16,y*16,16,16);}},
+    koru(){g.fillStyle=A;g.fillRect(0,0,256,256);g.strokeStyle=Bc;g.lineWidth=6;g.lineCap='round';
+      for(const [cx,cy] of [[64,64],[192,64],[64,192],[192,192],[128,128]]){g.beginPath();for(let t=0;t<14;t+=0.1){const r=4+t*3.2;g.lineTo(cx+Math.cos(t)*r,cy+Math.sin(t)*r);}g.stroke();}},
+    paua(){const cs=['#1fb8a8','#3f5fd6','#7b3fd6','#2fd67b','#1f8ab8'];for(let i=0;i<40;i++){const x=Math.random()*256,y=Math.random()*256,r=30+Math.random()*60,gr=g.createRadialGradient(x,y,0,x,y,r);
+      gr.addColorStop(0,cs[i%cs.length]);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,256,256);}g.strokeStyle='rgba(255,255,255,.2)';g.lineWidth=2;for(let r=10;r<200;r+=14){g.beginPath();g.arc(128,128,r,0,TAU);g.stroke();}},
+    zebra(){g.fillStyle='#f4f4ef';g.fillRect(0,0,256,256);g.fillStyle='#16171b';for(let x=-20;x<280;x+=34){g.beginPath();g.moveTo(x,0);
+      for(let y=0;y<=256;y+=16)g.lineTo(x+Math.sin(y*0.05+x)*10,y);for(let y=256;y>=0;y-=16)g.lineTo(x+12+Math.sin(y*0.05+x)*10,y);g.fill();}},
+    silver(){const gr=g.createLinearGradient(0,0,0,256);gr.addColorStop(0,'#f4f6fa');gr.addColorStop(.45,'#9aa3ad');gr.addColorStop(.55,'#c9ced8');gr.addColorStop(1,'#6d747d');g.fillStyle=gr;g.fillRect(0,0,256,256);},
+    diamond(){g.fillStyle='#bff4ff';g.fillRect(0,0,256,256);const cs=['#e9fbff','#8fe6ff','#c8b4ff','#ffffff','#7fd0ff'];
+      for(let y=0;y<256;y+=32)for(let x=0;x<256;x+=32){g.fillStyle=cs[(x/32+y/32*3)%cs.length];g.beginPath();g.moveTo(x,y);g.lineTo(x+32,y);g.lineTo(x+16,y+32);g.fill();g.fillStyle=cs[(x/32*2+y/32)%cs.length];g.beginPath();g.moveTo(x+16,y+32);g.lineTo(x+32,y);g.lineTo(x+32+16,y+32);g.fill();}
+      g.fillStyle='#fff';for(let i=0;i<40;i++){const x=Math.random()*256,y=Math.random()*256;g.fillRect(x-1,y-5,2,10);g.fillRect(x-5,y-1,10,2);}},
     // "Rad Bull": our own parody design (navy and silver, a red bull in front of a yellow sun). Not the real brand's logo.
     radbull(){g.fillStyle='#14204a';g.fillRect(0,0,256,256);g.fillStyle='#c9ced8';g.fillRect(0,196,256,60);g.fillStyle='#d6142c';g.fillRect(0,190,256,6);
       const logo=(cx,cy,s)=>{g.save();g.translate(cx,cy);g.scale(s,s);g.fillStyle='#ffcc1a';g.beginPath();g.arc(0,-4,22,0,TAU);g.fill();
@@ -1535,13 +1595,16 @@ function patTex(it){const key=it.pat+'|'+(it.a||'')+'|'+(it.b||'');if(patCache[k
   (P[it.pat]||P.stripes)();
   const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=maxAniso;t.isShared=true;return patCache[key]=t;}
 function setPat(m,it,base){const hat=m===RM.hat;
-  if(it){m.map=patTex(it);m.color.set('#ffffff');m.metalness=it.fin==='gold'?0.55:hat?0.08:0;m.roughness=it.fin==='gold'?0.3:hat?0.32:0.88;}
+  if(it){m.map=patTex(it);m.color.set('#ffffff');m.metalness=it.fin==='gold'?0.55:it.fin==='chrome'?0.6:hat?0.08:0;m.roughness=it.fin==='gold'?0.3:it.fin==='chrome'?0.22:hat?0.32:0.88;}
   else{m.map=null;m.color.set(base);m.metalness=hat?0.08:0;m.roughness=hat?0.32:0.88;}
   m.needsUpdate=true;}
 const CRATES=[
  {id:'street',name:'Street Crate',price:150,col:'#9aa3ad',odds:{common:70,rare:25,epic:5}},
+ {id:'neon',name:'Neon Crate',price:300,col:'#40d6c8',tag:'neon',odds:{common:40,rare:40,epic:18,legendary:2}},
  {id:'pro',name:'Pro Crate',price:400,col:'#3fa0ff',odds:{common:30,rare:45,epic:20,legendary:5}},
- {id:'legend',name:'Legend Crate',price:900,col:'#ffb52e',odds:{rare:35,epic:45,legendary:20}},
+ {id:'kiwi',name:'Kiwi Crate',price:500,col:'#7bd389',tag:'kiwi',odds:{rare:50,epic:35,legendary:13,mythic:2}},
+ {id:'legend',name:'Legend Crate',price:900,col:'#ffb52e',odds:{rare:35,epic:43,legendary:20,mythic:2}},
+ {id:'mythic',name:'Mythic Crate',price:2500,col:'#ff3df2',odds:{epic:40,legendary:45,mythic:15}},
 ];
 
 function applyRider(){const r=save.rider,eq=r.items||{},I=k=>eq[k]&&itemById(eq[k]);const hi=I('head'),ti=I('top'),pi=I('pants'),si=I('shoes');
@@ -2457,16 +2520,21 @@ const saleLeft=()=>Math.max(0,(save.saleUntil||0)-Date.now());
 const priceOf=cr=>saleLeft()>0?Math.round(cr.price/2):cr.price;
 const mmss=ms=>{const t=Math.ceil(ms/1000);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0');};
 function coinsFor(base,mult){return Math.max(1,Math.round(base/100*booster(mult)));}
-const crateItems=()=>[...ITEMS.filter(i=>i.rarity!=='special'),...MODELS.filter(m=>m.crate).map(m=>({id:m.id,name:m.name,slot:'scooter',rarity:m.rarity,model:m}))];
+const crateItems=()=>[...ITEMS.filter(i=>i.rarity!=='special'),...MODELS.filter(m=>m.crate).map(m=>({id:m.id,name:m.name,slot:'scooter',rarity:m.rarity,tags:m.tags,model:m}))];
 function rollCrate(cr){const tot=Object.values(cr.odds).reduce((a,b)=>a+b,0);let r=Math.random()*tot,rar='common';for(const [k,v] of Object.entries(cr.odds)){if(r<v){rar=k;break;}r-=v;}
-  const pool=crateItems().filter(i=>i.rarity===rar);return pool[Math.floor(Math.random()*pool.length)];}
+  const all=crateItems().filter(i=>i.rarity===rar),themed=cr.tag?all.filter(i=>(i.tags||[]).includes(cr.tag)):[],pool=themed.length?themed:all;return pool[Math.floor(Math.random()*pool.length)];}
 function equip(it){if(it.slot==='scooter'){save.model=it.id;save.cfg=Object.assign({},it.model.cfg);persistLook();return;}
   save.rider.items=Object.assign({},save.rider.items);save.rider.items[it.slot]=it.id;persist();applyRider();}
 let crateState=null; // {cr, item, dup, refund, t0}
-function openCrate(cr){if(crateState&&!crateState.done)return;const cost=priceOf(cr);if((save.coins||0)<cost){popup('Not enough cash','Land tricks and combos to earn more','bad');return;}
-  addCoins(-cost);const it=rollCrate(cr),dup=owns(it.id),refund=dup?Math.round(cost*0.4):0;
-  save.owned=Object.assign({},save.owned,{[it.id]:1});if(refund)addCoins(refund);persist();sfx('whoosh');
-  crateState={cr,item:it,dup,refund,done:false};renderGarage();setTimeout(()=>{if(crateState&&crateState.item===it){crateState.done=true;sfx('chime');renderGarage();}},1400);}
+const RANK={common:0,rare:1,epic:2,legendary:3,mythic:4,special:5};
+function openCrate(cr,n){n=n||1;if(crateState&&!crateState.done)return;const each=priceOf(cr),cost=each*n;
+  if((save.coins||0)<cost){popup('Not enough cash',n>1?`${n} of these cost $${fmt(cost)}`:'Land tricks and combos to earn more','bad');return;}
+  addCoins(-cost);const res=[];let refund=0;
+  for(let i=0;i<n;i++){const it=rollCrate(cr),dup=owns(it.id),rf=dup?Math.round(each*0.4):0;refund+=rf;save.owned=Object.assign({},save.owned,{[it.id]:1});res.push({item:it,dup,refund:rf});}
+  if(refund)addCoins(refund);persist();sfx('whoosh');
+  const best=res.reduce((a,r)=>RANK[r.item.rarity]>RANK[a.item.rarity]?r:a,res[0]);
+  const st={cr,n,res,best,item:best.item,dup:best.dup,refund,done:false};crateState=st;renderGarage();
+  setTimeout(()=>{if(crateState===st){st.done=true;sfx('chime');renderGarage();}},n>1?1800:1400);}
 function itemSwatch(it){if(it.slot==='scooter')return `background:${it.model.cfg.deck};box-shadow:inset 0 -12px 0 ${it.model.cfg.bars}`;
   const t=patTex(it);return `background-image:url(${t.swatchUrl||(t.swatchUrl=t.image.toDataURL())});background-size:cover`;}
 function itemCard(it,opts){const R0=RARITY[it.rarity],eq=opts&&opts.eq;
@@ -2480,17 +2548,22 @@ function lockerHTML(){const eqd=save.rider.items||{};let h='';
   h+=`<div class="gsec">Got a code?</div><form class="tunecode" id="codeForm"><input id="codeIn" maxlength="24" placeholder="Type a code" autocomplete="off" spellcheck="false" aria-label="Code"><button type="submit" class="go alt">Redeem</button></form><p class="note" id="codeMsg"></p>`;
   return h;}
 function cratesHTML(){let h=(saleLeft()>0?`<div class="sale">50% OFF all crates · <b id="saleT">${mmss(saleLeft())}</b> left</div>`:'')+`<p class="note" style="margin:0 0 10px">You have <b class="cash">$${fmt(save.coins||0)}</b>. Land tricks to earn cash. Bigger tricks pay more, and combos add a booster (up to ×5).</p>`;
-  if(crateState){const it=crateState.item,R0=RARITY[it.rarity];
-    h+=crateState.done?`<div class="reveal" style="--rc:${R0.col}"><span class="isw big" style="${itemSwatch(it)}"></span><small style="color:${R0.col}">${R0.name}${it.slot==='scooter'?' scooter':''}</small><b>${it.name}</b>${crateState.dup?`<p class="note">You already had this one. +$${crateState.refund} back.</p>`:''}
-      <div class="rbtns">${crateState.dup?'':`<button type="button" class="go" id="rEquip">${it.slot==='scooter'?'Ride it':'Wear it'}</button>`}<button type="button" class="go alt" id="rOk">Nice</button></div></div>`
-      :`<div class="reveal opening" style="--rc:${crateState.cr.col}"><span class="crate shake" style="--cc:${crateState.cr.col}"></span><b>Opening ${crateState.cr.name}…</b></div>`;}
-  h+=`<div class="crates">`+CRATES.map(c=>`<div class="ccard" style="--cc:${c.col}"><span class="crate"></span><b>${c.name}</b><small>${Object.entries(c.odds).map(([k,v])=>`<i style="color:${RARITY[k].col}">${RARITY[k].name} ${v}%</i>`).join(' ')}</small>
-    <button type="button" class="go${(save.coins||0)<priceOf(c)?' alt':''}" data-crate="${c.id}">${saleLeft()>0?`<s>$${c.price}</s> `:''}$${priceOf(c)}</button></div>`).join('')+`</div>`;
+  if(crateState&&!crateState.done)h+=`<div class="reveal opening" style="--rc:${crateState.cr.col}"><span class="crate shake" style="--cc:${crateState.cr.col}"></span><b>Opening ${crateState.n>1?crateState.n+' × ':''}${crateState.cr.name}…</b></div>`;
+  else if(crateState&&crateState.n===1){const it=crateState.item,R0=RARITY[it.rarity];
+    h+=`<div class="reveal" style="--rc:${R0.col}"><span class="isw big" style="${itemSwatch(it)}"></span><small style="color:${R0.col}">${R0.name}${it.slot==='scooter'?' scooter':''}</small><b>${it.name}</b>${crateState.dup?`<p class="note">You already had this one. +$${crateState.refund} back.</p>`:''}
+      <div class="rbtns">${crateState.dup?'':`<button type="button" class="go" id="rEquip">${it.slot==='scooter'?'Ride it':'Wear it'}</button>`}<button type="button" class="go alt" id="rOk">Nice</button></div></div>`;}
+  else if(crateState){const st=crateState,R0=RARITY[st.best.item.rarity],nw=st.res.filter(r=>!r.dup).length;
+    h+=`<div class="reveal multi" style="--rc:${R0.col}"><b>${st.n} × ${st.cr.name}</b><small>${nw} new · best: <span style="color:${R0.col}">${R0.name} ${st.best.item.name}</span>${st.refund?` · +$${fmt(st.refund)} back for duplicates`:''}</small>
+      <div class="igrid">${st.res.map(r=>{const it=r.item,rc=RARITY[it.rarity];return `<button type="button" class="icard${r===st.best?' best':''}" data-item="${it.id}" style="--rc:${rc.col}"><span class="isw" style="${itemSwatch(it)}"></span><b>${it.name}</b><small style="color:${rc.col}">${rc.name}${r.dup?' · dupe':' · NEW'}</small></button>`;}).join('')}</div>
+      <p class="note" style="margin:2px 0 0">Tap one to wear or ride it.</p><div class="rbtns"><button type="button" class="go alt" id="rOk">Nice</button></div></div>`;}
+  h+=`<div class="crates">`+CRATES.map(c=>`<div class="ccard" style="--cc:${c.col}"><span class="crate"></span><b>${c.name}</b>${c.tag?`<small style="color:${c.col}">${c.tag==='neon'?'Neon, lightning and pixel gear':'Kiwi gear: koru, pāua, native birds'}</small>`:''}<small>${Object.entries(c.odds).map(([k,v])=>`<i style="color:${RARITY[k].col}">${RARITY[k].name} ${v}%</i>`).join(' ')}</small>
+    <button type="button" class="go${(save.coins||0)<priceOf(c)?' alt':''}" data-crate="${c.id}" data-n="1">${saleLeft()>0?`<s>$${c.price}</s> `:''}$${fmt(priceOf(c))}</button>
+    <div class="multi-n">${[5,10].map(k=>`<button type="button" class="mn${(save.coins||0)<priceOf(c)*k?' poor':''}" data-crate="${c.id}" data-n="${k}">×${k}<i>$${fmt(priceOf(c)*k)}</i></button>`).join('')}</div></div>`).join('')+`</div>`;
   const all=crateItems(),got=all.filter(i=>owns(i.id)).length;
   h+=`<div class="gsec">Collection <span class="cnt">${got}/${all.length}</span></div><div class="igrid">`+all.map(i=>owns(i.id)?itemCard(i):`<span class="icard locked" style="--rc:${RARITY[i.rarity].col}"><span class="isw" style="background:#1d2029">?</span><b>???</b><small style="color:${RARITY[i.rarity].col}">${RARITY[i.rarity].name}</small></span>`).join('')+`</div>`;
   return h;}
 garEl.addEventListener('click',e=>{
-  const cr=e.target.closest('[data-crate]');if(cr){openCrate(CRATES.find(c=>c.id===cr.dataset.crate));return;}
+  const cr=e.target.closest('[data-crate]');if(cr){openCrate(CRATES.find(c=>c.id===cr.dataset.crate),+cr.dataset.n||1);return;}
   if(e.target.id==='rOk'){crateState=null;renderGarage();return;}
   if(e.target.id==='rEquip'&&crateState){const it=crateState.item;equip(it);crateState=null;garTab=it.slot==='scooter'?'scooter':'locker';renderGarage();return;}
   const un=e.target.closest('[data-unequip]');if(un){save.rider.items=Object.assign({},save.rider.items);delete save.rider.items[un.dataset.unequip];persist();applyRider();renderGarage();return;}
