@@ -2067,7 +2067,7 @@ function update(dt){
   if(P.state==='ground'){
     const man=!P.slide&&(inp.manual||inp.nose)&&Math.abs(P.speed)>2;
     if(man){const kind=inp.nose?2:1;if(P.manual!==kind){if(!P.manual)P.manualT=0;P.manual=kind;addCombo(kind===2?'Nose Manual':'Manual',80);}
-      P.manualT+=dt;combo.base+=90*dt;combo.idle=0;if(P.manualT>=3)emit({kind:'manual',time:P.manualT});}
+      P.manualT+=dt;combo.base+=90*dt;combo.idle=0;if(P.manualT>=3)emit({kind:'manual',time:P.manualT,lx:P.x,lz:P.z});}
     else{P.manual=0;if(combo.mult>0){combo.idle+=dt;if(combo.idle>1.1)bankCombo();}}
   }else if(P.state!=='bail')combo.idle=0;
   {const b=world.bounds;if(P.x<b.x0||P.x>b.x1||P.z<b.z0||P.z>b.z1||P.y<-20)respawn();}
